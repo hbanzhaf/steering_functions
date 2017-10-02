@@ -1,0 +1,11 @@
+<area shape="rect" href="$utilities_8cc.html#9e1516406022f23a54dd37db9d8ec104" title="global_frame_change" alt="" coords="328,25,472,52">
+<area shape="rect" href="$utilities_8cc.html#8c73f58051302f371da1ca560a9acfb0" title="cartesian distance between two points." alt="" coords="676,51,780,77">
+<area shape="rect" href="$cc-rs_8cc.html#4b1d92d3e6b6f610be558670f58a667c" title="TcT_path" alt="" coords="205,76,280,103">
+<area shape="rect" href="$paths_8cc.html#ffc61dc590f2efda117f5a13e295737c" title="rs_turn_length" alt="" coords="348,127,452,153">
+<area shape="rect" href="$paths_8cc.html#7322060e9a9394804484e93f444850cd" title="cc_turn_length" alt="" coords="520,127,627,153">
+<area shape="rect" href="$utilities_8cc.html#5739fab895737370bcef008be3ed095b" title="calul de la fonction D1 pour un angle alpha compris entre 0 et pi" alt="" coords="709,152,747,179">
+<area shape="rect" href="$utilities_8cc.html#6ceef3af72a3a3a84ec3d602cc75419a" title="get epsilon&#39;s value (for numerical approximation)." alt="" coords="684,203,772,229">
+<area shape="rect" href="$utilities_8cc.html#61962e4bcd7680dfab1a327940754c6f" title="conversion angle quelconque &#45;&gt; angle dans l&#39;intervalle [0, 2pi[ radians" alt="" coords="697,101,759,128">
+<area shape="rect" href="$utilities_8cc.html#4902a4baa84a781ef875970f9cb7ad98" title="integrales de fresnel" alt="" coords="829,127,896,153">
+<area shape="rect" href="$utilities_8cc.html#6115f0dfc39c6ce4c211f10ed9650577" title="fresnels" alt="" coords="829,177,896,204">
+<area shape="rect" href="$utilities_8cc.html#71c161a58be2caea9d5ffad5b1385bc7" title="fresnel" alt="" coords="945,152,1004,179">

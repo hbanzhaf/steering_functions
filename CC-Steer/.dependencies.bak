@@ -1,0 +1,12 @@
+# DO NOT DELETE
+
+utilities/utilities.o: utilities/utilities.h utilities/fresnel.data
+smt/configuration.o: smt/configuration.h smt/object.h utilities/utilities.h
+smt/paths.o: smt/paths.h smt/object.h smt/configuration.h
+smt/paths.o: utilities/utilities.h
+smt/cc-dubins.o: smt/cc-dubins.h utilities/utilities.h smt/configuration.h
+smt/cc-dubins.o: smt/object.h smt/paths.h
+smt/cc-rs.o: smt/cc-rs.h utilities/utilities.h smt/configuration.h
+smt/cc-rs.o: smt/object.h smt/paths.h
+main/test.o: utilities/utilities.h smt/configuration.h smt/object.h
+main/test.o: smt/paths.h smt/cc-dubins.h smt/cc-rs.h
