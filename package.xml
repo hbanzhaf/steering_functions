@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package>
+  <name>steering_functions</name>
+  <version>1.0.0</version>
+  <description>The steering_functions package</description>
+
+  <maintainer email="holger.banzhaf@de.bosch.com">Holger Banzhaf</maintainer>
+  <author email="holger.banzhaf@de.bosch.com">Holger Banzhaf</author>
+
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_depend>roslib</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>geometry_msgs</run_depend>
+  <run_depend>nav_msgs</run_depend>
+  <run_depend>visualization_msgs</run_depend>
+  <run_depend>roslib</run_depend>
+
+  <export>
+
+  </export>
+</package>

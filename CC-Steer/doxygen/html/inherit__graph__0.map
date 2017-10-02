@@ -1,8 +1,0 @@
-<area shape="rect" href="$classSMT__Object.html" title="SMT_Object" alt="" coords="5,56,99,83">
-<area shape="rect" href="$classSMT__CC__Circle.html" title="SMT_CC_Circle" alt="" coords="156,5,268,32">
-<area shape="rect" href="$classSMT__Configuration.html" title="SMT_Configuration" alt="" coords="147,56,277,83">
-<area shape="rect" href="$classSMT__Path.html" title="SMT_Path" alt="" coords="171,107,253,133">
-<area shape="rect" href="$classSMT__CC__Dubins__Path.html" title="SMT_CC_Dubins_Path" alt="" coords="325,31,480,57">
-<area shape="rect" href="$classSMT__CC__RS__Path.html" title="SMT_CC_RS_Path" alt="" coords="337,81,468,108">
-<area shape="rect" href="$classSMT__CC__TP__Path.html" title="SMT_CC_TP_Path" alt="" coords="337,132,468,159">
-<area shape="rect" href="$classSMT__SC__Path.html" title="SMT_SC_Path" alt="" coords="349,183,456,209">

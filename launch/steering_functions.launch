@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+
+<launch>
+
+  <rosparam command="load" file="$(find steering_functions)/config/robot.yaml" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find steering_functions)/config/steering_functions.rviz" />
+  <node name="steering_functions_node" pkg="steering_functions" type="steering_functions_node" output="screen" />
+
+</launch>
