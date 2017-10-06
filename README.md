@@ -132,11 +132,11 @@ Steering Function           | mean [µs] | std [µs]
 :---                        | :---      | :---
 CC-Dubins                   | 3.7       | ±1.2
 Dubins                      | 1.1       | ±0.3
-CC-Reeds-Shepp              | 57.4      | ±8.9
-HC<sup>00</sup>-Reeds-Shepp | 53.6      | ±7.6
-HC<sup>0±</sup>-Reeds-Shepp | 55.5      | ±8.2
-HC<sup>±0</sup>-Reeds-Shepp | 55.5      | ±8.0
-HC<sup>±±</sup>-Reeds-Shepp | 55.1      | ±8.9
+CC-Reeds-Shepp              | 52.6      | ±7.8
+HC<sup>00</sup>-Reeds-Shepp | 54.4      | ±7.7
+HC<sup>0±</sup>-Reeds-Shepp | 55.1      | ±8.2
+HC<sup>±0</sup>-Reeds-Shepp | 55.5      | ±8.3
+HC<sup>±±</sup>-Reeds-Shepp | 55.4      | ±8.9
 Reeds-Shepp                 | 7.0       | ±1.8
 
 

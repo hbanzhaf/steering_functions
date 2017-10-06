@@ -56,8 +56,7 @@ public:
     return fabs(distance - 2 * c1.radius) < get_epsilon();
   }
 
-  double TT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
-                 Configuration **q1, Configuration **q2)
+  void TT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
   {
     double x = (c1.xc + c2.xc) / 2;
     double y = (c1.yc + c2.yc) / 2;
@@ -85,15 +84,17 @@ public:
         theta = angle - HALF_PI - c1.mu;
       }
     }
-    *q1 = new Configuration(x, y, theta, 0);
-    if (cstart && cend && q2)
-    {
-      *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-      *cend = new HC_CC_Circle(**q1, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
-      *q2 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
-      return (*cstart)->cc_turn_length(**q1) + (*cend)->hc_turn_length(**q2);
-    }
-    return numeric_limits<double>::max();
+    *q = new Configuration(x, y, theta, 0);
+  }
+
+  double TT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
+                 Configuration **q1, Configuration **q2)
+  {
+    TT_tangent_circles(c1, c2, q1);
+    *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
+    *cend = new HC_CC_Circle(**q1, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
+    *q2 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
+    return (*cstart)->cc_turn_length(**q1) + (*cend)->hc_turn_length(**q2);
   }
 
   // ##### TcT ##################################################################
@@ -110,8 +111,7 @@ public:
     return fabs(distance - fabs(2 / c1.kappa)) < get_epsilon();
   }
 
-  double TcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
-                  Configuration **q)
+  void TcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
   {
     double distance = center_distance(c1, c2);
     double delta_x = 0.5 * distance;
@@ -145,13 +145,15 @@ public:
       }
     }
     *q = new Configuration(x, y, theta, c1.kappa);
-    if (cstart && cend)
-    {
-      *cstart = new HC_CC_Circle(c1);
-      *cend = new HC_CC_Circle(c2);
-      return (*cstart)->hc_turn_length(**q) + (*cend)->rs_turn_length(**q);
-    }
-    return numeric_limits<double>::max();
+  }
+
+  double TcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
+                  Configuration **q)
+  {
+    TcT_tangent_circles(c1, c2, q);
+    *cstart = new HC_CC_Circle(c1);
+    *cend = new HC_CC_Circle(c2);
+    return (*cstart)->hc_turn_length(**q) + (*cend)->rs_turn_length(**q);
   }
 
   // ##### Reeds-Shepp families: ################################################
@@ -184,10 +186,10 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c2.left, c2.forward, c2.regular, parent_->rs_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TcT_path(tgt1, c2, nullptr, nullptr, q2);
-    TcT_path(c1, tgt2, nullptr, nullptr, q3);
-    TcT_path(tgt2, c2, nullptr, nullptr, q4);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TcT_tangent_circles(tgt1, c2, q2);
+    TcT_tangent_circles(c1, tgt2, q3);
+    TcT_tangent_circles(tgt2, c2, q4);
   }
 
   double TcTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -257,10 +259,10 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c1.left, !c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TT_path(tgt1, c2, nullptr, nullptr, q2, nullptr);
-    TcT_path(c1, tgt2, nullptr, nullptr, q3);
-    TT_path(tgt2, c2, nullptr, nullptr, q4, nullptr);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TT_tangent_circles(tgt1, c2, q2);
+    TcT_tangent_circles(c1, tgt2, q3);
+    TT_tangent_circles(tgt2, c2, q4);
   }
 
   double TcTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -336,10 +338,10 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
-    TT_path(c1, tgt1, nullptr, nullptr, q1, nullptr);
-    TcT_path(tgt1, c2, nullptr, nullptr, q2);
-    TT_path(c1, tgt2, nullptr, nullptr, q3, nullptr);
-    TcT_path(tgt2, c2, nullptr, nullptr, q4);
+    TT_tangent_circles(c1, tgt1, q1);
+    TcT_tangent_circles(tgt1, c2, q2);
+    TT_tangent_circles(c1, tgt2, q3);
+    TcT_tangent_circles(tgt2, c2, q4);
   }
 
   double TTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -412,8 +414,7 @@ public:
     return TiST_exists(c1, c2) || TeST_exists(c1, c2);
   }
 
-  double TiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
-                   Configuration **q1, Configuration **q2, Configuration **q3)
+  void TiST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
   {
     double distance = center_distance(c1, c2);
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
@@ -453,18 +454,9 @@ public:
       global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
-    if (cstart && cend && q3)
-    {
-      *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-      *cend = new HC_CC_Circle(**q2, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
-      *q3 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
-      return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q3);
-    }
-    return numeric_limits<double>::max();
   }
 
-  double TeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
-                   Configuration **q1, Configuration **q2, Configuration **q3)
+  void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
   {
     double delta_x = fabs(c1.radius * c1.sin_mu);
     double delta_y = fabs(c1.radius * c1.cos_mu);
@@ -498,15 +490,26 @@ public:
       global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
+  }
 
-    if (cstart && cend && q3)
-    {
-      *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-      *cend = new HC_CC_Circle(**q2, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
-      *q3 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
-      return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q3);
-    }
-    return numeric_limits<double>::max();
+  double TiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
+                   Configuration **q1, Configuration **q2, Configuration **q3)
+  {
+    TiST_tangent_circles(c1, c2, q1, q2);
+    *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
+    *cend = new HC_CC_Circle(**q2, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
+    *q3 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
+    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q3);
+  }
+
+  double TeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
+                   Configuration **q1, Configuration **q2, Configuration **q3)
+  {
+    TeST_tangent_circles(c1, c2, q1, q2);
+    *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
+    *cend = new HC_CC_Circle(**q2, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
+    *q3 = new Configuration(c2.start.x, c2.start.y, c2.start.theta, c2.kappa);
+    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q3);
   }
 
   double TST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -567,8 +570,8 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, +delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TiST_path(c1, tgt1, nullptr, nullptr, q1, q2, nullptr);
-    TcT_path(tgt1, c2, nullptr, nullptr, q3);
+    TiST_tangent_circles(c1, tgt1, q1, q2);
+    TcT_tangent_circles(tgt1, c2, q3);
 
     *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
     *cend = new HC_CC_Circle(c2);
@@ -589,8 +592,8 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TeST_path(c1, tgt1, nullptr, nullptr, q1, q2, nullptr);
-    TcT_path(tgt1, c2, nullptr, nullptr, q3);
+    TeST_tangent_circles(c1, tgt1, q1, q2);
+    TcT_tangent_circles(tgt1, c2, q3);
 
     *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
     *cend = new HC_CC_Circle(c2);
@@ -658,8 +661,8 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c1.left, !c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TiST_path(tgt1, c2, nullptr, nullptr, q2, q3, nullptr);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TiST_tangent_circles(tgt1, c2, q2, q3);
 
     *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(**q3, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
@@ -681,8 +684,8 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c1.left, !c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TeST_path(tgt1, c2, nullptr, nullptr, q2, q3, nullptr);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TeST_tangent_circles(tgt1, c2, q2, q3);
 
     *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(**q3, c2.left, !c2.forward, HC_REGULAR, parent_->hc_cc_circle_param_);
@@ -754,9 +757,9 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TiST_path(tgt1, tgt2, nullptr, nullptr, q2, q3, nullptr);
-    TcT_path(tgt2, c2, nullptr, nullptr, q4);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TiST_tangent_circles(tgt1, tgt2, q2, q3);
+    TcT_tangent_circles(tgt2, c2, q4);
 
     *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(c2);
@@ -781,9 +784,9 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TeST_path(tgt1, tgt2, nullptr, nullptr, q2, q3, nullptr);
-    TcT_path(tgt2, c2, nullptr, nullptr, q4);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TeST_tangent_circles(tgt1, tgt2, q2, q3);
+    TcT_tangent_circles(tgt2, c2, q4);
 
     *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(c2);
@@ -851,13 +854,13 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt4(x, y, !c2.left, !c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TT_path(c1, tgt1, nullptr, nullptr, q1, nullptr);
-    TcT_path(tgt1, tgt2, nullptr, nullptr, q2);
-    TT_path(tgt2, c2, nullptr, nullptr, q3, nullptr);
+    TT_tangent_circles(c1, tgt1, q1);
+    TcT_tangent_circles(tgt1, tgt2, q2);
+    TT_tangent_circles(tgt2, c2, q3);
 
-    TT_path(c1, tgt3, nullptr, nullptr, q4, nullptr);
-    TcT_path(tgt3, tgt4, nullptr, nullptr, q5);
-    TT_path(tgt4, c2, nullptr, nullptr, q6, nullptr);
+    TT_tangent_circles(c1, tgt3, q4);
+    TcT_tangent_circles(tgt3, tgt4, q5);
+    TT_tangent_circles(tgt4, c2, q6);
   }
 
   double TTcTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -950,13 +953,13 @@ public:
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt4(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
-    TcT_path(c1, tgt1, nullptr, nullptr, q1);
-    TT_path(tgt1, tgt2, nullptr, nullptr, q2, nullptr);
-    TcT_path(tgt2, c2, nullptr, nullptr, q3);
+    TcT_tangent_circles(c1, tgt1, q1);
+    TT_tangent_circles(tgt1, tgt2, q2);
+    TcT_tangent_circles(tgt2, c2, q3);
 
-    TcT_path(c1, tgt3, nullptr, nullptr, q4);
-    TT_path(tgt3, tgt4, nullptr, nullptr, q5, nullptr);
-    TcT_path(tgt4, c2, nullptr, nullptr, q6);
+    TcT_tangent_circles(c1, tgt3, q4);
+    TT_tangent_circles(tgt3, tgt4, q5);
+    TcT_tangent_circles(tgt4, c2, q6);
   }
 
   double TcTTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -1039,10 +1042,10 @@ public:
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt2(x, y, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
-    TT_path(c1, tgt1, nullptr, nullptr, q1, nullptr);
-    TT_path(tgt1, c2, nullptr, nullptr, q2, nullptr);
-    TT_path(c1, tgt2, nullptr, nullptr, q3, nullptr);
-    TT_path(tgt2, c2, nullptr, nullptr, q4, nullptr);
+    TT_tangent_circles(c1, tgt1, q1);
+    TT_tangent_circles(tgt1, c2, q2);
+    TT_tangent_circles(c1, tgt2, q3);
+    TT_tangent_circles(tgt2, c2, q4);
   }
 
   double TTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
