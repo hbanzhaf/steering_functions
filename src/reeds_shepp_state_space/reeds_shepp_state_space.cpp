@@ -631,7 +631,7 @@ vector<State> Reeds_Shepp_State_Space::integrate(const State &state, const vecto
       {
         integration_step = discretization_;
       }
-      state_next = forward_euler(state_curr, control, integration_step);
+      state_next = integrate_ODE(state_curr, control, integration_step);
       path.push_back(state_next);
       state_curr = state_next;
     }
@@ -694,14 +694,14 @@ State Reeds_Shepp_State_Space::interpolate(const State &state, const vector<Cont
       {
         integration_step = discretization_;
       }
-      state_next = forward_euler(state_curr, control, integration_step);
+      state_next = integrate_ODE(state_curr, control, integration_step);
       state_curr = state_next;
     }
   }
   return state_curr;
 }
 
-inline State Reeds_Shepp_State_Space::forward_euler(const State &state, const Control &control,
+inline State Reeds_Shepp_State_Space::integrate_ODE(const State &state, const Control &control,
                                                     double integration_step) const
 {
   State state_next;

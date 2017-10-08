@@ -104,7 +104,7 @@ vector<State> HC_CC_State_Space::integrate(const State &state, const vector<Cont
       {
         integration_step = discretization_;
       }
-      state_next = forward_euler(state_curr, control, integration_step);
+      state_next = integrate_ODE(state_curr, control, integration_step);
       path.push_back(state_next);
       state_curr = state_next;
     }
@@ -167,14 +167,14 @@ State HC_CC_State_Space::interpolate(const State &state, const vector<Control> &
       {
         integration_step = discretization_;
       }
-      state_next = forward_euler(state_curr, control, integration_step);
+      state_next = integrate_ODE(state_curr, control, integration_step);
       state_curr = state_next;
     }
   }
   return state_curr;
 }
 
-inline State HC_CC_State_Space::forward_euler(const State &state, const Control &control, double integration_step) const
+inline State HC_CC_State_Space::integrate_ODE(const State &state, const Control &control, double integration_step) const
 {
   State state_next;
   double kappa(control.kappa);
