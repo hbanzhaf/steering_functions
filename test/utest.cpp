@@ -120,7 +120,7 @@ HCpmpm_Reeds_Shepp_State_Space hcpmpm_ss(KAPPA, SIGMA, DISCRETIZATION);
 Reeds_Shepp_State_Space rs_ss(KAPPA, DISCRETIZATION);
 int seed(time(nullptr));
 
- TEST(SteeringFunctions, pathLength)
+TEST(SteeringFunctions, pathLength)
 {
   srand(seed);
   for (int i = 0; i < SAMPLES; i++)
@@ -149,8 +149,7 @@ int seed(time(nullptr));
               EPS_DISTANCE);
 
     vector<State> dubins_path_forwards = dubins_forwards_ss.get_path(start, goal);
-    EXPECT_LT(fabs(dubins_forwards_ss.get_distance(start, goal) - get_path_length(dubins_path_forwards)),
-    EPS_DISTANCE);
+    EXPECT_LT(fabs(dubins_forwards_ss.get_distance(start, goal) - get_path_length(dubins_path_forwards)), EPS_DISTANCE);
 
     vector<State> dubins_path_backwards = dubins_backwards_ss.get_path(start, goal);
     EXPECT_LT(fabs(dubins_backwards_ss.get_distance(start, goal) - get_path_length(dubins_path_backwards)),
@@ -176,7 +175,7 @@ int seed(time(nullptr));
   }
 }
 
- TEST(SteeringFunctions, reachingGoal)
+TEST(SteeringFunctions, reachingGoal)
 {
   srand(seed);
   for (int i = 0; i < SAMPLES; i++)
@@ -228,7 +227,7 @@ int seed(time(nullptr));
   }
 }
 
- TEST(SteeringFunctions, curvatureContinuity)
+TEST(SteeringFunctions, curvatureContinuity)
 {
   srand(seed);
   for (int i = 0; i < SAMPLES; i++)
@@ -368,6 +367,32 @@ TEST(SteeringFunctions, interpolation)
     State cc_dubins_forwards_state_inter = cc_dubins_forwards_ss.interpolate(start, cc_dubins_forwards_controls, t);
     EXPECT_EQ(is_equal(cc_dubins_forwards_path.back(), cc_dubins_forwards_state_inter), true);
 
+    vector<Control> dubins_forwards_controls = dubins_forwards_ss.get_controls(start, goal);
+    double dubins_forwards_s_path = get_path_length(dubins_forwards_controls);
+    double dubins_forwards_s_inter = t * dubins_forwards_s_path;
+    s = 0.0;
+    vector<Control> dubins_forwards_controls_inter;
+    dubins_forwards_controls_inter.reserve(dubins_forwards_controls.size());
+    for (const auto& control : dubins_forwards_controls)
+    {
+      double abs_delta_s = fabs(control.delta_s);
+      s += abs_delta_s;
+      if (s < dubins_forwards_s_inter)
+        dubins_forwards_controls_inter.push_back(control);
+      else
+      {
+        Control control_inter;
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - dubins_forwards_s_inter));
+        control_inter.kappa = control.kappa;
+        control_inter.sigma = control.sigma;
+        dubins_forwards_controls_inter.push_back(control_inter);
+        break;
+      }
+    }
+    vector<State> dubins_forwards_path = dubins_forwards_ss.integrate(start, dubins_forwards_controls_inter);
+    State dubins_forwards_state_inter = dubins_forwards_ss.interpolate(start, dubins_forwards_controls, t);
+    EXPECT_EQ(is_equal(dubins_forwards_path.back(), dubins_forwards_state_inter), true);
+
     vector<Control> cc_rs_controls = cc_rs_ss.get_controls(start, goal);
     double cc_rs_s_path = get_path_length(cc_rs_controls);
     double cc_rs_s_inter = t * cc_rs_s_path;
@@ -445,6 +470,32 @@ TEST(SteeringFunctions, interpolation)
     vector<State> hcpmpm_path = hcpmpm_ss.integrate(start, hcpmpm_controls_inter);
     State hcpmpm_state_inter = hcpmpm_ss.interpolate(start, hcpmpm_controls, t);
     EXPECT_EQ(is_equal(hcpmpm_path.back(), hcpmpm_state_inter), true);
+
+    vector<Control> rs_controls = rs_ss.get_controls(start, goal);
+    double rs_s_path = get_path_length(rs_controls);
+    double rs_s_inter = t * rs_s_path;
+    s = 0.0;
+    vector<Control> rs_controls_inter;
+    rs_controls_inter.reserve(rs_controls.size());
+    for (const auto& control : rs_controls)
+    {
+      double abs_delta_s = fabs(control.delta_s);
+      s += abs_delta_s;
+      if (s < rs_s_inter)
+        rs_controls_inter.push_back(control);
+      else
+      {
+        Control control_inter;
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - rs_s_inter));
+        control_inter.kappa = control.kappa;
+        control_inter.sigma = control.sigma;
+        rs_controls_inter.push_back(control_inter);
+        break;
+      }
+    }
+    vector<State> rs_path = rs_ss.integrate(start, rs_controls_inter);
+    State rs_state_inter = rs_ss.interpolate(start, rs_controls, t);
+    EXPECT_EQ(is_equal(rs_path.back(), rs_state_inter), true);
   }
 }
 
