@@ -140,8 +140,13 @@ HC<sup>±±</sup>-Reeds-Shepp | 55.4      | ±8.9
 Reeds-Shepp                 | 7.0       | ±1.8
 
 
+### Interfacing with OMPL
+In order to use the continuous and hybrid curvature state spaces along with [OMPL], a new OMPL state space has to be created as described [here](http://ompl.kavrakilab.org/2012/03/18/geometric-planning-for-car-like-vehicles.html). OMPL requires a distance and an interpolate function, which are provided in this package.
+
+
 ## Bugs & Feature Requests
 Please use the [Issue Tracker](https://github.com/hbanzhaf/steering_functions/issues) to report bugs or request features.
 
 [ROS]: http://www.ros.org
 [RViz]: http://wiki.ros.org/rviz
+[OMPL]: http://ompl.kavrakilab.org/
