@@ -150,8 +150,14 @@ public:
   /** \brief Returns shortest path from state1 to state2 with curvature = kappa_ */
   vector<State> get_path(const State &state1, const State &state2) const;
 
-  /** \brief Numeric integration using the forward euler method */
-  vector<State> forward_euler(const State &state, const vector<Control> &dubins_controls) const;
+  /** \brief Returns integrated states given a start state and controls with curvature = kappa_ */
+  vector<State> integrate(const State &state, const vector<Control> &controls) const;
+
+  /** \brief Returns interpolated state at distance t in [0,1] (percent of total path length with curvature = kappa_) */
+  State interpolate(const State &state, const vector<Control> &controls, double t) const;
+
+  /** \brief Returns integrated state given a start state, a control, and an integration step */
+  inline State integrate_ODE(const State& state, const Control& control, double integration_step) const;
 
 private:
   /** \brief Curvature */

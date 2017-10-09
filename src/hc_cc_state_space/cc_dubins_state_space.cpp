@@ -471,6 +471,7 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
   switch (p->type)
   {
     case E:
+      empty_controls(cc_dubins_controls);
       break;
     case S:
       straight_controls(p->start, p->end, cc_dubins_controls);
