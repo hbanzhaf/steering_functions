@@ -363,7 +363,6 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     shift = d;
     length_arc = (delta - c.delta_min / 2.0) / fabs(c.kappa);
   }
-
   if (order)
   {
     clothoid.delta_s = d * length_min;
@@ -371,12 +370,10 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     clothoid.sigma = c.sigma;
     controls.push_back(clothoid);
   }
-
   arc.delta_s = shift * length_arc;
   arc.kappa = c.kappa;
   arc.sigma = 0.0;
   controls.push_back(arc);
-
   if (!order)
   {
     clothoid.delta_s = d * length_min;
@@ -406,7 +403,6 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   // elementary path
   if (delta < c.delta_min)
   {
-    double x_i, y_i, theta_i, kappa_i;
     double d1 = D1(delta / 2);
     double d2 = point_distance(c.start.x, c.start.y, q.x, q.y);
     double sigma = 4 * PI * pow(d1, 2) / pow(d2, 2);
@@ -415,15 +411,13 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     {
       sigma = -sigma;
     }
-    end_of_clothoid(c.start.x, c.start.y, c.start.theta, 0.0, sigma, c.forward, length, &x_i, &y_i, &theta_i, &kappa_i);
-
     clothoid1.delta_s = d * length;
     clothoid1.kappa = 0.0;
     clothoid1.sigma = sigma;
     controls.push_back(clothoid1);
 
     clothoid2.delta_s = d * length;
-    clothoid2.kappa = kappa_i;
+    clothoid2.kappa = sigma*length;
     clothoid2.sigma = -sigma;
     controls.push_back(clothoid2);
     return;
