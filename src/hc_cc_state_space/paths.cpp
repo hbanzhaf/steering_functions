@@ -345,23 +345,30 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   double length_min = fabs(c.kappa / c.sigma);
   double length_arc;
   int shift;
+
   // regular hc-turn
   if (c.regular && (delta < c.delta_min / 2.0))
   {
     shift = d;
-    length_arc = (TWO_PI + delta - c.delta_min / 2.0) / fabs(c.kappa);
+    length_arc = fabs((TWO_PI + delta - c.delta_min / 2.0) / c.kappa);
+  }
+  // irregular hc-turn
+  else if (!c.regular && (delta < c.delta_min / 2.0))
+  {
+    shift = -d;
+    length_arc = fabs((-delta + c.delta_min / 2.0) / c.kappa);
   }
   // irregular hc-turn
   else if (!c.regular && (delta > c.delta_min / 2.0 + PI))
   {
     shift = -d;
-    length_arc = (TWO_PI - delta + c.delta_min / 2.0) / fabs(c.kappa);
+    length_arc = fabs((TWO_PI - delta + c.delta_min / 2.0) / c.kappa);
   }
   // regular hc-turn
   else
   {
     shift = d;
-    length_arc = (delta - c.delta_min / 2.0) / fabs(c.kappa);
+    length_arc = fabs((delta - c.delta_min / 2.0) / c.kappa);
   }
   if (order)
   {
@@ -417,7 +424,7 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     controls.push_back(clothoid1);
 
     clothoid2.delta_s = d * length;
-    clothoid2.kappa = sigma*length;
+    clothoid2.kappa = sigma * length;
     clothoid2.sigma = -sigma;
     controls.push_back(clothoid2);
     return;
@@ -430,13 +437,13 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   if (!c.regular && (delta > c.delta_min + PI))
   {
     shift = -d;
-    length_arc = (TWO_PI - delta + c.delta_min) / fabs(c.kappa);
+    length_arc = fabs((TWO_PI - delta + c.delta_min) / c.kappa);
   }
   // regular
   else
   {
     shift = d;
-    length_arc = (delta - c.delta_min) / fabs(c.kappa);
+    length_arc = fabs((delta - c.delta_min) / c.kappa);
   }
   clothoid1.delta_s = d * length_min;
   clothoid1.kappa = 0.0;

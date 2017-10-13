@@ -151,6 +151,11 @@ double HC_CC_Circle::hc_turn_length(const Configuration &q) const
     length_arc = fabs((TWO_PI + delta - delta_min / 2.0) / this->kappa);
   }
   // irregular hc-turn
+  else if (!this->regular && (delta < delta_min / 2.0))
+  {
+    length_arc = fabs((-delta + delta_min / 2.0) / this->kappa);
+  }
+  // irregular hc-turn
   else if (!this->regular && (delta > delta_min / 2.0 + PI))
   {
     length_arc = fabs((TWO_PI - delta + delta_min / 2.0) / this->kappa);
