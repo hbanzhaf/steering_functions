@@ -183,7 +183,7 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
 
   // translation and rotation to account for initial configuration
   global_frame_change(x_i, y_i, theta_i, x, y, x_f, y_f);
-  *theta_f = twopify(theta_i + theta);
+  *theta_f = pify(theta_i + theta);
   *kappa_f = kappa;
 }
 
@@ -213,7 +213,7 @@ void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, b
   // translation and rotation to account for initial configuration
   *x_f = x * cos(theta_i) - y * sin(theta_i) + x_i;
   *y_f = x * sin(theta_i) + y * cos(theta_i) + y_i;
-  *theta_f = twopify(theta_i + theta);
+  *theta_f = pify(theta_i + theta);
 }
 
 void global_frame_change(double x, double y, double theta, double local_x, double local_y, double *global_x,
