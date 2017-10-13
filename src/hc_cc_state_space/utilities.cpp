@@ -56,9 +56,9 @@ double twopify(double alpha)
 double pify(double alpha)
 {
   double v = fmod(alpha, TWO_PI);
-  if (v < -HALF_PI)
+  if (v < -PI)
     v += TWO_PI;
-  else if (v > HALF_PI)
+  else if (v > PI)
     v -= TWO_PI;
   return v;
 }
