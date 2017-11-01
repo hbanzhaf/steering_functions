@@ -357,8 +357,8 @@ public:
     *cend = new HC_CC_Circle(c2);
 
     // select shortest connection
-    double length1 = (*cstart)->cc_turn_length(*qa) + middle1->hc_turn_length(*qb) + (*cend)->hc_turn_length(*qb);
-    double length2 = (*cstart)->cc_turn_length(*qc) + middle2->hc_turn_length(*qd) + (*cend)->hc_turn_length(*qd);
+    double length1 = (*cstart)->cc_turn_length(*qa) + middle1->hc_turn_length(*qb) + (*cend)->rs_turn_length(*qb);
+    double length2 = (*cstart)->cc_turn_length(*qc) + middle2->hc_turn_length(*qd) + (*cend)->rs_turn_length(*qd);
     if (length1 < length2)
     {
       *q1 = qa;
@@ -1779,7 +1779,7 @@ vector<Control> HC0pm_Reeds_Shepp_State_Space::get_controls(const State &state1,
     case TTcT:
       cc_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi2), true, hc_rs_controls);
-      hc_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
+      rs_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
     case TST:
       cc_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
