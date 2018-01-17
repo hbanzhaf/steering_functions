@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   visualization_msgs
   roslib
+  costmap_2d
 )
 
 ## System dependencies are found with CMake's conventions

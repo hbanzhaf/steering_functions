@@ -19,6 +19,7 @@
 
 #include <iostream>
 
+#include <costmap_2d/footprint.h>
 #include <geometry_msgs/PoseArray.h>
 #include <nav_msgs/Path.h>
 #include <ros/ros.h>
@@ -228,7 +229,7 @@ public:
   double wheel_base_;
   double track_width_;
   geometry_msgs::Point wheel_fl_pos_, wheel_fr_pos_;
-  vector<geometry_msgs::Point> contour_;
+  vector<geometry_msgs::Point> footprint_;
   vector<geometry_msgs::Point> wheel_;
   double wheel_radius_;
   double wheel_width_;
@@ -242,6 +243,7 @@ public:
   // constructor
   explicit RobotClass() : frame_id_(FRAME_ID), animate_(ANIMATE)
   {
+    ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
 
     // publisher
@@ -250,43 +252,22 @@ public:
       ros::Duration(0.001).sleep();
 
     // robot kinematic
-    pnh.param<double>("/robot/kappa_max", kappa_max_, 1.0);
-    pnh.param<double>("/robot/sigma_max", sigma_max_, 1.0);
+    nh.param<double>("kappa_max", kappa_max_, 1.0);
+    nh.param<double>("sigma_max", sigma_max_, 1.0);
 
-    // contour (nested list YAML parser)
-    XmlRpc::XmlRpcValue contour_in;
-    if (pnh.getParam("/robot/contour", contour_in))
-    {
-      ROS_ASSERT(contour_in.getType() == XmlRpc::XmlRpcValue::TypeArray);
-      for (int32_t i = 0; i < contour_in.size(); ++i)
-      {
-        ROS_ASSERT(contour_in[i].getType() == XmlRpc::XmlRpcValue::TypeArray);
-        ROS_ASSERT(contour_in[i].size() <= 3);
-        geometry_msgs::Point point;
-        for (int32_t j = 0; j < contour_in[i].size(); ++j)
-        {
-          ROS_ASSERT(contour_in[i][j].getType() == XmlRpc::XmlRpcValue::TypeDouble);
-          if (j == 0)
-            point.x = contour_in[i][j];
-          if (j == 1)
-            point.y = contour_in[i][j];
-          else
-            point.z = contour_in[i][j];
-        }
-        contour_.push_back(point);
-      }
-    }
+    // footprint
+    footprint_ = costmap_2d::makeFootprintFromParams(nh);
 
     // wheel
-    pnh.getParam("/robot/wheel_base", wheel_base_);
-    pnh.getParam("/robot/track_width", track_width_);
+    nh.getParam("wheel_base", wheel_base_);
+    nh.getParam("track_width", track_width_);
     wheel_fl_pos_.x = wheel_base_;
     wheel_fl_pos_.y = track_width_ / 2.0;
     wheel_fr_pos_.x = wheel_base_;
     wheel_fr_pos_.y = -track_width_ / 2.0;
 
-    pnh.getParam("/robot/wheel_radius", wheel_radius_);
-    pnh.getParam("/robot/wheel_width", wheel_width_);
+    nh.getParam("wheel_radius", wheel_radius_);
+    nh.getParam("wheel_width", wheel_width_);
     geometry_msgs::Point point1, point2, point3, point4;
     point1.x = wheel_radius_;
     point1.y = wheel_width_ / 2.0;
@@ -362,7 +343,7 @@ public:
       double steer_angle_fl, steer_angle_fr;
       vector<geometry_msgs::Point> wheel_fl, wheel_fr;
       vector<geometry_msgs::Point> oriented_wheel_fl, oriented_wheel_fr;
-      vector<geometry_msgs::Point> oriented_contour;
+      vector<geometry_msgs::Point> oriented_footprint;
 
       // steering angle
       if (fabs(state.kappa) > 1e-4)
@@ -376,14 +357,14 @@ public:
         steer_angle_fr = 0.0;
       }
 
-      // transform wheels and contour
+      // transform wheels and footprint
       get_oriented_polygon(wheel_fl_pos_.x, wheel_fl_pos_.y, steer_angle_fl, wheel_, wheel_fl);
       get_oriented_polygon(wheel_fr_pos_.x, wheel_fr_pos_.y, steer_angle_fr, wheel_, wheel_fr);
       get_oriented_polygon(state.x, state.y, state.theta, wheel_fl, oriented_wheel_fl);
       get_oriented_polygon(state.x, state.y, state.theta, wheel_fr, oriented_wheel_fr);
-      get_oriented_polygon(state.x, state.y, state.theta, contour_, oriented_contour);
+      get_oriented_polygon(state.x, state.y, state.theta, footprint_, oriented_footprint);
 
-      polygon_to_marker(oriented_contour, marker_chassis_);
+      polygon_to_marker(oriented_footprint, marker_chassis_);
       polygon_to_marker(oriented_wheel_fl, marker_wheels_);
       polygon_to_marker(oriented_wheel_fr, marker_wheels_);
 
