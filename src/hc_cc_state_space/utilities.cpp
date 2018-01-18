@@ -63,38 +63,6 @@ double pify(double alpha)
   return v;
 }
 
-unsigned int factorial(unsigned int n)
-{
-  if (n == 0)
-    return 1;
-  return n * factorial(n - 1);
-}
-
-float approxSin(const float x)
-{
-  assert(x <= HALF_PI && x >= -HALF_PI);
-
-  static const float first_term = 1. / static_cast<float>(factorial(3));
-  static const float second_term = 1. / static_cast<float>(factorial(5));
-  static const float third_term = -1. / static_cast<float>(factorial(7));
-
-  float x_2 = x * x;
-  return x + x * x_2 * (first_term + x_2 * (second_term + x_2 * third_term));
-}
-
-float approxCos(const float x)
-{
-  assert(x <= HALF_PI && x >= -HALF_PI);
-
-  static const float first_term = -1. / static_cast<float>(factorial(2));
-  static const float second_term = 1. / static_cast<float>(factorial(4));
-  static const float third_term = -1. / static_cast<float>(factorial(6));
-  static const float fourth_term = 1. / static_cast<float>(factorial(8));
-
-  float x_2 = x * x;
-  return 1. + x_2 * (first_term + x_2 * (second_term + x_2 * (third_term + x_2 * fourth_term)));
-}
-
 double fresnel(double x, bool fresnelc)
 {
   if (fabs(x) > Fresnel_Length)
