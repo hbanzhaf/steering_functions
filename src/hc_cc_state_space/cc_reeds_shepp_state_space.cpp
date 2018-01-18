@@ -38,11 +38,11 @@ public:
     parent_ = parent;
   }
 
-  double distance;
-  double angle;
+  double distance = 0.0;
+  double angle = 0.0;
 
   // ##### TT ###################################################################
-  bool TT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -55,7 +55,7 @@ public:
     return fabs(distance - 2 * c1.radius) < get_epsilon();
   }
 
-  void TT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
+  void TT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
   {
     double x = (c1.xc + c2.xc) / 2;
     double y = (c1.yc + c2.yc) / 2;
@@ -86,14 +86,14 @@ public:
     *q = new Configuration(x, y, theta, 0);
   }
 
-  double TT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
+  double TT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
   {
     TT_tangent_circles(c1, c2, q);
     return c1.cc_turn_length(**q) + c2.cc_turn_length(**q);
   }
 
   // ##### TcT ##################################################################
-  bool TcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -106,7 +106,7 @@ public:
     return fabs(distance - 2 * c1.radius * c1.cos_mu) < get_epsilon();
   }
 
-  void TcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
+  void TcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
   {
     double distance = center_distance(c1, c2);
     double delta_x = 0.5 * distance;
@@ -142,7 +142,7 @@ public:
     *q = new Configuration(x, y, theta, 0);
   }
 
-  double TcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q)
+  double TcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
   {
     TcT_tangent_circles(c1, c2, q);
     return c1.cc_turn_length(**q) + c2.cc_turn_length(**q);
@@ -151,7 +151,7 @@ public:
   // ##### Reeds-Shepp families: ################################################
 
   // ##### TcTcT ################################################################
-  bool TcTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -165,7 +165,7 @@ public:
   }
 
   void TcTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                             Configuration **q3, Configuration **q4)
+                             Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
     double r = 2 * c1.radius * c1.cos_mu;
@@ -185,7 +185,7 @@ public:
   }
 
   double TcTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                    HC_CC_Circle **ci)
+                    HC_CC_Circle **ci) const
   {
     Configuration *qa, *qb, *qc, *qd;
     TcTcT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd);
@@ -220,7 +220,7 @@ public:
   }
 
   // ##### TcTT #################################################################
-  bool TcTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -234,7 +234,7 @@ public:
   }
 
   void TcTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                            Configuration **q3, Configuration **q4)
+                            Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
     double r1 = 2 * c1.radius * c1.cos_mu;
@@ -255,7 +255,7 @@ public:
   }
 
   double TcTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                   HC_CC_Circle **ci)
+                   HC_CC_Circle **ci) const
   {
     Configuration *qa, *qb, *qc, *qd;
     TcTT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd);
@@ -290,7 +290,7 @@ public:
   }
 
   // ##### TTcT #################################################################
-  bool TTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -304,7 +304,7 @@ public:
   }
 
   void TTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                            Configuration **q3, Configuration **q4)
+                            Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
     double r1 = 2 * c1.radius;
@@ -325,7 +325,7 @@ public:
   }
 
   double TTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                   HC_CC_Circle **ci)
+                   HC_CC_Circle **ci) const
   {
     Configuration *qa, *qb, *qc, *qd;
     TTcT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd);
@@ -360,7 +360,7 @@ public:
   }
 
   // ##### TST ##################################################################
-  bool TiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -373,7 +373,7 @@ public:
     return (distance >= 2 * c1.radius);
   }
 
-  bool TeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -387,12 +387,13 @@ public:
     return (distance >= 2 * c1.radius * c1.sin_mu);
   }
 
-  bool TST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TiST_exists(c1, c2) || TeST_exists(c1, c2);
   }
 
-  void TiST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  void TiST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
+                            Configuration **q2) const
   {
     double distance = center_distance(c1, c2);
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
@@ -434,7 +435,8 @@ public:
     }
   }
 
-  void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
+                            Configuration **q2) const
   {
     double delta_x = fabs(c1.radius * c1.sin_mu);
     double delta_y = fabs(c1.radius * c1.cos_mu);
@@ -470,19 +472,19 @@ public:
     }
   }
 
-  double TiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     TiST_tangent_circles(c1, c2, q1, q2);
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     TeST_tangent_circles(c1, c2, q1, q2);
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     if (TiST_exists(c1, c2))
     {
@@ -496,7 +498,7 @@ public:
   }
 
   // ##### TSTcT ################################################################
-  bool TiSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TiSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -509,7 +511,7 @@ public:
     return (distance >= 2 * c1.radius * sqrt(1 + 2 * c1.sin_mu * c1.cos_mu + pow(c1.cos_mu, 2)));
   }
 
-  bool TeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -522,13 +524,13 @@ public:
     return (distance >= 2 * c1.radius * (c1.cos_mu + c1.sin_mu));
   }
 
-  bool TSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TiSTcT_exists(c1, c2) || TeSTcT_exists(c1, c2);
   }
 
   double TiSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                     Configuration **q3, HC_CC_Circle **ci)
+                     Configuration **q3, HC_CC_Circle **ci) const
   {
     double theta = angle;
     double r = c2.radius * c2.cos_mu;
@@ -549,7 +551,7 @@ public:
   }
 
   double TeSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                     Configuration **q3, HC_CC_Circle **ci)
+                     Configuration **q3, HC_CC_Circle **ci) const
   {
     double theta = angle;
     double delta_x = 2 * c2.radius * c2.cos_mu;
@@ -569,7 +571,7 @@ public:
   }
 
   double TSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                    Configuration **q3, HC_CC_Circle **ci)
+                    Configuration **q3, HC_CC_Circle **ci) const
   {
     if (TiSTcT_exists(c1, c2))
     {
@@ -583,7 +585,7 @@ public:
   }
 
   // ##### TcTST ################################################################
-  bool TcTiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -596,7 +598,7 @@ public:
     return (distance >= 2 * c1.radius * sqrt(1 + 2 * c1.sin_mu * c1.cos_mu + pow(c1.cos_mu, 2)));
   }
 
-  bool TcTeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -609,13 +611,13 @@ public:
     return (distance >= 2 * c1.radius * (c1.cos_mu + c1.sin_mu));
   }
 
-  bool TcTST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TcTiST_exists(c1, c2) || TcTeST_exists(c1, c2);
   }
 
   double TcTiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                     Configuration **q3, HC_CC_Circle **ci)
+                     Configuration **q3, HC_CC_Circle **ci) const
   {
     double theta = angle;
     double r = c1.radius * c1.cos_mu;
@@ -636,7 +638,7 @@ public:
   }
 
   double TcTeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                     Configuration **q3, HC_CC_Circle **ci)
+                     Configuration **q3, HC_CC_Circle **ci) const
   {
     double theta = angle;
     double delta_x = 2 * c2.radius * c2.cos_mu;
@@ -656,7 +658,7 @@ public:
   }
 
   double TcTST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                    Configuration **q3, HC_CC_Circle **ci)
+                    Configuration **q3, HC_CC_Circle **ci) const
   {
     if (TcTiST_exists(c1, c2))
     {
@@ -670,7 +672,7 @@ public:
   }
 
   // ##### TcTSTcT ##############################################################
-  bool TcTiSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTiSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -683,7 +685,7 @@ public:
     return (distance >= 2 * c1.radius * sqrt(1 + 4 * c1.cos_mu * c1.sin_mu + 4 * pow(c1.cos_mu, 2)));
   }
 
-  bool TcTeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -696,13 +698,13 @@ public:
     return (distance >= 2 * c1.radius * (2 * c1.cos_mu + c1.sin_mu));
   }
 
-  bool TcTSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TcTiSTcT_exists(c1, c2) || TcTeSTcT_exists(c1, c2);
   }
 
   double TcTiSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                       Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2)
+                       Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     double theta = angle;
     double r = c1.radius * c1.cos_mu;
@@ -727,7 +729,7 @@ public:
   }
 
   double TcTeSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                       Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2)
+                       Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     double theta = angle;
     double delta_x = 2 * c1.radius * c1.cos_mu;
@@ -751,7 +753,7 @@ public:
   }
 
   double TcTSTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                      Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2)
+                      Configuration **q3, Configuration **q4, HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     if (TcTiSTcT_exists(c1, c2))
     {
@@ -765,7 +767,7 @@ public:
   }
 
   // ##### TTcTT ###############################################################
-  bool TTcTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TTcTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -779,7 +781,7 @@ public:
   }
 
   void TTcTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                             Configuration **q3, Configuration **q4, Configuration **q5, Configuration **q6)
+                             Configuration **q3, Configuration **q4, Configuration **q5, Configuration **q6) const
   {
     double theta = angle;
     double r1, r2, delta_x, delta_y, x, y;
@@ -816,7 +818,7 @@ public:
   }
 
   double TTcTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                    Configuration **q3, HC_CC_Circle **ci1, HC_CC_Circle **ci2)
+                    Configuration **q3, HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     Configuration *qa, *qb, *qc, *qd, *qe, *qf;
     TTcTT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd, &qe, &qf);
@@ -863,7 +865,7 @@ public:
   }
 
   // ##### TcTTcT ###############################################################
-  bool TcTTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcTTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -877,7 +879,7 @@ public:
   }
 
   void TcTTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                              Configuration **q3, Configuration **q4, Configuration **q5, Configuration **q6)
+                              Configuration **q3, Configuration **q4, Configuration **q5, Configuration **q6) const
   {
     double theta = angle;
     double r1 = 2 * c1.radius * c1.cos_mu;
@@ -906,7 +908,7 @@ public:
   }
 
   double TcTTcT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                     Configuration **q3, HC_CC_Circle **ci1, HC_CC_Circle **ci2)
+                     Configuration **q3, HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     Configuration *qa, *qb, *qc, *qd, *qe, *qf;
     TcTTcT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd, &qe, &qf);
@@ -955,7 +957,7 @@ public:
   // ############################################################################
 
   // ##### TTT ##################################################################
-  bool TTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -969,7 +971,7 @@ public:
   }
 
   void TTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                           Configuration **q3, Configuration **q4)
+                           Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
     double r = 2 * c1.radius;
@@ -989,7 +991,7 @@ public:
   }
 
   double TTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                  HC_CC_Circle **ci)
+                  HC_CC_Circle **ci) const
   {
     Configuration *qa, *qb, *qc, *qd;
     TTT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd);
@@ -1024,7 +1026,7 @@ public:
   }
 
   // ##### TcST ################################################################
-  bool TciST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TciST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -1037,7 +1039,7 @@ public:
     return distance >= 2 * c1.radius * c1.cos_mu;
   }
 
-  bool TceST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TceST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -1050,12 +1052,12 @@ public:
     return distance >= get_epsilon();
   }
 
-  bool TcST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TciST_exists(c1, c2) || TceST_exists(c1, c2);
   }
 
-  double TciST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TciST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1096,7 +1098,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TceST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TceST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1133,7 +1135,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TcST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TcST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     if (TciST_exists(c1, c2))
     {
@@ -1147,7 +1149,7 @@ public:
   }
 
   // ##### TScT #################################################################
-  bool TiScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TiScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -1160,7 +1162,7 @@ public:
     return distance >= 2 * c1.radius * c1.cos_mu;
   }
 
-  bool TeScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TeScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -1173,12 +1175,12 @@ public:
     return distance >= get_epsilon();
   }
 
-  bool TScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TiScT_exists(c1, c2) || TeScT_exists(c1, c2);
   }
 
-  double TiScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TiScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1219,7 +1221,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TeScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TeScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1256,7 +1258,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     if (TiScT_exists(c1, c2))
     {
@@ -1270,7 +1272,7 @@ public:
   }
 
   // ##### TcScT ################################################################
-  bool TciScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TciScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left == c2.left)
     {
@@ -1283,7 +1285,7 @@ public:
     return distance >= 2 * c1.radius * c1.cos_mu;
   }
 
-  bool TceScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TceScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     if (c1.left != c2.left)
     {
@@ -1296,12 +1298,12 @@ public:
     return distance >= get_epsilon();
   }
 
-  bool TcScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+  bool TcScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
     return TciScT_exists(c1, c2) || TceScT_exists(c1, c2);
   }
 
-  double TciScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TciScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1342,7 +1344,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TceScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TceScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
     double delta_x = fabs(c1.radius * c1.sin_mu);
@@ -1379,7 +1381,7 @@ public:
     return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
   }
 
-  double TcScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
+  double TcScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     if (TciScT_exists(c1, c2))
     {

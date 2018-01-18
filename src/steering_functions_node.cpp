@@ -75,12 +75,12 @@ public:
   PathClass(const string& path_type, const State& state_start, const State& state_goal, const double kappa_max,
             const double sigma_max)
     : path_type_(path_type)
+    , discretization_(DISCRETIZATION)
     , state_start_(state_start)
     , state_goal_(state_goal)
     , kappa_max_(kappa_max)
     , sigma_max_(sigma_max)
     , frame_id_(FRAME_ID)
-    , discretization_(DISCRETIZATION)
   {
     ros::NodeHandle pnh("~");
 
