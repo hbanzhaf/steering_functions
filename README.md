@@ -101,7 +101,7 @@ To run the unit test, exectue
 
     catkin build steering_functions -DCMAKE_BUILD_TYPE=Debug --make-args tests
     cd catkin_ws/devel/lib/steering_functions
-    ./utest
+    ./steering_functions_test
 
 
 ## Documentation

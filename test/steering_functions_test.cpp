@@ -38,7 +38,7 @@ using namespace steer;
 #define EPS_KAPPA 1e-6                   // [1/m]
 #define KAPPA 1.0                        // [1/m]
 #define SIGMA 1.0                        // [1/m^2]
-#define DISCRETIZATION 0.01              // [m]
+#define DISCRETIZATION 0.1               // [m]
 #define SAMPLES 1e5                      // [-]
 #define OPERATING_REGION_X 20.0          // [m]
 #define OPERATING_REGION_Y 20.0          // [m]

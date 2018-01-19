@@ -37,6 +37,7 @@ using namespace std;
 #define PI 3.1415926535897932384
 #define HALF_PI 1.5707963267948966192
 #define TWO_PI 6.2831853071795864770
+#define SQRT_TWO_PI_INV 0.39894228040143267794
 
 const double epsilon = 1e-4;
 
@@ -55,18 +56,10 @@ double twopify(double alpha);
 /** \brief Conversion of arbitrary angle given in [rad] to [-pi, pi[ */
 double pify(double alpha);
 
-/** \brief Computation of the factorial */
-unsigned int factorial(unsigned int n);
-
-/** \brief Approximation of sine with a 7th order polynomial (absolute error is bounded by 1.7e-4 in [-pi/2, pi/2]) */
-float approxSin(const float x);
-
-/** \brief Approximation of cosine with a 8th order polynomial (absolute error is bounded by 2.6e-5 in [-pi/2, pi/2]) */
-float approxCos(const float x);
-
-/** \brief Fresnel integrals */
-double fresnelc(double s);
-double fresnels(double s);
+/** \brief Fresnel integrals: S_f = int_0_s(sin(pi/2 u*u)du), C_f = int_0_s(cos(pi/2 u*u)du) approximated with Chebyshev
+    polynomials
+    */
+void fresnel(double s, double &S_f, double &C_f);
 
 /** \brief Computation of the end point on a clothoid
     x_i, y_i, theta_i, kappa_i: initial configuration

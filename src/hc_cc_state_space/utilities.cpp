@@ -63,40 +63,87 @@ double pify(double alpha)
   return v;
 }
 
-double fresnel(double x, bool fresnelc)
+void fresnel_0_8(double x, double &S_f, double &C_f)
 {
-  if (fabs(x) > Fresnel_Length)
+  // T2n(x/8) = Tn(2*(x/8)*(x/8)-1.0)
+  // T2n_p1(x/8) = 2*(x/8)*T2n(x/8)-T2n_m1(x/8)
+  double quarter_x = 0.25 * x;
+  double arg = 0.03125 * x * x - 1.0;
+  double T0 = 1;
+  double T1 = 0.125 * x;
+  double T2 = arg;
+  double T3 = quarter_x * T2 - T1;
+  double A = chebev_a[0] * T0 + chebev_a[1] * T2;
+  double B = chebev_b[0] * T1 + chebev_b[1] * T3;
+  double T2n_m4 = T0;
+  double T2n_m2 = T2;
+  double T2n_m1 = T3;
+  for (int n = 2; n < 17; n++)
   {
-    cerr << "Fresnel integral out of range" << endl;
-    return 0;
+    double T2n = 2.0 * arg * T2n_m2 - T2n_m4;
+    double T2n_p1 = quarter_x * T2n - T2n_m1;
+    A += chebev_a[n] * T2n;
+    B += chebev_b[n] * T2n_p1;
+    T2n_m4 = T2n_m2;
+    T2n_m2 = T2n;
+    T2n_m1 = T2n_p1;
   }
-  int sign = sgn(x);
-  double diter = fabs(x) / Fresnel_Length * Fresnel_Samples;
-  int iter = (int)diter;
-  double rest = diter - iter;
-  double inf, sup;
-  if (fresnelc)
+  double T34 = 2.0 * arg * T2n_m2 - T2n_m4;
+  A += chebev_a[17] * T34;
+
+  double sqrt_x = sqrt(x);
+  C_f = SQRT_TWO_PI_INV * sqrt_x * A;
+  S_f = SQRT_TWO_PI_INV * sqrt_x * B;
+  return;
+}
+
+void fresnel_8_inf(double x, double &S_f, double &C_f)
+{
+  // T2n(8/x) = Tn(2*(8/x)*(8/x)-1.0)
+  double arg = 128.0 / (x * x) - 1.0;
+  double T0 = 1;
+  double T2 = arg;
+  double E = chebev_e[0] * T0 + chebev_e[1] * T2;
+  double F = chebev_f[0] * T0 + chebev_f[1] * T2;
+  double T2n_m4 = T0;
+  double T2n_m2 = T2;
+  for (int n = 2; n < 35; n++)
   {
-    inf = FresnelC[iter];
-    sup = FresnelC[iter + 1];
+    double T2n = 2.0 * arg * T2n_m2 - T2n_m4;
+    E += chebev_e[n] * T2n;
+    F += chebev_f[n] * T2n;
+    T2n_m4 = T2n_m2;
+    T2n_m2 = T2n;
   }
+  for (int n = 35; n < 41; n++)
+  {
+    double T2n = 2.0 * arg * T2n_m2 - T2n_m4;
+    E += chebev_e[n] * T2n;
+    T2n_m4 = T2n_m2;
+    T2n_m2 = T2n;
+  }
+
+  double sin_x = sin(x);
+  double cos_x = cos(x);
+  double sqrt_x = sqrt(x);
+  C_f = 0.5 - SQRT_TWO_PI_INV * (E * cos_x / (2 * x) - F * sin_x) / sqrt_x;
+  S_f = 0.5 - SQRT_TWO_PI_INV * (E * sin_x / (2 * x) + F * cos_x) / sqrt_x;
+  return;
+}
+
+void fresnel(double s, double &S_f, double &C_f)
+{
+  double x = HALF_PI * s * s;
+  if (x <= 8.0)
+    fresnel_0_8(x, S_f, C_f);
   else
+    fresnel_8_inf(x, S_f, C_f);
+  if (s < 0)
   {
-    inf = FresnelS[iter];
-    sup = FresnelS[iter + 1];
+    S_f = -S_f;
+    C_f = -C_f;
   }
-  // interpolation
-  return (sign * ((1 - rest) * inf + rest * sup));
-}
-
-double fresnelc(double s)
-{
-  return fresnel(s, true);
-}
-
-double fresnels(double s)
-{
-  return fresnel(s, false);
+  return;
 }
 
 void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, double sigma, bool forward, double length,
@@ -141,10 +188,18 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
     double k1 = 0.5 * pow(ukappa, 2) / usigma;
     double k2 = (usigma * length + ssigma * skappa * ukappa) / sqrt(PI * usigma);
     double k3 = ukappa / sqrt(PI * usigma);
-    x = sqrt(PI / usigma) * (cos(k1) * fresnelc(k2) + sin(k1) * fresnels(k2) -
-                             ssigma * skappa * cos(k1) * fresnelc(k3) - ssigma * skappa * sin(k1) * fresnels(k3));
-    y = sqrt(PI / usigma) * (ssigma * cos(k1) * fresnels(k2) - ssigma * sin(k1) * fresnelc(k2) -
-                             skappa * cos(k1) * fresnels(k3) + skappa * sin(k1) * fresnelc(k3));
+    double cos_k1 = cos(k1);
+    double sin_k1 = sin(k1);
+    double fresnel_s_k2;
+    double fresnel_c_k2;
+    double fresnel_s_k3;
+    double fresnel_c_k3;
+    fresnel(k2, fresnel_s_k2, fresnel_c_k2);
+    fresnel(k3, fresnel_s_k3, fresnel_c_k3);
+    x = sqrt(PI / usigma) * (cos_k1 * fresnel_c_k2 + sin_k1 * fresnel_s_k2 - ssigma * skappa * cos_k1 * fresnel_c_k3 -
+                             ssigma * skappa * sin_k1 * fresnel_s_k3);
+    y = sqrt(PI / usigma) * (ssigma * cos_k1 * fresnel_s_k2 - ssigma * sin_k1 * fresnel_c_k2 -
+                             skappa * cos_k1 * fresnel_s_k3 + skappa * sin_k1 * fresnel_c_k3);
     x = d * x;
     theta = d * theta;
   }
@@ -204,7 +259,10 @@ void local_frame_change(double x, double y, double theta, double global_x, doubl
 
 double D1(double alpha)
 {
-  return cos(alpha) * fresnelc(sqrt(2 * alpha / PI)) + sin(alpha) * fresnels(sqrt(2 * alpha / PI));
+  double fresnel_s, fresnel_c;
+  double s = sqrt(2 * alpha / PI);
+  fresnel(s, fresnel_s, fresnel_c);
+  return cos(alpha) * fresnel_c + sin(alpha) * fresnel_s;
 }
 
 int array_index_min(double array[], int size)

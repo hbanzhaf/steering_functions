@@ -198,9 +198,14 @@ target_link_libraries(${PROJECT_NAME}_node
 #############
 
 ## Add gtest based cpp test target and link libraries
-catkin_add_gtest(utest test/utest.cpp)
-if(TARGET utest)
-  target_link_libraries(utest ${catkin_LIBRARIES} ${PROJECT_NAME})
+catkin_add_gtest(steering_functions_test test/steering_functions_test.cpp)
+if(TARGET steering_functions_test)
+  target_link_libraries(steering_functions_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+endif()
+
+catkin_add_gtest(fresnel_test test/fresnel_test.cpp)
+if(TARGET fresnel_test)
+  target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
 endif()
 
 ## Add folders to be run by python nosetests
