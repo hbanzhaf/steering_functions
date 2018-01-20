@@ -41,6 +41,19 @@ struct State
   double d;
 };
 
+/** \brief Description of a kinematic car's state with covariance */
+struct State_With_Covariance
+{
+  /** \brief Expected state of the robot */
+  State state;
+
+  /** \brief Covariance of the state: (x_x      x_y      x_theta      x_kappa
+                                       y_x      y_y      y_theta      y_kappa
+                                       theta_x  theta_y  theta_theta  theta_kappa
+                                       kappa_x  kappa_y  kappa_theta  kappa_kappa) */
+  double covariance[16] = {0.0};
+};
+
 /** \brief Description of a path segment with its corresponding control inputs */
 struct Control
 {

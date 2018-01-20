@@ -589,6 +589,13 @@ vector<State> Reeds_Shepp_State_Space::get_path(const State &state1, const State
   return integrate(state1, controls);
 }
 
+vector<State_With_Covariance> Reeds_Shepp_State_Space::get_path_with_covariance(const State_With_Covariance &state1,
+                                                                                const State &state2) const
+{
+  vector<Control> controls = get_controls(state1.state, state2);
+  return integrate_with_covariance(state1, controls);
+}
+
 vector<State> Reeds_Shepp_State_Space::integrate(const State &state, const vector<Control> &controls) const
 {
   vector<State> path;
@@ -637,6 +644,64 @@ vector<State> Reeds_Shepp_State_Space::integrate(const State &state, const vecto
     }
   }
   return path;
+}
+
+vector<State_With_Covariance> Reeds_Shepp_State_Space::integrate_with_covariance(const State_With_Covariance &state,
+                                                                                 const vector<Control> &controls) const
+{
+  vector<State_With_Covariance> path_with_covariance;
+  State_With_Covariance state_curr, state_next;
+  // reserve capacity of path
+  int n_states(0);
+  for (const auto &control : controls)
+  {
+    double abs_delta_s(fabs(control.delta_s));
+    n_states += ceil(abs_delta_s / discretization_);
+  }
+  path_with_covariance.reserve(n_states + 1);
+  // get first state
+  state_curr.state.x = state.state.x;
+  state_curr.state.y = state.state.y;
+  state_curr.state.theta = state.state.theta;
+  for (int i = 0; i < 16; i++)
+  {
+    state_curr.covariance[i] = state.covariance[i];
+  }
+
+  for (const auto &control : controls)
+  {
+    double delta_s(control.delta_s);
+    double abs_delta_s(fabs(delta_s));
+    double kappa(control.kappa);
+    double s_seg(0.0);
+    double integration_step(0.0);
+    // push_back current state
+    state_curr.state.kappa = kappa;
+    state_curr.state.d = sgn(delta_s);
+    path_with_covariance.push_back(state_curr);
+
+    while (s_seg < abs_delta_s)
+    {
+      // get integration step
+      s_seg += discretization_;
+      if (s_seg > abs_delta_s)
+      {
+        integration_step = discretization_ - (s_seg - abs_delta_s);
+        s_seg = abs_delta_s;
+      }
+      else
+      {
+        integration_step = discretization_;
+      }
+      state_next.state = integrate_ODE(state_curr.state, control, integration_step);
+      state_next.covariance[0 + 4 * 0] = 0.1 * 0.1;
+      state_next.covariance[1 + 4 * 1] = 0.1 * 0.1;
+      state_next.covariance[2 + 4 * 2] = 0.01 * 0.01;
+      path_with_covariance.push_back(state_next);
+      state_curr = state_next;
+    }
+  }
+  return path_with_covariance;
 }
 
 State Reeds_Shepp_State_Space::interpolate(const State &state, const vector<Control> &controls, double t) const
