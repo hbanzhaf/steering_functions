@@ -51,7 +51,7 @@ struct State_With_Covariance
                                        y_x      y_y      y_theta      y_kappa
                                        theta_x  theta_y  theta_theta  theta_kappa
                                        kappa_x  kappa_y  kappa_theta  kappa_kappa) */
-  double covariance[16] = {0.0};
+  double covariance[16] = { 0.0 };
 };
 
 /** \brief Description of a path segment with its corresponding control inputs */
@@ -65,6 +65,53 @@ struct Control
 
   /** \brief Sharpness (derivative of curvature with respect to arc length) of a segment */
   double sigma;
+};
+
+/** \brief Parameters of the motion noise model according to the book:
+    Probabilistic Robotics, S. Thrun and others, MIT Press, 2006, p. 127-128 and p.204-206. */
+struct Motion_Noise
+{
+  /** \brief Variance in longitudinal direction: alpha1*delta_s*delta_s + alpha2*kappa*kappa + alpha3*sigma*sigma  */
+  double alpha1;
+  double alpha2;
+  double alpha3;
+
+  /** \brief Variance in lateral direction: alpha4*delta_s*delta_s + alpha5*kappa*kappa + alpha6*sigma*sigma  */
+  double alpha4;
+  double alpha5;
+  double alpha6;
+};
+
+/** \brief Parameters of the measurement noise */
+struct Measurement_Noise
+{
+  /** \brief Standard deviation of localization in x */
+  double std_x;
+
+  /** \brief Standard deviation of localization in y */
+  double std_y;
+
+  /** \brief Standard deviation of localization in theta */
+  double std_theta;
+
+  /** \brief Standard deviation of curvature measurement */
+  double std_kappa;
+};
+
+/** \brief Parameters of the feedback controller */
+struct Controller
+{
+  /** \brief Weight on longitudinal error */
+  double k1;
+
+  /** \brief Weight on lateral error */
+  double k2;
+
+  /** \brief Weight on heading error */
+  double k3;
+
+  /** \brief Weight on curvature error */
+  double k4;
 };
 }
 

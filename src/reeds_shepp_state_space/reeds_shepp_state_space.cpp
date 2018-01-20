@@ -545,6 +545,15 @@ Reeds_Shepp_State_Space::Reeds_Shepp_Path Reeds_Shepp_State_Space::reeds_shepp(c
   return ::reeds_shepp(x * kappa_, y * kappa_, dth);
 }
 
+void Reeds_Shepp_State_Space::set_filter_parameters(const Motion_Noise &motion_noise,
+                                                    const Measurement_Noise &measurement_noise,
+                                                    const Controller &controller)
+{
+  motion_noise_ = motion_noise;
+  measurement_noise_ = measurement_noise;
+  controller_ = controller;
+}
+
 double Reeds_Shepp_State_Space::get_distance(const State &state1, const State &state2) const
 {
   return kappa_inv_ * this->reeds_shepp(state1, state2).length();

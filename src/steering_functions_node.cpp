@@ -68,6 +68,11 @@ public:
   double sigma_max_;
   vector<State_With_Covariance> path_;
 
+  // filter parameters
+  Motion_Noise motion_noise_;
+  Measurement_Noise measurement_noise_;
+  Controller controller_;
+
   // visualization
   string frame_id_;
   nav_msgs::Path nav_path_;
@@ -88,7 +93,26 @@ public:
     , sigma_max_(sigma_max)
     , frame_id_(FRAME_ID)
   {
+    ros::NodeHandle nh;
     ros::NodeHandle pnh("~");
+
+    // filter parameters
+    nh.param<double>("motion_noise/alpha1", motion_noise_.alpha1, 0.1);
+    nh.param<double>("motion_noise/alpha2", motion_noise_.alpha2, 0.0);
+    nh.param<double>("motion_noise/alpha3", motion_noise_.alpha3, 0.0);
+    nh.param<double>("motion_noise/alpha4", motion_noise_.alpha4, 0.0);
+    nh.param<double>("motion_noise/alpha5", motion_noise_.alpha5, 0.1);
+    nh.param<double>("motion_noise/alpha6", motion_noise_.alpha6, 0.1);
+
+    nh.param<double>("measurement_noise/std_x", measurement_noise_.std_x, 0.1);
+    nh.param<double>("measurement_noise/std_y", measurement_noise_.std_y, 0.1);
+    nh.param<double>("measurement_noise/std_theta", measurement_noise_.std_theta, 0.01);
+    nh.param<double>("measurement_noise/std_kappa", measurement_noise_.std_kappa, 1e-9);
+
+    nh.param<double>("controller/k1", controller_.k1, 1.0);
+    nh.param<double>("controller/k2", controller_.k2, 1.0);
+    nh.param<double>("controller/k3", controller_.k3, 1.0);
+    nh.param<double>("controller/k4", controller_.k4, 1.0);
 
     // publisher
     pub_path_ = pnh.advertise<nav_msgs::Path>("visualization_path", 10);
@@ -146,6 +170,7 @@ public:
     {
       id_ = "8";
       Reeds_Shepp_State_Space state_space(kappa_max_, discretization_);
+      state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
 
@@ -303,6 +328,9 @@ public:
   double wheel_radius_;
   double wheel_width_;
 
+  // measurement noise
+  Measurement_Noise measurement_noise_;
+
   // visualization
   string frame_id_;
   bool animate_;
@@ -350,6 +378,12 @@ public:
     wheel_.push_back(point2);
     wheel_.push_back(point3);
     wheel_.push_back(point4);
+
+    // measurement noise
+    nh.param<double>("measurement_noise/std_x", measurement_noise_.std_x, 0.1);
+    nh.param<double>("measurement_noise/std_y", measurement_noise_.std_y, 0.1);
+    nh.param<double>("measurement_noise/std_theta", measurement_noise_.std_theta, 0.01);
+    nh.param<double>("measurement_noise/std_kappa", measurement_noise_.std_kappa, 1e-9);
 
     // marker chassis
     marker_chassis_.header.frame_id = frame_id_;
@@ -461,9 +495,10 @@ int main(int argc, char** argv)
     start.state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
     start.state.kappa = 0.0;
     start.state.d = 0.0;
-    start.covariance[0 + 4 * 0] = 0.1 * 0.1;
-    start.covariance[1 + 4 * 1] = 0.1 * 0.1;
-    start.covariance[2 + 4 * 2] = 0.01 * 0.01;
+    start.covariance[0 + 4 * 0] = pow(robot.measurement_noise_.std_x, 2);
+    start.covariance[1 + 4 * 1] = pow(robot.measurement_noise_.std_y, 2);
+    start.covariance[2 + 4 * 2] = pow(robot.measurement_noise_.std_theta, 2);
+    start.covariance[3 + 4 * 3] = pow(robot.measurement_noise_.std_kappa, 2);
 
     State goal;
     goal.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);

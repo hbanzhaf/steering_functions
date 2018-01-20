@@ -132,6 +132,10 @@ public:
     kappa_inv_ = 1 / kappa;
   }
 
+  /** \brief Sets the parameters required by the filter */
+  void set_filter_parameters(const Motion_Noise &motion_noise, const Measurement_Noise &measurement_noise,
+                             const Controller &controller);
+
   /** \brief Returns type and length of segments of path from state1 to state2 with curvature = 1.0 */
   Reeds_Shepp_Path reeds_shepp(const State &state1, const State &state2) const;
 
@@ -170,6 +174,15 @@ private:
 
   /** \brief Discretization of path */
   double discretization_;
+
+  /** \brief Motion noise */
+  Motion_Noise motion_noise_;
+
+  /** \brief Measurement noise */
+  Measurement_Noise measurement_noise_;
+
+  /** \brief Feedback controller */
+  Controller controller_;
 };
 
 #endif

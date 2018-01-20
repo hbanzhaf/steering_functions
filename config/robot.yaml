@@ -25,9 +25,18 @@ footprint:
   [3.5644721394828593, -0.7865556076677132],
   [3.300378104716742, -0.917010305823913]]
 
-wheel_base: 2.912   # [m]
-track_width: 1.584  # [m]
-wheel_radius: 0.339 # [m]
-wheel_width: 0.245  # [m]
+wheel_base:   2.912  # [m]
+track_width:  1.584  # [m]
+wheel_radius: 0.339  # [m]
+wheel_width:  0.245  # [m]
 
+motion_noise: {alpha1: 0.1,  alpha2: 0.05, alpha3: 0.05,
+               alpha4: 0.05, alpha5: 0.1,  alpha6: 0.1}
 
+measurement_noise:
+  std_x:     0.1     # [m]
+  std_y:     0.1     # [m]
+  std_theta: 0.05    # [rad]
+  std_kappa: 1.0e-6 # [1/m]
+
+controller: {k1: 1.5, k2: 0.25, k3: 1.0, k4: 1.0}
