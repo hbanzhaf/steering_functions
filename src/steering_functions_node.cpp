@@ -374,22 +374,6 @@ public:
     marker_wheels_.color.a = 1.0;
   }
 
-  // translate and rotate polygon
-  void get_oriented_polygon(double x, double y, double theta, const vector<geometry_msgs::Point>& polygon,
-                            vector<geometry_msgs::Point>& oriented_polygon) const
-  {
-    oriented_polygon.clear();
-    double cos_th = cos(theta);
-    double sin_th = sin(theta);
-    geometry_msgs::Point new_point;
-    for (const auto& point : polygon)
-    {
-      new_point.x = x + (point.x * cos_th - point.y * sin_th);
-      new_point.y = y + (point.x * sin_th + point.y * cos_th);
-      oriented_polygon.push_back(new_point);
-    }
-  }
-
   // visualization
   void polygon_to_marker(const vector<geometry_msgs::Point>& polygon, visualization_msgs::Marker& marker)
   {
@@ -427,11 +411,11 @@ public:
       }
 
       // transform wheels and footprint
-      get_oriented_polygon(wheel_fl_pos_.x, wheel_fl_pos_.y, steer_angle_fl, wheel_, wheel_fl);
-      get_oriented_polygon(wheel_fr_pos_.x, wheel_fr_pos_.y, steer_angle_fr, wheel_, wheel_fr);
-      get_oriented_polygon(state.state.x, state.state.y, state.state.theta, wheel_fl, oriented_wheel_fl);
-      get_oriented_polygon(state.state.x, state.state.y, state.state.theta, wheel_fr, oriented_wheel_fr);
-      get_oriented_polygon(state.state.x, state.state.y, state.state.theta, footprint_, oriented_footprint);
+      costmap_2d::transformFootprint(wheel_fl_pos_.x, wheel_fl_pos_.y, steer_angle_fl, wheel_, wheel_fl);
+      costmap_2d::transformFootprint(wheel_fr_pos_.x, wheel_fr_pos_.y, steer_angle_fr, wheel_, wheel_fr);
+      costmap_2d::transformFootprint(state.state.x, state.state.y, state.state.theta, wheel_fl, oriented_wheel_fl);
+      costmap_2d::transformFootprint(state.state.x, state.state.y, state.state.theta, wheel_fr, oriented_wheel_fr);
+      costmap_2d::transformFootprint(state.state.x, state.state.y, state.state.theta, footprint_, oriented_footprint);
 
       polygon_to_marker(oriented_footprint, marker_chassis_);
       polygon_to_marker(oriented_wheel_fl, marker_wheels_);
