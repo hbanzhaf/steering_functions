@@ -37,6 +37,8 @@ using namespace std;
 #define PI 3.1415926535897932384
 #define HALF_PI 1.5707963267948966192
 #define TWO_PI 6.2831853071795864770
+#define SQRT_PI 1.7724538509055160273
+#define SQRT_PI_INV 0.56418958354775628695
 #define SQRT_TWO_PI_INV 0.39894228040143267794
 
 const double epsilon = 1e-4;
@@ -64,22 +66,31 @@ void fresnel(double s, double &S_f, double &C_f);
 /** \brief Computation of the end point on a clothoid
     x_i, y_i, theta_i, kappa_i: initial configuration
     sigma: sharpness of clothoid
-    forward: driving direction
+    direction: driving direction {-1.0, 1.0}
     length: length of clothoid (positive)
     x_f, y_f, theta_f, kappa_f: final configuration on clothoid
     */
-void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, double sigma, bool forward, double length,
-                     double *x_f, double *y_f, double *theta_f, double *kappa_f);
+void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, double sigma, double direction,
+                     double length, double *x_f, double *y_f, double *theta_f, double *kappa_f);
 
 /** \brief Computation of the end point on a circular arc
-    x_i, y_i, theta_i, kappa_i: initial configuration
+    x_i, y_i, theta_i: initial configuration
     kappa: curvature of circular arc
-    forward: driving direction
+    direction: driving direction {-1.0, 1.0}
     length: arc length (positive)
-    x_f, y_f, theta_f, kappa_f: final configuration on circular arc
+    x_f, y_f, theta_f: final configuration on circular arc
     */
-void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, bool forward, double length, double *x_f,
-                         double *y_f, double *theta_f);
+void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, double direction, double length,
+                         double *x_f, double *y_f, double *theta_f);
+
+/** \brief Computation of the end point on a straight line
+    x_i, y_i, theta_i: initial configuration
+    direction: driving direction {-1.0, 1.0}
+    length: line length (positive)
+    x_f, y_f, theta_f: final configuration on circular arc
+    */
+void end_of_straight_line(double x_i, double y_i, double theta_i, double direction, double length, double *x_f,
+                          double *y_f, double *theta_f);
 
 /** \brief Transformation of (local_x, local_y) from local coordinate system to global one */
 void global_frame_change(double x, double y, double theta, double local_x, double local_y, double *global_x,

@@ -146,97 +146,54 @@ void fresnel(double s, double &S_f, double &C_f)
   return;
 }
 
-void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, double sigma, bool forward, double length,
-                     double *x_f, double *y_f, double *theta_f, double *kappa_f)
+void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, double sigma, double direction,
+                     double length, double *x_f, double *y_f, double *theta_f, double *kappa_f)
 {
-  double x, y, theta, kappa, d;
-  if (forward)
-    d = 1;
-  else
-    d = -1;
+  // x_f = x_i + int_0_length(cos(theta_i + kappa_i*s + 0.5*sigma_i*s^2)ds)
+  // y_f = y_i + int_0_length(sin(theta_i + kappa_i*s + 0.5*sigma_i*s^2)ds)
+  double x_local, y_local;
+  double sgn_sigma = sgn(sigma);
+  double abs_sigma = fabs(sigma);
+  double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
+  double sgn_kappa_i = sgn(kappa_i);
+  double k1 = 0.5 * pow(kappa_i, 2) / abs_sigma;
+  double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * length + sgn_sigma * kappa_i);
+  double k3 = SQRT_PI_INV * sqrt_sigma_inv * fabs(kappa_i);
+  double cos_k1 = cos(k1);
+  double sin_k1 = sin(k1);
+  double fresnel_s_k2;
+  double fresnel_c_k2;
+  double fresnel_s_k3;
+  double fresnel_c_k3;
+  fresnel(k2, fresnel_s_k2, fresnel_c_k2);
+  fresnel(k3, fresnel_s_k3, fresnel_c_k3);
+  x_local = SQRT_PI * sqrt_sigma_inv * direction *
+            (cos_k1 * fresnel_c_k2 + sin_k1 * fresnel_s_k2 - sgn_sigma * sgn_kappa_i * cos_k1 * fresnel_c_k3 -
+             sgn_sigma * sgn_kappa_i * sin_k1 * fresnel_s_k3);
+  y_local = SQRT_PI * sqrt_sigma_inv * (sgn_sigma * cos_k1 * fresnel_s_k2 - sgn_sigma * sin_k1 * fresnel_c_k2 -
+                                        sgn_kappa_i * cos_k1 * fresnel_s_k3 + sgn_kappa_i * sin_k1 * fresnel_c_k3);
+  global_frame_change(x_i, y_i, theta_i, x_local, y_local, x_f, y_f);
 
-  // assume initial configuration is at origin (x, y, theta = 0)
-  if (fabs(sigma) < get_epsilon())
-  {
-    if (fabs(kappa_i) < get_epsilon())
-    {
-      x = d * length;
-      y = 0;
-      theta = 0;
-      kappa = 0;
-    }
-    else
-    {
-      x = d * 1 / kappa_i * sin(kappa_i * length);
-      y = 1 / kappa_i * (1 - cos(kappa_i * length));
-      theta = d * kappa_i * length;
-      kappa = kappa_i;
-    }
-  }
-  else
-  {
-    // kappa(s) = kappa(0) + sigma * s
-    kappa = kappa_i + sigma * length;
-    // theta(s) = 1/2 * sigma * s^2 + kappa(0) * s
-    theta = 0.5 * sigma * pow(length, 2) + kappa_i * length;
-    // x(s) = int(cos(1/2 * sigma * u^2 + kappa * u), u = 0...s)
-    // y(s) = int(sin(1/2 * sigma * u^2 + kappa * u), u= 0...s)
-    int ssigma = sgn(sigma);
-    double usigma = fabs(sigma);
-    int skappa = sgn(kappa_i);
-    double ukappa = fabs(kappa_i);
-    double k1 = 0.5 * pow(ukappa, 2) / usigma;
-    double k2 = (usigma * length + ssigma * skappa * ukappa) / sqrt(PI * usigma);
-    double k3 = ukappa / sqrt(PI * usigma);
-    double cos_k1 = cos(k1);
-    double sin_k1 = sin(k1);
-    double fresnel_s_k2;
-    double fresnel_c_k2;
-    double fresnel_s_k3;
-    double fresnel_c_k3;
-    fresnel(k2, fresnel_s_k2, fresnel_c_k2);
-    fresnel(k3, fresnel_s_k3, fresnel_c_k3);
-    x = sqrt(PI / usigma) * (cos_k1 * fresnel_c_k2 + sin_k1 * fresnel_s_k2 - ssigma * skappa * cos_k1 * fresnel_c_k3 -
-                             ssigma * skappa * sin_k1 * fresnel_s_k3);
-    y = sqrt(PI / usigma) * (ssigma * cos_k1 * fresnel_s_k2 - ssigma * sin_k1 * fresnel_c_k2 -
-                             skappa * cos_k1 * fresnel_s_k3 + skappa * sin_k1 * fresnel_c_k3);
-    x = d * x;
-    theta = d * theta;
-  }
-
-  // translation and rotation to account for initial configuration
-  global_frame_change(x_i, y_i, theta_i, x, y, x_f, y_f);
-  *theta_f = pify(theta_i + theta);
-  *kappa_f = kappa;
+  // theta_f = theta_i + kappa_i*length + 0.5*sigma*length^2
+  *theta_f = pify(theta_i + kappa_i * direction * length + 0.5 * sigma * direction * length * length);
+  // kappa_f = kappa_i + sigma * d * length
+  *kappa_f = kappa_i + sigma * length;
 }
 
-void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, bool forward, double length, double *x_f,
-                         double *y_f, double *theta_f)
+void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, double direction, double length,
+                         double *x_f, double *y_f, double *theta_f)
 {
-  double x, y, theta, d;
-  if (forward)
-    d = 1;
-  else
-    d = -1;
+  *x_f = x_i + (1 / kappa) * (-sin(theta_i) + sin(theta_i + direction * length * kappa));
+  *y_f = y_i + (1 / kappa) * (cos(theta_i) - cos(theta_i + direction * length * kappa));
+  *theta_f = pify(theta_i + kappa * direction * length);
+}
 
-  // assume initial configuration is at origin (x, y, theta = 0)
-  if (fabs(kappa) < get_epsilon())
-  {
-    x = d * length;
-    y = 0;
-    theta = 0;
-  }
-  else
-  {
-    x = d * 1 / kappa * sin(kappa * length);
-    y = 1 / kappa * (1 - cos(kappa * length));
-    theta = d * kappa * length;
-  }
-
-  // translation and rotation to account for initial configuration
-  *x_f = x * cos(theta_i) - y * sin(theta_i) + x_i;
-  *y_f = x * sin(theta_i) + y * cos(theta_i) + y_i;
-  *theta_f = pify(theta_i + theta);
+void end_of_straight_line(double x_i, double y_i, double theta_i, double direction, double length, double *x_f,
+                          double *y_f, double *theta_f)
+{
+  *x_f = x_i + direction * length * cos(theta_i);
+  *y_f = y_i + direction * length * sin(theta_i);
+  *theta_f = theta_i;
 }
 
 void global_frame_change(double x, double y, double theta, double local_x, double local_y, double *global_x,
