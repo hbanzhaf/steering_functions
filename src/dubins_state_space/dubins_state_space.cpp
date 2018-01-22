@@ -410,7 +410,7 @@ inline State Dubins_State_Space::integrate_ODE(const State &state, const Control
   State state_next;
   double kappa(control.kappa);
   double d(sgn(control.delta_s));
-  if (kappa != 0.0)
+  if (fabs(kappa) > DUBINS_EPS)
   {
     state_next.x = state.x + (1 / kappa) * (-sin(state.theta) + sin(state.theta + d * integration_step * kappa));
     state_next.y = state.y + (1 / kappa) * (cos(state.theta) - cos(state.theta + d * integration_step * kappa));

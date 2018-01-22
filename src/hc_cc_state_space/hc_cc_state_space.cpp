@@ -22,17 +22,17 @@ HC_CC_State_Space::HC_CC_State_Space(double kappa, double sigma, double discreti
 {
   // intermediate configuration after first clothoid
   double length = kappa / sigma;
-  double x_i, y_i, theta_i, kappa_i;
+  double x_i, y_i, theta_i;
   if (length > get_epsilon())
   {
-    end_of_clothoid(0, 0, 0, 0, sigma, true, length, &x_i, &y_i, &theta_i, &kappa_i);
+    double kappa_i;
+    end_of_clothoid(0, 0, 0, 0, sigma, 1, length, &x_i, &y_i, &theta_i, &kappa_i);
   }
   else
   {
     x_i = 0;
     y_i = 0;
     theta_i = 0;
-    kappa_i = kappa;
   }
   // radius
   double xc, yc;
@@ -180,27 +180,25 @@ inline State HC_CC_State_Space::integrate_ODE(const State &state, const Control 
   double kappa(control.kappa);
   double sigma(control.sigma);
   double d(sgn(control.delta_s));
-  if (sigma != 0.0)
+  if (fabs(sigma) > get_epsilon())
   {
-    end_of_clothoid(state.x, state.y, state.theta, state.kappa, sigma, d > 0, integration_step, &state_next.x,
+    end_of_clothoid(state.x, state.y, state.theta, state.kappa, sigma, d, integration_step, &state_next.x,
                     &state_next.y, &state_next.theta, &state_next.kappa);
     state_next.d = d;
   }
   else
   {
-    if (kappa != 0.0)
+    if (fabs(kappa) > get_epsilon())
     {
-      state_next.x = state.x + (1 / kappa) * (-sin(state.theta) + sin(state.theta + d * integration_step * kappa));
-      state_next.y = state.y + (1 / kappa) * (cos(state.theta) - cos(state.theta + d * integration_step * kappa));
-      state_next.theta = pify(state.theta + d * integration_step * kappa);
+      end_of_circular_arc(state.x, state.y, state.theta, kappa, d, integration_step, &state_next.x, &state_next.y,
+                          &state_next.theta);
       state_next.kappa = kappa;
       state_next.d = d;
     }
     else
     {
-      state_next.x = state.x + d * integration_step * cos(state.theta);
-      state_next.y = state.y + d * integration_step * sin(state.theta);
-      state_next.theta = state.theta;
+      end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
+                           &state_next.theta);
       state_next.kappa = kappa;
       state_next.d = d;
     }
