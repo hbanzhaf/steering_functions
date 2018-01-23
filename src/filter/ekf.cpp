@@ -17,14 +17,6 @@
 
 #include "steering_functions/filter/ekf.hpp"
 
-// ------------- move to utilities ------------------//
-#define EKF_EPS 1e-6
-double sign(double x)
-{
-  return ((x < 0) ? -1.0 : 1.0);
-}
-// ------------- move to utilities ------------------//
-
 void EKF::set_parameters(const Motion_Noise &motion_noise, const Measurement_Noise &measurement_noise,
                          const Controller &controller)
 {
@@ -59,12 +51,12 @@ void EKF::eigen_to_covariance(const Matrix4d &covariance_eigen, double covarianc
 
 Matrix4d EKF::get_motion_jacobi_x(const State &state, const Control &control, double integration_step) const
 {
-  double d = sign(control.delta_s);
+  Matrix4d F_x(Matrix4d::Zero());
+  double d(sgn(control.delta_s));
   double sin_th = sin(state.theta);
   double cos_th = cos(state.theta);
-  Matrix4d F_x(Matrix4d::Zero());
 
-  if (fabs(state.kappa) > EKF_EPS)
+  if (fabs(state.kappa) > get_epsilon())
   {
     F_x(0, 0) = 1.0;
     F_x(1, 1) = 1.0;
@@ -97,9 +89,9 @@ Matrix4d EKF::get_motion_jacobi_x(const State &state, const Control &control, do
 
 Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, double integration_step) const
 {
-  double d = sign(control.delta_s);
   Matrix42d F_u(Matrix42d::Zero());
-  if (fabs(state.kappa) > EKF_EPS)
+  double d(sgn(control.delta_s));
+  if (fabs(state.kappa) > get_epsilon())
   {
     F_u(0, 0) = cos(state.theta + d * integration_step * state.kappa);
     F_u(1, 0) = sin(state.theta + d * integration_step * state.kappa);
@@ -150,7 +142,7 @@ Matrix24d EKF::get_controller_gain(const Control &control) const
   Matrix24d K(Matrix24d::Zero());
   K(0, 0) = controller_.k1;
   K(1, 1) = controller_.k2;
-  K(1, 2) = sign(control.delta_s) * controller_.k3;
+  K(1, 2) = sgn(control.delta_s) * controller_.k3;
   K(1, 3) = controller_.k4;
   return K;
 }
