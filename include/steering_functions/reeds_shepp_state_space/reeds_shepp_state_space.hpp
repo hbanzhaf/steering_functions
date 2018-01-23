@@ -67,6 +67,7 @@
 #include <vector>
 
 #include "steering_functions/steering_functions.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 using namespace steer;
@@ -151,7 +152,7 @@ public:
   State interpolate(const State &state, const vector<Control> &controls, double t) const;
 
   /** \brief Returns integrated state given a start state, a control, and an integration step */
-  inline State integrate_ODE(const State& state, const Control& control, double integration_step) const;
+  inline State integrate_ODE(const State &state, const Control &control, double integration_step) const;
 
 private:
   /** \brief Curvature */

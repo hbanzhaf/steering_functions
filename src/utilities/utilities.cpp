@@ -40,17 +40,15 @@ double point_distance(double x1, double y1, double x2, double y2)
   return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
 
+void polar(double x, double y, double &r, double &theta)
+{
+  r = sqrt(x * x + y * y);
+  theta = atan2(y, x);
+}
+
 double twopify(double alpha)
 {
-  while (alpha >= TWO_PI)
-  {
-    alpha = alpha - (2 * PI);
-  }
-  while (alpha < 0)
-  {
-    alpha = alpha + (2 * PI);
-  }
-  return alpha;
+  return alpha - TWO_PI * floor(alpha / TWO_PI);
 }
 
 double pify(double alpha)
