@@ -47,10 +47,16 @@ struct State_With_Covariance
   /** \brief Expected state of the robot */
   State state;
 
-  /** \brief Covariance of the state: (x_x      x_y      x_theta      x_kappa
-                                       y_x      y_y      y_theta      y_kappa
-                                       theta_x  theta_y  theta_theta  theta_kappa
-                                       kappa_x  kappa_y  kappa_theta  kappa_kappa) */
+  /** \brief Covariance of the state estimation due to motion and measurement noise */
+  double Sigma[16] = { 0.0 };
+
+  /** \brief Covariance of the state estimate due to the absence of measurements */
+  double Lambda[16] = { 0.0 };
+
+  /** \brief Covariance of the state given by Sigma + Lambda: (x_x      x_y      x_theta      x_kappa
+                                                               y_x      y_y      y_theta      y_kappa
+                                                               theta_x  theta_y  theta_theta  theta_kappa
+                                                               kappa_x  kappa_y  kappa_theta  kappa_kappa) */
   double covariance[16] = { 0.0 };
 };
 

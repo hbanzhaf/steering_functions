@@ -66,6 +66,7 @@
 #include <limits>
 #include <vector>
 
+#include "steering_functions/filter/ekf.hpp"
 #include "steering_functions/steering_functions.hpp"
 
 using namespace std;
@@ -175,14 +176,8 @@ private:
   /** \brief Discretization of path */
   double discretization_;
 
-  /** \brief Motion noise */
-  Motion_Noise motion_noise_;
-
-  /** \brief Measurement noise */
-  Measurement_Noise measurement_noise_;
-
-  /** \brief Feedback controller */
-  Controller controller_;
+  /** \brief Extended Kalman Filter for uncertainty propagation */
+  EKF ekf_;
 };
 
 #endif

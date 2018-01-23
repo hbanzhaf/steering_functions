@@ -495,10 +495,10 @@ int main(int argc, char** argv)
     start.state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
     start.state.kappa = 0.0;
     start.state.d = 0.0;
-    start.covariance[0 + 4 * 0] = pow(robot.measurement_noise_.std_x, 2);
-    start.covariance[1 + 4 * 1] = pow(robot.measurement_noise_.std_y, 2);
-    start.covariance[2 + 4 * 2] = pow(robot.measurement_noise_.std_theta, 2);
-    start.covariance[3 + 4 * 3] = pow(robot.measurement_noise_.std_kappa, 2);
+    start.covariance[0 + 4 * 0] = start.Sigma[0 + 4 * 0] = pow(robot.measurement_noise_.std_x, 2);
+    start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(robot.measurement_noise_.std_y, 2);
+    start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(robot.measurement_noise_.std_theta, 2);
+    start.covariance[3 + 4 * 3] = start.Sigma[3 + 4 * 3] = pow(robot.measurement_noise_.std_kappa, 2);
 
     State goal;
     goal.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
