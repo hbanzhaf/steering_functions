@@ -31,7 +31,7 @@
 #include <limits>
 
 #include "configuration.hpp"
-#include "utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

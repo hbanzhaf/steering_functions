@@ -68,6 +68,7 @@
 
 #include "steering_functions/filter/ekf.hpp"
 #include "steering_functions/steering_functions.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 using namespace steer;

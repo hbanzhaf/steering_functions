@@ -62,50 +62,29 @@
 namespace
 {
 // The comments, variable names, etc. use the nomenclature from the Reeds & Shepp paper.
-const double pi = M_PI;
-const double twopi = 2. * pi;
 const double RS_EPS = 1e-6;
-const double ZERO = 10 * numeric_limits<double>::epsilon();
+const double RS_ZERO = 10 * numeric_limits<double>::epsilon();
 
-inline int sgn(double x)
-{
-  return (((x) < 0) ? -1 : 1);
-}
-
-inline double mod2pi(double x)
-{
-  double v = fmod(x, twopi);
-  if (v < -pi)
-    v += twopi;
-  else if (v > pi)
-    v -= twopi;
-  return v;
-}
-inline void polar(double x, double y, double &r, double &theta)
-{
-  r = sqrt(x * x + y * y);
-  theta = atan2(y, x);
-}
 inline void tauOmega(double u, double v, double xi, double eta, double phi, double &tau, double &omega)
 {
-  double delta = mod2pi(u - v), A = sin(u) - sin(delta), B = cos(u) - cos(delta) - 1.;
+  double delta = pify(u - v), A = sin(u) - sin(delta), B = cos(u) - cos(delta) - 1.;
   double t1 = atan2(eta * A - xi * B, xi * A + eta * B), t2 = 2. * (cos(delta) - cos(v) - cos(u)) + 3;
-  tau = (t2 < 0) ? mod2pi(t1 + pi) : mod2pi(t1);
-  omega = mod2pi(tau - u + v - phi);
+  tau = (t2 < 0) ? pify(t1 + PI) : pify(t1);
+  omega = pify(tau - u + v - phi);
 }
 
 // formula 8.1 in Reeds-Shepp paper
 inline bool LpSpLp(double x, double y, double phi, double &t, double &u, double &v)
 {
   polar(x - sin(phi), y - 1. + cos(phi), u, t);
-  if (t >= -ZERO)
+  if (t >= -RS_ZERO)
   {
-    v = mod2pi(phi - t);
-    if (v >= -ZERO)
+    v = pify(phi - t);
+    if (v >= -RS_ZERO)
     {
       assert(fabs(u * cos(t) + sin(phi) - x) < RS_EPS);
       assert(fabs(u * sin(t) - cos(phi) + 1 - y) < RS_EPS);
-      assert(fabs(mod2pi(t + v - phi)) < RS_EPS);
+      assert(fabs(pify(t + v - phi)) < RS_EPS);
       return true;
     }
   }
@@ -122,12 +101,12 @@ inline bool LpSpRp(double x, double y, double phi, double &t, double &u, double 
     double theta;
     u = sqrt(u1 - 4.);
     theta = atan2(2., u);
-    t = mod2pi(t1 + theta);
-    v = mod2pi(t - phi);
+    t = pify(t1 + theta);
+    v = pify(t - phi);
     assert(fabs(2 * sin(t) + u * cos(t) - sin(phi) - x) < RS_EPS);
     assert(fabs(-2 * cos(t) + u * sin(t) + cos(phi) + 1 - y) < RS_EPS);
-    assert(fabs(mod2pi(t - v - phi)) < RS_EPS);
-    return t >= -ZERO && v >= -ZERO;
+    assert(fabs(pify(t - v - phi)) < RS_EPS);
+    return t >= -RS_ZERO && v >= -RS_ZERO;
   }
   return false;
 }
@@ -180,12 +159,12 @@ inline bool LpRmL(double x, double y, double phi, double &t, double &u, double &
   if (u1 <= 4.)
   {
     u = -2. * asin(.25 * u1);
-    t = mod2pi(theta + .5 * u + pi);
-    v = mod2pi(phi - t + u);
+    t = pify(theta + .5 * u + PI);
+    v = pify(phi - t + u);
     assert(fabs(2 * (sin(t) - sin(t - u)) + sin(phi) - x) < RS_EPS);
     assert(fabs(2 * (-cos(t) + cos(t - u)) - cos(phi) + 1 - y) < RS_EPS);
-    assert(fabs(mod2pi(t - u + v - phi)) < RS_EPS);
-    return t >= -ZERO && u <= ZERO;
+    assert(fabs(pify(t - u + v - phi)) < RS_EPS);
+    return t >= -RS_ZERO && u <= RS_ZERO;
   }
   return false;
 }
@@ -243,8 +222,8 @@ inline bool LpRupLumRm(double x, double y, double phi, double &t, double &u, dou
     tauOmega(u, -u, xi, eta, phi, t, v);
     assert(fabs(2 * (sin(t) - sin(t - u) + sin(t - 2 * u)) - sin(phi) - x) < RS_EPS);
     assert(fabs(2 * (-cos(t) + cos(t - u) - cos(t - 2 * u)) + cos(phi) + 1 - y) < RS_EPS);
-    assert(fabs(mod2pi(t - 2 * u - v - phi)) < RS_EPS);
-    return t >= -ZERO && v <= ZERO;
+    assert(fabs(pify(t - 2 * u - v - phi)) < RS_EPS);
+    return t >= -RS_ZERO && v <= RS_ZERO;
   }
   return false;
 }
@@ -255,13 +234,13 @@ inline bool LpRumLumRp(double x, double y, double phi, double &t, double &u, dou
   if (rho >= 0 && rho <= 1)
   {
     u = -acos(rho);
-    if (u >= -.5 * pi)
+    if (u >= -.5 * PI)
     {
       tauOmega(u, u, xi, eta, phi, t, v);
       assert(fabs(4 * sin(t) - 2 * sin(t - u) - sin(phi) - x) < RS_EPS);
       assert(fabs(-4 * cos(t) + 2 * cos(t - u) + cos(phi) + 1 - y) < RS_EPS);
-      assert(fabs(mod2pi(t - v - phi)) < RS_EPS);
-      return t >= -ZERO && v >= -ZERO;
+      assert(fabs(pify(t - v - phi)) < RS_EPS);
+      return t >= -RS_ZERO && v >= -RS_ZERO;
     }
   }
   return false;
@@ -317,12 +296,12 @@ inline bool LpRmSmLm(double x, double y, double phi, double &t, double &u, doubl
   {
     double r = sqrt(rho * rho - 4.);
     u = 2. - r;
-    t = mod2pi(theta + atan2(r, -2.));
-    v = mod2pi(phi - .5 * pi - t);
+    t = pify(theta + atan2(r, -2.));
+    v = pify(phi - .5 * PI - t);
     assert(fabs(2 * (sin(t) - cos(t)) - u * sin(t) + sin(phi) - x) < RS_EPS);
     assert(fabs(-2 * (sin(t) + cos(t)) + u * cos(t) - cos(phi) + 1 - y) < RS_EPS);
-    assert(fabs(mod2pi(t + pi / 2 + v - phi)) < RS_EPS);
-    return t >= -ZERO && u <= ZERO && v <= ZERO;
+    assert(fabs(pify(t + PI / 2 + v - phi)) < RS_EPS);
+    return t >= -RS_ZERO && u <= RS_ZERO && v <= RS_ZERO;
   }
   return false;
 }
@@ -335,38 +314,38 @@ inline bool LpRmSmRm(double x, double y, double phi, double &t, double &u, doubl
   {
     t = theta;
     u = 2. - rho;
-    v = mod2pi(t + .5 * pi - phi);
+    v = pify(t + .5 * PI - phi);
     assert(fabs(2 * sin(t) - cos(t - v) - u * sin(t) - x) < RS_EPS);
     assert(fabs(-2 * cos(t) - sin(t - v) + u * cos(t) + 1 - y) < RS_EPS);
-    assert(fabs(mod2pi(t + pi / 2 - v - phi)) < RS_EPS);
-    return t >= -ZERO && u <= ZERO && v <= ZERO;
+    assert(fabs(pify(t + PI / 2 - v - phi)) < RS_EPS);
+    return t >= -RS_ZERO && u <= RS_ZERO && v <= RS_ZERO;
   }
   return false;
 }
 void CCSC(double x, double y, double phi, Reeds_Shepp_State_Space::Reeds_Shepp_Path &path)
 {
-  double t, u, v, Lmin = path.length() - .5 * pi, L;
+  double t, u, v, Lmin = path.length() - .5 * PI, L;
   if (LpRmSmLm(x, y, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[4], t, -.5 * pi, u, v);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[4], t, -.5 * PI, u, v);
     Lmin = L;
   }
   if (LpRmSmLm(-x, y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[4], -t, .5 * pi, -u,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[4], -t, .5 * PI, -u,
                                                      -v);
     Lmin = L;
   }
   if (LpRmSmLm(x, -y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // reflect
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[5], t, -.5 * pi, u, v);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[5], t, -.5 * PI, u, v);
     Lmin = L;
   }
   if (LpRmSmLm(-x, -y, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip + reflect
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[5], -t, .5 * pi, -u,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[5], -t, .5 * PI, -u,
                                                      -v);
     Lmin = L;
   }
@@ -374,24 +353,24 @@ void CCSC(double x, double y, double phi, Reeds_Shepp_State_Space::Reeds_Shepp_P
   if (LpRmSmRm(x, y, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[8], t, -.5 * pi, u, v);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[8], t, -.5 * PI, u, v);
     Lmin = L;
   }
   if (LpRmSmRm(-x, y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[8], -t, .5 * pi, -u,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[8], -t, .5 * PI, -u,
                                                      -v);
     Lmin = L;
   }
   if (LpRmSmRm(x, -y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // reflect
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[9], t, -.5 * pi, u, v);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[9], t, -.5 * PI, u, v);
     Lmin = L;
   }
   if (LpRmSmRm(-x, -y, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip + reflect
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[9], -t, .5 * pi, -u,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[9], -t, .5 * PI, -u,
                                                      -v);
     Lmin = L;
   }
@@ -401,49 +380,49 @@ void CCSC(double x, double y, double phi, Reeds_Shepp_State_Space::Reeds_Shepp_P
   if (LpRmSmLm(xb, yb, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[6], v, u, -.5 * pi, t);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[6], v, u, -.5 * PI, t);
     Lmin = L;
   }
   if (LpRmSmLm(-xb, yb, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[6], -v, -u, .5 * pi,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[6], -v, -u, .5 * PI,
                                                      -t);
     Lmin = L;
   }
   if (LpRmSmLm(xb, -yb, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // reflect
   {
     path =
-        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[7], v, u, -.5 * pi, t);
+        Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[7], v, u, -.5 * PI, t);
     Lmin = L;
   }
   if (LpRmSmLm(-xb, -yb, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip + reflect
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[7], -v, -u, .5 * pi,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[7], -v, -u, .5 * PI,
                                                      -t);
     Lmin = L;
   }
 
   if (LpRmSmRm(xb, yb, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[10], v, u, -.5 * pi,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[10], v, u, -.5 * PI,
                                                      t);
     Lmin = L;
   }
   if (LpRmSmRm(-xb, yb, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip
   {
     path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[10], -v, -u,
-                                                     .5 * pi, -t);
+                                                     .5 * PI, -t);
     Lmin = L;
   }
   if (LpRmSmRm(xb, -yb, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // reflect
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[11], v, u, -.5 * pi,
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[11], v, u, -.5 * PI,
                                                      t);
     Lmin = L;
   }
   if (LpRmSmRm(-xb, -yb, phi, t, u, v) && Lmin > (fabs(t) + fabs(u) + fabs(v)))  // timeflip + reflect
     path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[11], -v, -u,
-                                                     .5 * pi, -t);
+                                                     .5 * PI, -t);
 }
 // formula 8.11 *** TYPO IN PAPER ***
 inline bool LpRmSLmRp(double x, double y, double phi, double &t, double &u, double &v)
@@ -453,42 +432,42 @@ inline bool LpRmSLmRp(double x, double y, double phi, double &t, double &u, doub
   if (rho >= 2.)
   {
     u = 4. - sqrt(rho * rho - 4.);
-    if (u <= ZERO)
+    if (u <= RS_ZERO)
     {
-      t = mod2pi(atan2((4 - u) * xi - 2 * eta, -2 * xi + (u - 4) * eta));
-      v = mod2pi(t - phi);
+      t = pify(atan2((4 - u) * xi - 2 * eta, -2 * xi + (u - 4) * eta));
+      v = pify(t - phi);
       assert(fabs(4 * sin(t) - 2 * cos(t) - u * sin(t) - sin(phi) - x) < RS_EPS);
       assert(fabs(-4 * cos(t) - 2 * sin(t) + u * cos(t) + cos(phi) + 1 - y) < RS_EPS);
-      assert(fabs(mod2pi(t - v - phi)) < RS_EPS);
-      return t >= -ZERO && v >= -ZERO;
+      assert(fabs(pify(t - v - phi)) < RS_EPS);
+      return t >= -RS_ZERO && v >= -RS_ZERO;
     }
   }
   return false;
 }
 void CCSCC(double x, double y, double phi, Reeds_Shepp_State_Space::Reeds_Shepp_Path &path)
 {
-  double t, u, v, Lmin = path.length() - pi, L;
+  double t, u, v, Lmin = path.length() - PI, L;
   if (LpRmSLmRp(x, y, phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[16], t, -.5 * pi, u,
-                                                     -.5 * pi, v);
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[16], t, -.5 * PI, u,
+                                                     -.5 * PI, v);
     Lmin = L;
   }
   if (LpRmSLmRp(-x, y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // timeflip
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[16], -t, .5 * pi,
-                                                     -u, .5 * pi, -v);
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[16], -t, .5 * PI,
+                                                     -u, .5 * PI, -v);
     Lmin = L;
   }
   if (LpRmSLmRp(x, -y, -phi, t, u, v) && Lmin > (L = fabs(t) + fabs(u) + fabs(v)))  // reflect
   {
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[17], t, -.5 * pi, u,
-                                                     -.5 * pi, v);
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[17], t, -.5 * PI, u,
+                                                     -.5 * PI, v);
     Lmin = L;
   }
   if (LpRmSLmRp(-x, -y, phi, t, u, v) && Lmin > (fabs(t) + fabs(u) + fabs(v)))  // timeflip + reflect
-    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[17], -t, .5 * pi,
-                                                     -u, .5 * pi, -v);
+    path = Reeds_Shepp_State_Space::Reeds_Shepp_Path(Reeds_Shepp_State_Space::reeds_shepp_path_type[17], -t, .5 * PI,
+                                                     -u, .5 * PI, -v);
 }
 
 Reeds_Shepp_State_Space::Reeds_Shepp_Path reeds_shepp(double x, double y, double phi)
@@ -792,17 +771,15 @@ inline State Reeds_Shepp_State_Space::integrate_ODE(const State &state, const Co
   double d(sgn(control.delta_s));
   if (fabs(kappa) > RS_EPS)
   {
-    state_next.x = state.x + (1 / kappa) * (-sin(state.theta) + sin(state.theta + d * integration_step * kappa));
-    state_next.y = state.y + (1 / kappa) * (cos(state.theta) - cos(state.theta + d * integration_step * kappa));
-    state_next.theta = mod2pi(state.theta + d * integration_step * kappa);
+    end_of_circular_arc(state.x, state.y, state.theta, kappa, d, integration_step, &state_next.x, &state_next.y,
+                        &state_next.theta);
     state_next.kappa = kappa;
     state_next.d = d;
   }
   else
   {
-    state_next.x = state.x + d * integration_step * cos(state.theta);
-    state_next.y = state.y + d * integration_step * sin(state.theta);
-    state_next.theta = state.theta;
+    end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
+                         &state_next.theta);
     state_next.kappa = kappa;
     state_next.d = d;
   }

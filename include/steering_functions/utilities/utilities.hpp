@@ -30,7 +30,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "steering_functions/hc_cc_state_space/fresnel.data"
+#include "fresnel.data"
 
 using namespace std;
 
@@ -51,6 +51,9 @@ double sgn(double x);
 
 /** \brief Cartesian distance between two points */
 double point_distance(double x1, double y1, double x2, double y2);
+
+/** \brief Computation of a point's polar coordinates */
+void polar(double x, double y, double &r, double &theta);
 
 /** \brief Conversion of arbitrary angle given in [rad] to [0, 2*pi[ */
 double twopify(double alpha);

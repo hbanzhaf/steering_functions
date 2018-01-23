@@ -17,7 +17,7 @@
 
 #include <gtest/gtest.h>
 
-#include "steering_functions/hc_cc_state_space/utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

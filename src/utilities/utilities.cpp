@@ -23,7 +23,7 @@
 *  directory of this source tree.
 **********************************************************************/
 
-#include "steering_functions/hc_cc_state_space/utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 double get_epsilon()
 {
@@ -40,17 +40,15 @@ double point_distance(double x1, double y1, double x2, double y2)
   return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
 
+void polar(double x, double y, double &r, double &theta)
+{
+  r = sqrt(x * x + y * y);
+  theta = atan2(y, x);
+}
+
 double twopify(double alpha)
 {
-  while (alpha >= TWO_PI)
-  {
-    alpha = alpha - (2 * PI);
-  }
-  while (alpha < 0)
-  {
-    alpha = alpha + (2 * PI);
-  }
-  return alpha;
+  return alpha - TWO_PI * floor(alpha / TWO_PI);
 }
 
 double pify(double alpha)
@@ -151,14 +149,12 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
 {
   // x_f = x_i + int_0_length(cos(theta_i + kappa_i*s + 0.5*sigma_i*s^2)ds)
   // y_f = y_i + int_0_length(sin(theta_i + kappa_i*s + 0.5*sigma_i*s^2)ds)
-  double x_local, y_local;
   double sgn_sigma = sgn(sigma);
   double abs_sigma = fabs(sigma);
   double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
-  double sgn_kappa_i = sgn(kappa_i);
-  double k1 = 0.5 * pow(kappa_i, 2) / abs_sigma;
+  double k1 = theta_i - 0.5 * sgn_sigma * direction * kappa_i * kappa_i / abs_sigma;
   double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * length + sgn_sigma * kappa_i);
-  double k3 = SQRT_PI_INV * sqrt_sigma_inv * fabs(kappa_i);
+  double k3 = SQRT_PI_INV * sqrt_sigma_inv * kappa_i * sgn_sigma;
   double cos_k1 = cos(k1);
   double sin_k1 = sin(k1);
   double fresnel_s_k2;
@@ -167,12 +163,12 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
   double fresnel_c_k3;
   fresnel(k2, fresnel_s_k2, fresnel_c_k2);
   fresnel(k3, fresnel_s_k3, fresnel_c_k3);
-  x_local = SQRT_PI * sqrt_sigma_inv * direction *
-            (cos_k1 * fresnel_c_k2 + sin_k1 * fresnel_s_k2 - sgn_sigma * sgn_kappa_i * cos_k1 * fresnel_c_k3 -
-             sgn_sigma * sgn_kappa_i * sin_k1 * fresnel_s_k3);
-  y_local = SQRT_PI * sqrt_sigma_inv * (sgn_sigma * cos_k1 * fresnel_s_k2 - sgn_sigma * sin_k1 * fresnel_c_k2 -
-                                        sgn_kappa_i * cos_k1 * fresnel_s_k3 + sgn_kappa_i * sin_k1 * fresnel_c_k3);
-  global_frame_change(x_i, y_i, theta_i, x_local, y_local, x_f, y_f);
+  *x_f = x_i +
+         SQRT_PI * sqrt_sigma_inv * (direction * cos_k1 * fresnel_c_k2 - sgn_sigma * sin_k1 * fresnel_s_k2 -
+                                     direction * cos_k1 * fresnel_c_k3 + sgn_sigma * sin_k1 * fresnel_s_k3);
+  *y_f = y_i +
+         SQRT_PI * sqrt_sigma_inv * (sgn_sigma * cos_k1 * fresnel_s_k2 + direction * sin_k1 * fresnel_c_k2 -
+                                     sgn_sigma * cos_k1 * fresnel_s_k3 - direction * sin_k1 * fresnel_c_k3);
 
   // theta_f = theta_i + kappa_i*length + 0.5*sigma*length^2
   *theta_f = pify(theta_i + kappa_i * direction * length + 0.5 * sigma * direction * length * length);
