@@ -34,7 +34,7 @@
 #include "configuration.hpp"
 #include "hc_cc_circle.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 using namespace steer;

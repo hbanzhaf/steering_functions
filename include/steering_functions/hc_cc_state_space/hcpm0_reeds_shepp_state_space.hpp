@@ -36,7 +36,7 @@
 #include "hc_cc_state_space.hpp"
 #include "paths.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 using namespace steer;

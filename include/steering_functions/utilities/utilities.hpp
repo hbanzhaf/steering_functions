@@ -30,7 +30,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "steering_functions/hc_cc_state_space/fresnel.data"
+#include "fresnel.data"
 
 using namespace std;
 

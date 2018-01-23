@@ -23,7 +23,7 @@
 *  directory of this source tree.
 **********************************************************************/
 
-#include "steering_functions/hc_cc_state_space/utilities.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 double get_epsilon()
 {
