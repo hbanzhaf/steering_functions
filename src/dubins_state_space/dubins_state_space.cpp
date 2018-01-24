@@ -301,12 +301,16 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
     double kappa(control.kappa);
+    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
-    // push_back current state
-    state_curr.kappa = kappa;
-    state_curr.d = sgn(delta_s);
-    path.push_back(state_curr);
+    // push_back current state if curvature discontinuity
+    if (fabs(kappa - state_curr.kappa) > get_epsilon())
+    {
+      state_curr.kappa = kappa;
+      state_curr.d = d;
+      path.push_back(state_curr);
+    }
 
     while (s_seg < abs_delta_s)
     {
@@ -361,8 +365,16 @@ State Dubins_State_Space::interpolate(const State &state, const vector<Control> 
 
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
+    double kappa(control.kappa);
+    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
+    // update current state if curvature discontinuity
+    if (fabs(kappa - state_curr.kappa) > get_epsilon())
+    {
+      state_curr.kappa = kappa;
+      state_curr.d = d;
+    }
 
     s += abs_delta_s;
     if (s > s_inter)
@@ -395,20 +407,19 @@ inline State Dubins_State_Space::integrate_ODE(const State &state, const Control
                                                double integration_step) const
 {
   State state_next;
-  double kappa(control.kappa);
   double d(sgn(control.delta_s));
-  if (fabs(kappa) > DUBINS_EPS)
+  if (fabs(state.kappa) > get_epsilon())
   {
-    end_of_circular_arc(state.x, state.y, state.theta, kappa, d, integration_step, &state_next.x, &state_next.y,
+    end_of_circular_arc(state.x, state.y, state.theta, state.kappa, d, integration_step, &state_next.x, &state_next.y,
                         &state_next.theta);
-    state_next.kappa = kappa;
+    state_next.kappa = state.kappa;
     state_next.d = d;
   }
   else
   {
     end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
                          &state_next.theta);
-    state_next.kappa = kappa;
+    state_next.kappa = state.kappa;
     state_next.d = d;
   }
   return state_next;
