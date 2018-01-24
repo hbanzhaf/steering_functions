@@ -87,13 +87,14 @@ void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, d
                          double *x_f, double *y_f, double *theta_f);
 
 /** \brief Computation of the end point on a straight line
-    x_i, y_i, theta_i: initial configuration
+    x_i, y_i: initial configuration
+    theta: angle of straight line
     direction: driving direction {-1.0, 1.0}
     length: line length (positive)
-    x_f, y_f, theta_f: final configuration on circular arc
+    x_f, y_f: final configuration on straight line
     */
-void end_of_straight_line(double x_i, double y_i, double theta_i, double direction, double length, double *x_f,
-                          double *y_f, double *theta_f);
+void end_of_straight_line(double x_i, double y_i, double theta, double direction, double length, double *x_f,
+                          double *y_f);
 
 /** \brief Transformation of (local_x, local_y) from local coordinate system to global one */
 void global_frame_change(double x, double y, double theta, double local_x, double local_y, double *global_x,

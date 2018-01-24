@@ -204,8 +204,8 @@ inline State HC_CC_State_Space::integrate_ODE(const State &state, const Control 
     }
     else
     {
-      end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
-                           &state_next.theta);
+      end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y);
+      state_next.theta = state.theta;
       state_next.kappa = state.kappa;
       state_next.d = d;
     }
