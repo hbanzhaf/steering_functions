@@ -214,5 +214,10 @@ if(TARGET fresnel_test)
   target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
 endif()
 
+catkin_add_gtest(jacobian_test test/jacobian_test.cpp)
+if(TARGET jacobian_test)
+  target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+endif()
+
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)

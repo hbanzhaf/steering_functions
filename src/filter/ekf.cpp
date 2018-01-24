@@ -95,18 +95,20 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
   {
     F_u(0, 0) = cos(state.theta + d * integration_step * state.kappa);
     F_u(1, 0) = sin(state.theta + d * integration_step * state.kappa);
-    F_u(2, 0) = state.kappa;
+    F_u(2, 0) = state.kappa + control.sigma * integration_step;
     F_u(3, 0) = d * control.sigma;
 
+    F_u(2, 1) = 0.5 * d * integration_step * integration_step;
     F_u(3, 1) = integration_step;
   }
   else
   {
     F_u(0, 0) = cos(state.theta);
     F_u(1, 0) = sin(state.theta);
-    F_u(2, 0) = state.kappa;
+    F_u(2, 0) = state.kappa + control.sigma * integration_step;
     F_u(3, 0) = d * control.sigma;
 
+    F_u(2, 1) = 0.5 * d * integration_step * integration_step;
     F_u(3, 1) = integration_step;
   }
   return F_u;
