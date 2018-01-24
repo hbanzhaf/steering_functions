@@ -184,12 +184,11 @@ void end_of_circular_arc(double x_i, double y_i, double theta_i, double kappa, d
   *theta_f = pify(theta_i + kappa * direction * length);
 }
 
-void end_of_straight_line(double x_i, double y_i, double theta_i, double direction, double length, double *x_f,
-                          double *y_f, double *theta_f)
+void end_of_straight_line(double x_i, double y_i, double theta, double direction, double length, double *x_f,
+                          double *y_f)
 {
-  *x_f = x_i + direction * length * cos(theta_i);
-  *y_f = y_i + direction * length * sin(theta_i);
-  *theta_f = theta_i;
+  *x_f = x_i + direction * length * cos(theta);
+  *y_f = y_i + direction * length * sin(theta);
 }
 
 void global_frame_change(double x, double y, double theta, double local_x, double local_y, double *global_x,

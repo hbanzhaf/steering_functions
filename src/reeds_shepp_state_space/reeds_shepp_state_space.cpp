@@ -610,13 +610,13 @@ vector<State> Reeds_Shepp_State_Space::integrate(const State &state, const vecto
     double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
-      // push_back current state if curvature discontinuity
-      if (fabs(kappa - state_curr.kappa) > get_epsilon())
-      {
-        state_curr.kappa = kappa;
-        state_curr.d = d;
-        path.push_back(state_curr);
-      }
+    // push_back current state if curvature discontinuity
+    if (fabs(kappa - state_curr.kappa) > get_epsilon())
+    {
+      state_curr.kappa = kappa;
+      state_curr.d = d;
+      path.push_back(state_curr);
+    }
 
     while (s_seg < abs_delta_s)
     {
@@ -792,8 +792,8 @@ inline State Reeds_Shepp_State_Space::integrate_ODE(const State &state, const Co
   }
   else
   {
-    end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
-                         &state_next.theta);
+    end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y);
+    state_next.theta = state.theta;
     state_next.kappa = state.kappa;
     state_next.d = d;
   }
