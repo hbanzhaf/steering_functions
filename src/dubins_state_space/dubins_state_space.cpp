@@ -291,10 +291,13 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
     n_states += ceil(abs_delta_s / discretization_);
   }
   path.reserve(n_states + 1);
-  // get first state
+  // push back first state
   state_curr.x = state.x;
   state_curr.y = state.y;
   state_curr.theta = state.theta;
+  state_curr.kappa = controls.front().kappa;
+  state_curr.d = sgn(controls.front().delta_s);
+  path.push_back(state_curr);
 
   for (const auto &control : controls)
   {
