@@ -28,7 +28,7 @@ using namespace steer;
 
 #define EPS_JACOBI 1e-4                  // [-]
 #define EPS_PERTURB 1e-7                 // [-]
-#define SAMPLES 1e5                      // [-]
+#define SAMPLES 1e6                      // [-]
 #define OPERATING_REGION_X 20.0          // [m]
 #define OPERATING_REGION_Y 20.0          // [m]
 #define OPERATING_REGION_THETA 2 * M_PI  // [rad]
@@ -36,6 +36,7 @@ using namespace steer;
 #define OPERATING_REGION_DELTA_S 0.4     // [m]
 #define OPERATING_REGION_SIGMA 2.0       // [1/m^2]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
+#define random_boolean() rand() % 2
 
 typedef Eigen::Matrix<double, 2, 2> Matrix2d;
 typedef Eigen::Matrix<double, 4, 4> Matrix4d;
@@ -79,8 +80,7 @@ State integrate_ODE(const State &state, const Control &control, double integrati
     }
     else
     {
-      end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y,
-                           &state_next.theta);
+      end_of_straight_line(state.x, state.y, state.theta, d, integration_step, &state_next.x, &state_next.y);
     }
   }
   state_next.theta =
@@ -145,9 +145,10 @@ TEST(Jacobian, F_x)
   {
     State state = get_random_state();
     Control control = get_random_control();
-    double integration_step = fabs(control.delta_s);
 
-    control.sigma = 0.0;  // CHANGE
+    state.kappa = random_boolean() * state.kappa;
+    control.sigma = random_boolean() * control.sigma;
+    double integration_step = fabs(control.delta_s);
 
     Matrix4d F_x_ana = ekf.get_motion_jacobi_x(state, control, integration_step);
     Matrix4d F_x_num = get_num_motion_jacobi_x(state, control, integration_step);
@@ -168,9 +169,10 @@ TEST(Jacobian, F_u)
   {
     State state = get_random_state();
     Control control = get_random_control();
-    double integration_step = fabs(control.delta_s);
 
-    control.sigma = 0.0;  // CHANGE
+    state.kappa = random_boolean() * state.kappa;
+    control.sigma = random_boolean() * control.sigma;
+    double integration_step = fabs(control.delta_s);
 
     Matrix42d F_u_ana = ekf.get_motion_jacobi_u(state, control, integration_step);
     Matrix42d F_u_num = get_num_motion_jacobi_u(state, control, integration_step);

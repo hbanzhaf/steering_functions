@@ -53,36 +53,79 @@ Matrix4d EKF::get_motion_jacobi_x(const State &state, const Control &control, do
 {
   Matrix4d F_x(Matrix4d::Zero());
   double d(sgn(control.delta_s));
-  double sin_th = sin(state.theta);
-  double cos_th = cos(state.theta);
 
-  if (fabs(state.kappa) > get_epsilon())
+  if (fabs(control.sigma) > get_epsilon())
   {
+    double sgn_sigma = sgn(control.sigma);
+    double abs_sigma = fabs(control.sigma);
+    double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
+    double k1 = state.theta - 0.5 * sgn_sigma * d * state.kappa * state.kappa / abs_sigma;
+    double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * integration_step + sgn_sigma * state.kappa);
+    double k3 = SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * state.kappa;
+    double k4 = k1 + d * sgn_sigma * HALF_PI * k2 * k2;
+    double k5 = k1 + d * sgn_sigma * HALF_PI * k3 * k3;
+    double cos_k1 = cos(k1);
+    double sin_k1 = sin(k1);
+    double fresnel_s_k2;
+    double fresnel_c_k2;
+    double fresnel_s_k3;
+    double fresnel_c_k3;
+    fresnel(k2, fresnel_s_k2, fresnel_c_k2);
+    fresnel(k3, fresnel_s_k3, fresnel_c_k3);
+
     F_x(0, 0) = 1.0;
     F_x(1, 1) = 1.0;
 
-    F_x(0, 2) = (1 / state.kappa) * (-cos_th + cos(state.theta + d * integration_step * state.kappa));
-    F_x(1, 2) = (1 / state.kappa) * (-sin_th + sin(state.theta + d * integration_step * state.kappa));
+    F_x(0, 2) = SQRT_PI * sqrt_sigma_inv *
+                (-d * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * cos_k1 * (fresnel_s_k2 - fresnel_s_k3));
+    F_x(1, 2) = SQRT_PI * sqrt_sigma_inv *
+                (-sgn_sigma * sin_k1 * (fresnel_s_k2 - fresnel_s_k3) + d * cos_k1 * (fresnel_c_k2 - fresnel_c_k3));
     F_x(2, 2) = 1.0;
 
-    F_x(0, 3) = -(-sin_th + sin(state.theta + d * integration_step * state.kappa)) / (state.kappa * state.kappa) +
-                (d * integration_step / state.kappa) * cos(state.theta + d * integration_step * state.kappa);
-    F_x(1, 3) = -(cos_th - cos(state.theta + d * integration_step * state.kappa)) / (state.kappa * state.kappa) +
-                (d * integration_step / state.kappa) * sin(state.theta + d * integration_step * state.kappa);
+    F_x(0, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (sgn_sigma * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * cos_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
+                    abs_sigma +
+                d * (cos(k4) - cos(k5)) / control.sigma;
+    F_x(1, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (d * sin_k1 * (fresnel_s_k2 - fresnel_s_k3) - sgn_sigma * cos_k1 * (fresnel_c_k2 - fresnel_c_k3)) /
+                    abs_sigma +
+                d * (sin(k4) - sin(k5)) / control.sigma;
     F_x(2, 3) = d * integration_step;
     F_x(3, 3) = 1.0;
   }
   else
   {
-    F_x(0, 0) = 1.0;
-    F_x(1, 1) = 1.0;
+    if (fabs(state.kappa) > get_epsilon())
+    {
+      double sin_th = sin(state.theta);
+      double cos_th = cos(state.theta);
 
-    F_x(0, 2) = -d * integration_step * sin_th;
-    F_x(1, 2) = d * integration_step * cos_th;
-    F_x(2, 2) = 1.0;
+      F_x(0, 0) = 1.0;
+      F_x(1, 1) = 1.0;
 
-    F_x(2, 3) = d * integration_step;
-    F_x(3, 3) = 1.0;
+      F_x(0, 2) = (-cos_th + cos(state.theta + d * integration_step * state.kappa)) / state.kappa;
+      F_x(1, 2) = (-sin_th + sin(state.theta + d * integration_step * state.kappa)) / state.kappa;
+      F_x(2, 2) = 1.0;
+
+      F_x(0, 3) = (sin_th - sin(state.theta + d * integration_step * state.kappa)) / (state.kappa * state.kappa) +
+                  d * integration_step * cos(state.theta + d * integration_step * state.kappa) / state.kappa;
+      F_x(1, 3) = (-cos_th + cos(state.theta + d * integration_step * state.kappa)) / (state.kappa * state.kappa) +
+                  d * integration_step * sin(state.theta + d * integration_step * state.kappa) / state.kappa;
+      F_x(2, 3) = d * integration_step;
+      F_x(3, 3) = 1.0;
+    }
+    else
+    {
+      F_x(0, 0) = 1.0;
+      F_x(1, 1) = 1.0;
+
+      F_x(0, 2) = -d * integration_step * sin(state.theta);
+      F_x(1, 2) = d * integration_step * cos(state.theta);
+      F_x(2, 2) = 1.0;
+
+      F_x(2, 3) = d * integration_step;
+      F_x(3, 3) = 1.0;
+    }
   }
   return F_x;
 }
@@ -91,25 +134,67 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
 {
   Matrix42d F_u(Matrix42d::Zero());
   double d(sgn(control.delta_s));
-  if (fabs(state.kappa) > get_epsilon())
+
+  if (fabs(control.sigma) > get_epsilon())
   {
-    F_u(0, 0) = cos(state.theta + d * integration_step * state.kappa);
-    F_u(1, 0) = sin(state.theta + d * integration_step * state.kappa);
+    double sgn_sigma = sgn(control.sigma);
+    double abs_sigma = fabs(control.sigma);
+    double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
+    double k1 = state.theta - 0.5 * sgn_sigma * d * state.kappa * state.kappa / abs_sigma;
+    double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * integration_step + sgn_sigma * state.kappa);
+    double k3 = SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * state.kappa;
+    double k4 = k1 + d * sgn_sigma * HALF_PI * k2 * k2;
+    double k5 = k1 + d * sgn_sigma * HALF_PI * k3 * k3;
+    double k6 = 0.5 * d * state.kappa * state.kappa / (control.sigma * control.sigma);
+    double k7 = 0.5 * SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * (integration_step - state.kappa / control.sigma);
+    double k8 = -0.5 * SQRT_PI_INV * sqrt_sigma_inv * state.kappa / abs_sigma;
+    double cos_k1 = cos(k1);
+    double sin_k1 = sin(k1);
+    double fresnel_s_k2;
+    double fresnel_c_k2;
+    double fresnel_s_k3;
+    double fresnel_c_k3;
+    fresnel(k2, fresnel_s_k2, fresnel_c_k2);
+    fresnel(k3, fresnel_s_k3, fresnel_c_k3);
+
+    F_u(0, 0) = cos(k4);
+    F_u(1, 0) = sin(k4);
     F_u(2, 0) = state.kappa + control.sigma * integration_step;
     F_u(3, 0) = d * control.sigma;
 
+    F_u(0, 1) = SQRT_PI * sqrt_sigma_inv *
+                (-d * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_c_k2 - fresnel_c_k3) +
+                 sgn_sigma * (0.5 * sin_k1 / control.sigma - k6 * cos_k1) * (fresnel_s_k2 - fresnel_s_k3) +
+                 d * (k7 * cos(k4) - k8 * cos(k5)));
+    F_u(1, 1) = SQRT_PI * sqrt_sigma_inv *
+                (d * (-0.5 * sin_k1 / control.sigma + k6 * cos_k1) * (fresnel_c_k2 - fresnel_c_k3) +
+                 -sgn_sigma * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_s_k2 - fresnel_s_k3) +
+                 d * (k7 * sin(k4) - k8 * sin(k5)));
     F_u(2, 1) = 0.5 * d * integration_step * integration_step;
     F_u(3, 1) = integration_step;
   }
   else
   {
-    F_u(0, 0) = cos(state.theta);
-    F_u(1, 0) = sin(state.theta);
-    F_u(2, 0) = state.kappa + control.sigma * integration_step;
-    F_u(3, 0) = d * control.sigma;
+    if (fabs(state.kappa) > get_epsilon())
+    {
+      F_u(0, 0) = cos(state.theta + d * integration_step * state.kappa);
+      F_u(1, 0) = sin(state.theta + d * integration_step * state.kappa);
+      F_u(2, 0) = state.kappa + control.sigma * integration_step;
+      F_u(3, 0) = d * control.sigma;
 
-    F_u(2, 1) = 0.5 * d * integration_step * integration_step;
-    F_u(3, 1) = integration_step;
+      F_u(2, 1) = 0.5 * d * integration_step * integration_step;
+      F_u(3, 1) = integration_step;
+    }
+    else
+    {
+      F_u(0, 0) = cos(state.theta);
+      F_u(1, 0) = sin(state.theta);
+      F_u(2, 0) = state.kappa + control.sigma * integration_step;
+      F_u(3, 0) = d * control.sigma;
+
+      F_u(2, 1) = 0.5 * d * integration_step * integration_step;
+      F_u(3, 1) = integration_step;
+    }
   }
   return F_u;
 }
