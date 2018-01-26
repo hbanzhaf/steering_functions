@@ -152,9 +152,9 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
   double sgn_sigma = sgn(sigma);
   double abs_sigma = fabs(sigma);
   double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
-  double k1 = theta_i - 0.5 * sgn_sigma * direction * kappa_i * kappa_i / abs_sigma;
+  double k1 = theta_i - 0.5 * direction * kappa_i * kappa_i / sigma;
   double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * length + sgn_sigma * kappa_i);
-  double k3 = SQRT_PI_INV * sqrt_sigma_inv * kappa_i * sgn_sigma;
+  double k3 = SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * kappa_i;
   double cos_k1 = cos(k1);
   double sin_k1 = sin(k1);
   double fresnel_s_k2;
@@ -164,11 +164,11 @@ void end_of_clothoid(double x_i, double y_i, double theta_i, double kappa_i, dou
   fresnel(k2, fresnel_s_k2, fresnel_c_k2);
   fresnel(k3, fresnel_s_k3, fresnel_c_k3);
   *x_f = x_i +
-         SQRT_PI * sqrt_sigma_inv * (direction * cos_k1 * fresnel_c_k2 - sgn_sigma * sin_k1 * fresnel_s_k2 -
-                                     direction * cos_k1 * fresnel_c_k3 + sgn_sigma * sin_k1 * fresnel_s_k3);
+         SQRT_PI * sqrt_sigma_inv *
+             (direction * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * sin_k1 * (fresnel_s_k2 - fresnel_s_k3));
   *y_f = y_i +
-         SQRT_PI * sqrt_sigma_inv * (sgn_sigma * cos_k1 * fresnel_s_k2 + direction * sin_k1 * fresnel_c_k2 -
-                                     sgn_sigma * cos_k1 * fresnel_s_k3 - direction * sin_k1 * fresnel_c_k3);
+         SQRT_PI * sqrt_sigma_inv *
+             (direction * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + sgn_sigma * cos_k1 * (fresnel_s_k2 - fresnel_s_k3));
 
   // theta_f = theta_i + kappa_i*length + 0.5*sigma*length^2
   *theta_f = pify(theta_i + kappa_i * direction * length + 0.5 * sigma * direction * length * length);
