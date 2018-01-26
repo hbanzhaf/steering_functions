@@ -21,6 +21,7 @@
 #include <cmath>
 #include <vector>
 
+#include "steering_functions/filter/ekf.hpp"
 #include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
@@ -34,14 +35,26 @@ public:
   /** \brief Constructor */
   HC_CC_State_Space(double kappa, double sigma, double discretization);
 
+  /** \brief Sets the parameters required by the filter */
+  void set_filter_parameters(const Motion_Noise& motion_noise, const Measurement_Noise& measurement_noise,
+                             const Controller& controller);
+
   /** \brief Virtual function that returns controls of the shortest path from state1 to state2 */
   virtual vector<Control> get_controls(const State& state1, const State& state2) const = 0;
 
   /** \brief Returns path from state1 to state2 */
   vector<State> get_path(const State& state1, const State& state2) const;
 
+  /** \brief Returns path including covariances from state1 to state2 */
+  vector<State_With_Covariance> get_path_with_covariance(const State_With_Covariance& state1,
+                                                         const State& state2) const;
+
   /** \brief Returns integrated states given a start state and controls */
   vector<State> integrate(const State& state, const vector<Control>& controls) const;
+
+  /** \brief Returns integrated states including covariance given a start state and controls */
+  vector<State_With_Covariance> integrate_with_covariance(const State_With_Covariance& state,
+                                                          const vector<Control>& controls) const;
 
   /** \brief Returns interpolated state at distance t in [0,1] (percentage of total path length) */
   State interpolate(const State& state, const vector<Control>& controls, double t) const;
@@ -58,6 +71,9 @@ protected:
 
   /** \brief Parameters of a hc-/cc-circle */
   HC_CC_Circle_Param hc_cc_circle_param_;
+
+  /** \brief Extended Kalman Filter for uncertainty propagation */
+  EKF ekf_;
 };
 
 #endif

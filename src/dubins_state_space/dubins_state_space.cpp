@@ -223,6 +223,12 @@ Dubins_State_Space::Dubins_Path Dubins_State_Space::dubins(const State &state1, 
   return ::dubins(d, alpha, beta);
 }
 
+void Dubins_State_Space::set_filter_parameters(const Motion_Noise &motion_noise,
+                                               const Measurement_Noise &measurement_noise, const Controller &controller)
+{
+  ekf_.set_parameters(motion_noise, measurement_noise, controller);
+}
+
 double Dubins_State_Space::get_distance(const State &state1, const State &state2) const
 {
   if (forwards_)
@@ -277,6 +283,13 @@ vector<State> Dubins_State_Space::get_path(const State &state1, const State &sta
 {
   vector<Control> dubins_controls = get_controls(state1, state2);
   return integrate(state1, dubins_controls);
+}
+
+vector<State_With_Covariance> Dubins_State_Space::get_path_with_covariance(const State_With_Covariance &state1,
+                                                                           const State &state2) const
+{
+  vector<Control> controls = get_controls(state1.state, state2);
+  return integrate_with_covariance(state1, controls);
 }
 
 vector<State> Dubins_State_Space::integrate(const State &state, const vector<Control> &controls) const
@@ -334,6 +347,75 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
     }
   }
   return path;
+}
+
+vector<State_With_Covariance> Dubins_State_Space::integrate_with_covariance(const State_With_Covariance &state,
+                                                                            const vector<Control> &controls) const
+{
+  vector<State_With_Covariance> path_with_covariance;
+  State_With_Covariance state_curr, state_pred, state_next;
+  // reserve capacity of path
+  int n_states(0);
+  for (const auto &control : controls)
+  {
+    double abs_delta_s(fabs(control.delta_s));
+    n_states += ceil(abs_delta_s / discretization_);
+  }
+  path_with_covariance.reserve(n_states + 1);
+  // get first state
+  state_curr.state.x = state.state.x;
+  state_curr.state.y = state.state.y;
+  state_curr.state.theta = state.state.theta;
+  for (int i = 0; i < 16; i++)
+  {
+    state_curr.Sigma[i] = state.Sigma[i];
+    state_curr.Lambda[i] = state.Lambda[i];
+    state_curr.covariance[i] = state.covariance[i];
+  }
+
+  for (const auto &control : controls)
+  {
+    double delta_s(control.delta_s);
+    double abs_delta_s(fabs(delta_s));
+    double kappa(control.kappa);
+    double s_seg(0.0);
+    double integration_step(0.0);
+    // push_back current state
+    state_curr.state.kappa = kappa;
+    state_curr.state.d = sgn(delta_s);
+    path_with_covariance.push_back(state_curr);
+
+    while (s_seg < abs_delta_s)
+    {
+      // get integration step
+      s_seg += discretization_;
+      if (s_seg > abs_delta_s)
+      {
+        integration_step = discretization_ - (s_seg - abs_delta_s);
+        s_seg = abs_delta_s;
+      }
+      else
+      {
+        integration_step = discretization_;
+      }
+      // predict
+      state_pred.state = integrate_ODE(state_curr.state, control, integration_step);
+      ekf_.predict(state_curr, control, integration_step, state_pred);
+      // update
+      state_next.state = state_pred.state;
+      ekf_.update(state_pred, state_next);
+
+      path_with_covariance.push_back(state_next);
+      state_curr.state = state_next.state;
+      for (int i = 0; i < 16; i++)
+      {
+        state_curr.Sigma[i] = state_next.Sigma[i];
+        state_curr.Lambda[i] = state_next.Lambda[i];
+        state_curr.covariance[i] = state_next.covariance[i];
+      }
+    }
+  }
+  return path_with_covariance;
 }
 
 State Dubins_State_Space::interpolate(const State &state, const vector<Control> &controls, double t) const
