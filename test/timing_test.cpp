@@ -249,6 +249,73 @@ vector<Statistic> get_path(const string& id, const vector<State>& starts, const 
   return stats;
 }
 
+vector<Statistic> get_path_with_covariance(const string& id, const vector<State_With_Covariance>& starts, const vector<State>& goals)
+{
+  clock_t clock_start;
+  clock_t clock_finish;
+  Statistic stat;
+  vector<Statistic> stats;
+  stats.reserve(SAMPLES);
+  auto start = starts.begin();
+  auto goal = goals.begin();
+  for (start = starts.begin(), goal = goals.begin(); start != starts.end(); ++start, ++goal)
+  {
+    if (id == "CC_Dubins")
+    {
+      clock_start = clock();
+      cc_dubins_forwards_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "Dubins")
+    {
+      clock_start = clock();
+      dubins_forwards_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "CC_RS")
+    {
+      clock_start = clock();
+      cc_rs_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "HC00")
+    {
+      clock_start = clock();
+      hc00_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "HC0pm")
+    {
+      clock_start = clock();
+      hc0pm_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "HCpm0")
+    {
+      clock_start = clock();
+      hcpm0_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "HCpmpm")
+    {
+      clock_start = clock();
+      hcpmpm_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    else if (id == "RS")
+    {
+      clock_start = clock();
+      rs_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
+    stat.start = start->state;
+    stat.goal = *goal;
+    stat.computation_time = double(clock_finish - clock_start) / CLOCKS_PER_SEC;
+    stats.push_back(stat);
+  }
+  return stats;
+}
+
 TEST(Timing, getControls)
 {
   srand(0);
@@ -445,6 +512,109 @@ TEST(Timing, getPath)
 
   string rs_id = "RS";
   vector<Statistic> rs_stats = get_path(rs_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : rs_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+}
+
+TEST(Timing, getPathWithCovariance)
+{
+  srand(0);
+  vector<double> computation_times;
+  computation_times.reserve(SAMPLES);
+  vector<State_With_Covariance> starts;
+  starts.reserve(SAMPLES);
+  vector<State> goals;
+  goals.reserve(SAMPLES);
+  for (int i = 0; i < SAMPLES; i++)
+  {
+    State_With_Covariance start;
+    start.state = get_random_state();
+    start.covariance[0 + 4 * 0] = start.Sigma[0 + 4 * 0] = pow(0.1, 2);
+    start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(0.1, 2);
+    start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(0.05, 2);
+    start.covariance[3 + 4 * 3] = start.Sigma[3 + 4 * 3] = pow(1e-6, 2);
+    State goal = get_random_state();
+    starts.push_back(start);
+    goals.push_back(goal);
+  }
+
+  string cc_dubins_id = "CC_Dubins";
+  vector<Statistic> cc_dubins_stats = get_path_with_covariance(cc_dubins_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : cc_dubins_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + cc_dubins_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string dubins_id = "Dubins";
+  vector<Statistic> dubins_stats = get_path_with_covariance(dubins_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : dubins_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + dubins_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string cc_rs_id = "CC_RS";
+  vector<Statistic> cc_rs_stats = get_path_with_covariance(cc_rs_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : cc_rs_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + cc_rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string hc00_id = "HC00";
+  vector<Statistic> hc00_stats = get_path_with_covariance(hc00_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : hc00_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hc00_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string hc0pm_id = "HC0pm";
+  vector<Statistic> hc0pm_stats = get_path_with_covariance(hc0pm_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : hc0pm_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hc0pm_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string hcpm0_id = "HCpm0";
+  vector<Statistic> hcpm0_stats = get_path_with_covariance(hcpm0_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : hcpm0_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hcpm0_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string hcpmpm_id = "HCpmpm";
+  vector<Statistic> hcpmpm_stats = get_path_with_covariance(hcpmpm_id, starts, goals);
+  computation_times.clear();
+  for (const auto& stat : hcpmpm_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hcpmpm_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
+  string rs_id = "RS";
+  vector<Statistic> rs_stats = get_path_with_covariance(rs_id, starts, goals);
   computation_times.clear();
   for (const auto& stat : rs_stats)
   {
