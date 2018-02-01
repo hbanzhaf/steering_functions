@@ -25,31 +25,32 @@ void EKF::set_parameters(const Motion_Noise &motion_noise, const Measurement_Noi
   controller_ = controller;
 }
 
-Matrix4d EKF::covariance_to_eigen(const double covariance[16]) const
+Matrix3d EKF::covariance_to_eigen(const double covariance[16]) const
 {
-  Matrix4d covariance_eigen;
+  Matrix3d covariance_eigen;
   for (int i = 0; i < covariance_eigen.rows(); ++i)
   {
     for (int j = 0; j < covariance_eigen.cols(); ++j)
     {
-      covariance_eigen(i, j) = covariance[i + 4 * j];
+      covariance_eigen(i, j) = covariance[i * 4 + j];
     }
   }
   return covariance_eigen;
 }
 
-void EKF::eigen_to_covariance(const Matrix4d &covariance_eigen, double covariance[16]) const
+void EKF::eigen_to_covariance(const Matrix3d &covariance_eigen, double covariance[16]) const
 {
   for (int i = 0; i < covariance_eigen.rows(); ++i)
   {
     for (int j = 0; j < covariance_eigen.cols(); ++j)
     {
-      covariance[i + 4 * j] = covariance_eigen(i, j);
+      covariance[i * 4 + j] = covariance_eigen(i, j);
     }
   }
 }
 
-void EKF::get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix4d &F_x, Matrix42d &F_u) const
+void EKF::get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix3d &F_x,
+                            Matrix32d &F_u) const
 {
   double d(sgn(control.delta_s));
 
@@ -63,9 +64,6 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
     double k3 = SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * state.kappa;
     double k4 = k1 + d * sgn_sigma * HALF_PI * k2 * k2;
     double k5 = k1 + d * sgn_sigma * HALF_PI * k3 * k3;
-    double k6 = 0.5 * d * state.kappa * state.kappa / (control.sigma * control.sigma);
-    double k7 = 0.5 * SQRT_PI_INV * sqrt_sigma_inv * (sgn_sigma * integration_step - state.kappa / abs_sigma);
-    double k8 = -0.5 * SQRT_PI_INV * sqrt_sigma_inv * state.kappa / abs_sigma;
     double cos_k1 = cos(k1);
     double sin_k1 = sin(k1);
     double cos_k4 = cos(k4);
@@ -89,33 +87,20 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
                 (d * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * sin_k1 * (fresnel_s_k2 - fresnel_s_k3));
     F_x(2, 2) = 1.0;
 
-    F_x(0, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
-                    (sgn_sigma * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * cos_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
-                    abs_sigma +
-                d * (cos_k4 - cos_k5) / control.sigma;
-    F_x(1, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
-                    (-sgn_sigma * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * sin_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
-                    abs_sigma +
-                d * (sin_k4 - sin_k5) / control.sigma;
-    F_x(2, 3) = d * integration_step;
-    F_x(3, 3) = 1.0;
-
     // df/du
     F_u(0, 0) = cos_k4;
     F_u(1, 0) = sin_k4;
     F_u(2, 0) = state.kappa + control.sigma * integration_step;
-    F_u(3, 0) = d * control.sigma;
 
-    F_u(0, 1) = SQRT_PI * sqrt_sigma_inv *
-                (-d * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_c_k2 - fresnel_c_k3) +
-                 sgn_sigma * (0.5 * sin_k1 / control.sigma - k6 * cos_k1) * (fresnel_s_k2 - fresnel_s_k3) +
-                 d * (k7 * cos_k4 - k8 * cos_k5));
-    F_u(1, 1) = SQRT_PI * sqrt_sigma_inv *
-                (d * (-0.5 * sin_k1 / control.sigma + k6 * cos_k1) * (fresnel_c_k2 - fresnel_c_k3) -
-                 sgn_sigma * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_s_k2 - fresnel_s_k3) +
-                 d * (k7 * sin_k4 - k8 * sin_k5));
-    F_u(2, 1) = 0.5 * d * integration_step * integration_step;
-    F_u(3, 1) = integration_step;
+    F_u(0, 1) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (sgn_sigma * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * cos_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
+                    abs_sigma +
+                d * (cos_k4 - cos_k5) / control.sigma;
+    F_u(1, 1) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (-sgn_sigma * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * sin_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
+                    abs_sigma +
+                d * (sin_k4 - sin_k5) / control.sigma;
+    F_u(2, 1) = d * integration_step;
   }
   else
   {
@@ -135,19 +120,14 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
       F_x(1, 2) = (-sin_th + sin_k9) / state.kappa;
       F_x(2, 2) = 1.0;
 
-      F_x(0, 3) = (sin_th - sin_k9) / (state.kappa * state.kappa) + d * integration_step * cos_k9 / state.kappa;
-      F_x(1, 3) = (-cos_th + cos_k9) / (state.kappa * state.kappa) + d * integration_step * sin_k9 / state.kappa;
-      F_x(2, 3) = d * integration_step;
-      F_x(3, 3) = 1.0;
-
       // df/du
       F_u(0, 0) = cos(k9);
       F_u(1, 0) = sin(k9);
-      F_u(2, 0) = state.kappa + control.sigma * integration_step;
-      F_u(3, 0) = d * control.sigma;
+      F_u(2, 0) = state.kappa;
 
-      F_u(2, 1) = 0.5 * d * integration_step * integration_step;
-      F_u(3, 1) = integration_step;
+      F_u(0, 1) = (sin_th - sin_k9) / (state.kappa * state.kappa) + d * integration_step * cos_k9 / state.kappa;
+      F_u(1, 1) = (-cos_th + cos_k9) / (state.kappa * state.kappa) + d * integration_step * sin_k9 / state.kappa;
+      F_u(2, 1) = d * integration_step;
     }
     else
     {
@@ -159,59 +139,52 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
       F_x(1, 2) = d * integration_step * cos(state.theta);
       F_x(2, 2) = 1.0;
 
-      F_x(2, 3) = d * integration_step;
-      F_x(3, 3) = 1.0;
-
       // df/du
       F_u(0, 0) = cos(state.theta);
       F_u(1, 0) = sin(state.theta);
-      F_u(2, 0) = state.kappa + control.sigma * integration_step;
-      F_u(3, 0) = d * control.sigma;
+      F_u(2, 0) = state.kappa;
 
-      F_u(2, 1) = 0.5 * d * integration_step * integration_step;
-      F_u(3, 1) = integration_step;
+      F_u(2, 1) = d * integration_step;
     }
   }
 }
 
-Matrix4d EKF::get_observation_jacobi() const
+Matrix3d EKF::get_observation_jacobi() const
 {
-  return Matrix4d::Identity();
+  return Matrix3d::Identity();
 }
 
 Matrix2d EKF::get_motion_covariance(const State &state, const Control &control, double integration_step) const
 {
   Matrix2d Q(Matrix2d::Zero());
-  Q(0, 0) = motion_noise_.alpha1 * integration_step * integration_step +
-            motion_noise_.alpha2 * state.kappa * state.kappa + motion_noise_.alpha3 * control.sigma * control.sigma;
-  Q(1, 1) = motion_noise_.alpha4 * integration_step * integration_step +
-            motion_noise_.alpha5 * state.kappa * state.kappa + motion_noise_.alpha6 * control.sigma * control.sigma;
+  Q(0, 0) =
+      motion_noise_.alpha1 * integration_step * integration_step + motion_noise_.alpha2 * state.kappa * state.kappa;
+  Q(1, 1) =
+      motion_noise_.alpha3 * integration_step * integration_step + motion_noise_.alpha4 * state.kappa * state.kappa;
   return Q;
 }
 
-Matrix4d EKF::get_observation_covariance() const
+Matrix3d EKF::get_observation_covariance() const
 {
-  Matrix4d R(Matrix4d::Zero());
+  Matrix3d R(Matrix3d::Zero());
   R(0, 0) = measurement_noise_.std_x * measurement_noise_.std_x;
   R(1, 1) = measurement_noise_.std_y * measurement_noise_.std_y;
   R(2, 2) = measurement_noise_.std_theta * measurement_noise_.std_theta;
-  R(3, 3) = measurement_noise_.std_kappa * measurement_noise_.std_kappa;
   return R;
 }
 
-Matrix24d EKF::get_controller_gain(const Control &control) const
+Matrix23d EKF::get_controller_gain(const Control &control) const
 {
-  Matrix24d K(Matrix24d::Zero());
+  Matrix23d K(Matrix23d::Zero());
   K(0, 0) = controller_.k1;
   K(1, 1) = controller_.k2;
   K(1, 2) = sgn(control.delta_s) * controller_.k3;
-  K(1, 3) = controller_.k4;
   return K;
 }
 
-Matrix4d EKF::get_rotation_matrix(double angle) const
+Matrix3d EKF::get_rotation_matrix(double angle) const
 {
-  Matrix4d R(Matrix4d::Zero());
+  Matrix3d R(Matrix3d::Zero());
   double cos_angle = cos(angle);
   double sin_angle = sin(angle);
   R(0, 0) = cos_angle;
@@ -219,28 +192,27 @@ Matrix4d EKF::get_rotation_matrix(double angle) const
   R(0, 1) = sin_angle;
   R(1, 1) = cos_angle;
   R(2, 2) = 1.0;
-  R(3, 3) = 1.0;
   return R;
 }
 
 void EKF::predict(const State_With_Covariance &state, const Control &control, double integration_step,
                   State_With_Covariance &state_pred) const
 {
-  Matrix4d Sigma = covariance_to_eigen(state.Sigma);
-  Matrix4d Lambda = covariance_to_eigen(state.Lambda);
+  Matrix3d Sigma = covariance_to_eigen(state.Sigma);
+  Matrix3d Lambda = covariance_to_eigen(state.Lambda);
 
   // Sigma_pred
-  Matrix4d F_x(Matrix4d::Zero());
-  Matrix42d F_u(Matrix42d::Zero());
+  Matrix3d F_x(Matrix3d::Zero());
+  Matrix32d F_u(Matrix32d::Zero());
   get_motion_jacobi(state.state, control, integration_step, F_x, F_u);
   Matrix2d Q = get_motion_covariance(state.state, control, integration_step);
-  Matrix4d Sigma_pred = F_x * Sigma * F_x.transpose() + F_u * Q * F_u.transpose();
+  Matrix3d Sigma_pred = F_x * Sigma * F_x.transpose() + F_u * Q * F_u.transpose();
 
   // Lambda_pred
-  Matrix24d K = get_controller_gain(control);
-  Matrix4d R_1I = get_rotation_matrix(state.state.theta);
-  Matrix4d F_K = F_x - F_u * K * R_1I;
-  Matrix4d Lambda_pred = F_K * Lambda * F_K.transpose();
+  Matrix23d K = get_controller_gain(control);
+  Matrix3d R_1I = get_rotation_matrix(state.state.theta);
+  Matrix3d F_K = F_x - F_u * K * R_1I;
+  Matrix3d Lambda_pred = F_K * Lambda * F_K.transpose();
 
   eigen_to_covariance(Sigma_pred, state_pred.Sigma);
   eigen_to_covariance(Lambda_pred, state_pred.Lambda);
@@ -249,23 +221,23 @@ void EKF::predict(const State_With_Covariance &state, const Control &control, do
 
 void EKF::update(const State_With_Covariance &state_pred, State_With_Covariance &state_corr) const
 {
-  Matrix4d Sigma_pred = covariance_to_eigen(state_pred.Sigma);
-  Matrix4d Lambda_pred = covariance_to_eigen(state_pred.Lambda);
+  Matrix3d Sigma_pred = covariance_to_eigen(state_pred.Sigma);
+  Matrix3d Lambda_pred = covariance_to_eigen(state_pred.Lambda);
 
   // Kalman gain L
-  Matrix4d H_x = get_observation_jacobi();
-  Matrix4d R = get_observation_covariance();
-  Matrix4d Sigma_xz = Sigma_pred * H_x.transpose();
-  Matrix4d Sigma_z = H_x * Sigma_xz + R;
-  Matrix4d L = Sigma_xz * Sigma_z.inverse();
+  Matrix3d H_x = get_observation_jacobi();
+  Matrix3d R = get_observation_covariance();
+  Matrix3d Sigma_xz = Sigma_pred * H_x.transpose();
+  Matrix3d Sigma_z = H_x * Sigma_xz + R;
+  Matrix3d L = Sigma_xz * Sigma_z.inverse();
 
   // Sigma_corr (Joseph's form)
-  Matrix4d I = Matrix4d::Identity();
-  Matrix4d LH_x = L * H_x;
-  Matrix4d Sigma_corr = (I - LH_x) * Sigma_pred * (I - LH_x).transpose() + L * R * L.transpose();
+  Matrix3d I = Matrix3d::Identity();
+  Matrix3d LH_x = L * H_x;
+  Matrix3d Sigma_corr = (I - LH_x) * Sigma_pred * (I - LH_x).transpose() + L * R * L.transpose();
 
   // Lambda_corr
-  Matrix4d Lambda_corr = Lambda_pred + L * Sigma_xz.transpose();
+  Matrix3d Lambda_corr = Lambda_pred + L * Sigma_xz.transpose();
 
   eigen_to_covariance(Sigma_corr, state_corr.Sigma);
   eigen_to_covariance(Lambda_corr, state_corr.Lambda);

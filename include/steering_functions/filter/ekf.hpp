@@ -29,9 +29,9 @@ using namespace std;
 using namespace steer;
 
 typedef Eigen::Matrix<double, 2, 2> Matrix2d;
-typedef Eigen::Matrix<double, 4, 4> Matrix4d;
-typedef Eigen::Matrix<double, 4, 2> Matrix42d;
-typedef Eigen::Matrix<double, 2, 4> Matrix24d;
+typedef Eigen::Matrix<double, 3, 3> Matrix3d;
+typedef Eigen::Matrix<double, 3, 2> Matrix32d;
+typedef Eigen::Matrix<double, 2, 3> Matrix23d;
 
 class EKF
 {
@@ -41,29 +41,29 @@ public:
                       const Controller &_controller);
 
   /** \brief Converts a covariance given by a double array to an Eigen matrix */
-  Matrix4d covariance_to_eigen(const double covariance[16]) const;
+  Matrix3d covariance_to_eigen(const double covariance[16]) const;
 
   /** \brief Converts a covariance given by an Eigen matrix to a double array */
-  void eigen_to_covariance(const Matrix4d &covariance_eigen, double covariance[16]) const;
+  void eigen_to_covariance(const Matrix3d &covariance_eigen, double covariance[16]) const;
 
   /** \brief Computes the Jacobians of the motion equations with respect to the state and control */
-  void get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix4d &F_x,
-                         Matrix42d &F_u) const;
+  void get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix3d &F_x,
+                         Matrix32d &F_u) const;
 
   /** \brief Computes the Jacobian of the observation equations with respect to the state */
-  Matrix4d get_observation_jacobi() const;
+  Matrix3d get_observation_jacobi() const;
 
   /** \brief Returns the motion covariance in control space */
   Matrix2d get_motion_covariance(const State &state, const Control &control, double integration_step) const;
 
   /** \brief Returns the observation covariance */
-  Matrix4d get_observation_covariance() const;
+  Matrix3d get_observation_covariance() const;
 
   /** \brief Returns the gain of the controller */
-  Matrix24d get_controller_gain(const Control &control) const;
+  Matrix23d get_controller_gain(const Control &control) const;
 
   /** \brief Returns the rotation matrix from a global frame to a local frame */
-  Matrix4d get_rotation_matrix(double angle) const;
+  Matrix3d get_rotation_matrix(double angle) const;
 
   /** \brief Predicts the covariances based on the paper:
       Rapidly-exploring random belief trees for motion planning under uncertainty, A. Bry and N. Roy, IEEE ICRA 2011 */

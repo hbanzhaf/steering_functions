@@ -39,8 +39,8 @@ using namespace steer;
 #define random_boolean() rand() % 2
 
 typedef Eigen::Matrix<double, 2, 2> Matrix2d;
-typedef Eigen::Matrix<double, 4, 4> Matrix4d;
-typedef Eigen::Matrix<double, 4, 2> Matrix42d;
+typedef Eigen::Matrix<double, 3, 3> Matrix3d;
+typedef Eigen::Matrix<double, 3, 2> Matrix32d;
 
 State get_random_state()
 {
@@ -91,49 +91,53 @@ State integrate_ODE(const State &state, const Control &control, double integrati
   return state_next;
 }
 
-Matrix4d get_num_motion_jacobi_x(const State &state, const Control &control, double integration_step)
+Matrix3d get_num_motion_jacobi_x(const State &state, const Control &control, double integration_step)
 {
-  Matrix4d F_x;
-  Matrix4d perturb(EPS_PERTURB * Matrix4d::Identity());
+  Matrix3d F_x;
+  Matrix3d perturb(EPS_PERTURB * Matrix3d::Identity());
 
   State f_x = integrate_ODE(state, control, integration_step);
   for (int i = 0; i < F_x.cols(); ++i)
   {
-    // perturb state
+    // perturb x, y, theta
     State state_perturb;
     state_perturb.x = state.x + perturb(0, i);
     state_perturb.y = state.y + perturb(1, i);
     state_perturb.theta = state.theta + perturb(2, i);
-    state_perturb.kappa = state.kappa + perturb(3, i);
+    state_perturb.kappa = state.kappa;
 
     State f_x_perturb = integrate_ODE(state_perturb, control, integration_step);
     F_x(0, i) = (f_x_perturb.x - f_x.x) / perturb(i, i);
     F_x(1, i) = (f_x_perturb.y - f_x.y) / perturb(i, i);
     F_x(2, i) = (f_x_perturb.theta - f_x.theta) / perturb(i, i);
-    F_x(3, i) = (f_x_perturb.kappa - f_x.kappa) / perturb(i, i);
   }
   return F_x;
 }
 
-Matrix42d get_num_motion_jacobi_u(const State &state, const Control &control, double integration_step)
+Matrix32d get_num_motion_jacobi_u(const State &state, const Control &control, double integration_step)
 {
-  Matrix42d F_u;
+  Matrix32d F_u;
   Matrix2d perturb(EPS_PERTURB * Matrix2d::Identity());
 
   State f_u = integrate_ODE(state, control, integration_step);
   for (int i = 0; i < F_u.cols(); ++i)
   {
-    // perturb control
+    // perturb delta_s and kappa
     Control control_perturb;
     control_perturb.delta_s = control.delta_s + perturb(0, i);
-    control_perturb.sigma = control.sigma + perturb(1, i);
+    control_perturb.sigma = control.sigma;
     double integration_step_perturb = fabs(control_perturb.delta_s);
 
-    State f_u_perturb = integrate_ODE(state, control_perturb, integration_step_perturb);
+    State state_perturb;
+    state_perturb.x = state.x;
+    state_perturb.y = state.y;
+    state_perturb.theta = state.theta;
+    state_perturb.kappa = state.kappa + perturb(1, i);
+
+    State f_u_perturb = integrate_ODE(state_perturb, control_perturb, integration_step_perturb);
     F_u(0, i) = (f_u_perturb.x - f_u.x) / perturb(i, i);
     F_u(1, i) = (f_u_perturb.y - f_u.y) / perturb(i, i);
     F_u(2, i) = (f_u_perturb.theta - f_u.theta) / perturb(i, i);
-    F_u(3, i) = (f_u_perturb.kappa - f_u.kappa) / perturb(i, i);
   }
   return F_u;
 }
@@ -150,10 +154,10 @@ TEST(Jacobian, F_x)
     control.sigma = random_boolean() * control.sigma;
     double integration_step = fabs(control.delta_s);
 
-    Matrix4d F_x_ana(Matrix4d::Zero());
-    Matrix42d F_u_ana(Matrix42d::Zero());
+    Matrix3d F_x_ana(Matrix3d::Zero());
+    Matrix32d F_u_ana(Matrix32d::Zero());
     ekf.get_motion_jacobi(state, control, integration_step, F_x_ana, F_u_ana);
-    Matrix4d F_x_num = get_num_motion_jacobi_x(state, control, integration_step);
+    Matrix3d F_x_num = get_num_motion_jacobi_x(state, control, integration_step);
     for (int i = 0; i < F_x_ana.rows(); ++i)
     {
       for (int j = 0; j < F_x_ana.cols(); ++j)
@@ -176,10 +180,10 @@ TEST(Jacobian, F_u)
     control.sigma = random_boolean() * control.sigma;
     double integration_step = fabs(control.delta_s);
 
-    Matrix4d F_x_ana(Matrix4d::Zero());
-    Matrix42d F_u_ana(Matrix42d::Zero());
+    Matrix3d F_x_ana(Matrix3d::Zero());
+    Matrix32d F_u_ana(Matrix32d::Zero());
     ekf.get_motion_jacobi(state, control, integration_step, F_x_ana, F_u_ana);
-    Matrix42d F_u_num = get_num_motion_jacobi_u(state, control, integration_step);
+    Matrix32d F_u_num = get_num_motion_jacobi_u(state, control, integration_step);
     for (int i = 0; i < F_u_ana.rows(); ++i)
     {
       for (int j = 0; j < F_u_ana.cols(); ++j)

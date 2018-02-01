@@ -77,15 +77,13 @@ struct Control
     Probabilistic Robotics, S. Thrun and others, MIT Press, 2006, p. 127-128 and p.204-206. */
 struct Motion_Noise
 {
-  /** \brief Variance in longitudinal direction: alpha1*delta_s*delta_s + alpha2*kappa*kappa + alpha3*sigma*sigma  */
+  /** \brief Variance in longitudinal direction: alpha1*delta_s*delta_s + alpha2*kappa*kappa  */
   double alpha1;
   double alpha2;
-  double alpha3;
 
-  /** \brief Variance in lateral direction: alpha4*delta_s*delta_s + alpha5*kappa*kappa + alpha6*sigma*sigma  */
+  /** \brief Variance in lateral direction: alpha3*delta_s*delta_s + alpha4*kappa*kappa */
+  double alpha3;
   double alpha4;
-  double alpha5;
-  double alpha6;
 };
 
 /** \brief Parameters of the measurement noise */
@@ -99,9 +97,6 @@ struct Measurement_Noise
 
   /** \brief Standard deviation of localization in theta */
   double std_theta;
-
-  /** \brief Standard deviation of curvature measurement */
-  double std_kappa;
 };
 
 /** \brief Parameters of the feedback controller */
@@ -115,9 +110,6 @@ struct Controller
 
   /** \brief Weight on heading error */
   double k3;
-
-  /** \brief Weight on curvature error */
-  double k4;
 };
 }
 

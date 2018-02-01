@@ -100,19 +100,15 @@ public:
     nh.param<double>("motion_noise/alpha1", motion_noise_.alpha1, 0.1);
     nh.param<double>("motion_noise/alpha2", motion_noise_.alpha2, 0.0);
     nh.param<double>("motion_noise/alpha3", motion_noise_.alpha3, 0.0);
-    nh.param<double>("motion_noise/alpha4", motion_noise_.alpha4, 0.0);
-    nh.param<double>("motion_noise/alpha5", motion_noise_.alpha5, 0.1);
-    nh.param<double>("motion_noise/alpha6", motion_noise_.alpha6, 0.1);
+    nh.param<double>("motion_noise/alpha4", motion_noise_.alpha4, 0.1);
 
     nh.param<double>("measurement_noise/std_x", measurement_noise_.std_x, 0.1);
     nh.param<double>("measurement_noise/std_y", measurement_noise_.std_y, 0.1);
     nh.param<double>("measurement_noise/std_theta", measurement_noise_.std_theta, 0.01);
-    nh.param<double>("measurement_noise/std_kappa", measurement_noise_.std_kappa, 1e-9);
 
     nh.param<double>("controller/k1", controller_.k1, 1.0);
     nh.param<double>("controller/k2", controller_.k2, 1.0);
     nh.param<double>("controller/k3", controller_.k3, 1.0);
-    nh.param<double>("controller/k4", controller_.k4, 1.0);
 
     // publisher
     pub_path_ = pnh.advertise<nav_msgs::Path>("visualization_path", 10);
@@ -218,9 +214,9 @@ public:
     Eigen::Vector3d eigenvalues(Eigen::Vector3d::Identity());
     Eigen::Matrix3d eigenvectors(Eigen::Matrix3d::Zero());
     Eigen::Matrix3d covariance;
-    covariance << state.covariance[0 + 4 * 0], state.covariance[1 + 4 * 0], state.covariance[2 + 4 * 0],
-        state.covariance[0 + 4 * 1], state.covariance[1 + 4 * 1], state.covariance[2 + 4 * 1],
-        state.covariance[0 + 4 * 2], state.covariance[1 + 4 * 2], state.covariance[2 + 4 * 2];
+    covariance << state.covariance[0 * 4 + 0], state.covariance[0 * 4 + 1], state.covariance[0 * 4 + 2],
+        state.covariance[1 * 4 + 0], state.covariance[1 * 4 + 1], state.covariance[1 * 4 + 2],
+        state.covariance[2 * 4 + 0], state.covariance[2 * 4 + 1], state.covariance[2 * 4 + 2];
     Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(covariance);
     if (eigensolver.info() == Eigen::Success)
     {
@@ -390,7 +386,6 @@ public:
     nh.param<double>("measurement_noise/std_x", measurement_noise_.std_x, 0.1);
     nh.param<double>("measurement_noise/std_y", measurement_noise_.std_y, 0.1);
     nh.param<double>("measurement_noise/std_theta", measurement_noise_.std_theta, 0.01);
-    nh.param<double>("measurement_noise/std_kappa", measurement_noise_.std_kappa, 1e-9);
 
     // marker chassis
     marker_chassis_.header.frame_id = frame_id_;
@@ -502,10 +497,9 @@ int main(int argc, char** argv)
     start.state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
     start.state.kappa = 0.0;
     start.state.d = 0.0;
-    start.covariance[0 + 4 * 0] = start.Sigma[0 + 4 * 0] = pow(robot.measurement_noise_.std_x, 2);
-    start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(robot.measurement_noise_.std_y, 2);
-    start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(robot.measurement_noise_.std_theta, 2);
-    start.covariance[3 + 4 * 3] = start.Sigma[3 + 4 * 3] = pow(robot.measurement_noise_.std_kappa, 2);
+    start.covariance[0 * 4 + 0] = start.Sigma[0 * 4 + 0] = pow(robot.measurement_noise_.std_x, 2);
+    start.covariance[1 * 4 + 1] = start.Sigma[1 * 4 + 1] = pow(robot.measurement_noise_.std_y, 2);
+    start.covariance[2 * 4 + 2] = start.Sigma[2 * 4 + 2] = pow(robot.measurement_noise_.std_theta, 2);
 
     State goal;
     goal.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
