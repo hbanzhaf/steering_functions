@@ -36,6 +36,9 @@ typedef Eigen::Matrix<double, 2, 3> Matrix23d;
 class EKF
 {
 public:
+  /** Constructor */
+  EKF();
+
   /** \brief Sets the parameters required by the EKF */
   void set_parameters(const Motion_Noise &motion_noise, const Measurement_Noise &measurement_noise,
                       const Controller &_controller);
@@ -82,6 +85,9 @@ private:
 
   /** \brief Feedback controller */
   Controller controller_;
+
+  /** \brief Identity matrix */
+  Matrix3d I_;
 };
 
 #endif

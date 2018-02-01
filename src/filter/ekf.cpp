@@ -17,6 +17,11 @@
 
 #include "steering_functions/filter/ekf.hpp"
 
+EKF::EKF()
+{
+  I_ = Matrix3d::Identity();
+}
+
 void EKF::set_parameters(const Motion_Noise &motion_noise, const Measurement_Noise &measurement_noise,
                          const Controller &controller)
 {
@@ -121,8 +126,8 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
       F_x(2, 2) = 1.0;
 
       // df/du
-      F_u(0, 0) = cos(k9);
-      F_u(1, 0) = sin(k9);
+      F_u(0, 0) = cos_k9;
+      F_u(1, 0) = sin_k9;
       F_u(2, 0) = state.kappa;
 
       F_u(0, 1) = (sin_th - sin_k9) / (state.kappa * state.kappa) + d * integration_step * cos_k9 / state.kappa;
@@ -131,17 +136,20 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
     }
     else
     {
+      double cos_th = cos(state.theta);
+      double sin_th = sin(state.theta);
+
       // df/dx
       F_x(0, 0) = 1.0;
       F_x(1, 1) = 1.0;
 
-      F_x(0, 2) = -d * integration_step * sin(state.theta);
-      F_x(1, 2) = d * integration_step * cos(state.theta);
+      F_x(0, 2) = -d * integration_step * sin_th;
+      F_x(1, 2) = d * integration_step * cos_th;
       F_x(2, 2) = 1.0;
 
       // df/du
-      F_u(0, 0) = cos(state.theta);
-      F_u(1, 0) = sin(state.theta);
+      F_u(0, 0) = cos_th;
+      F_u(1, 0) = sin_th;
       F_u(2, 0) = state.kappa;
 
       F_u(2, 1) = d * integration_step;
@@ -151,7 +159,7 @@ void EKF::get_motion_jacobi(const State &state, const Control &control, double i
 
 Matrix3d EKF::get_observation_jacobi() const
 {
-  return Matrix3d::Identity();
+  return I_;
 }
 
 Matrix2d EKF::get_motion_covariance(const State &state, const Control &control, double integration_step) const
@@ -232,9 +240,8 @@ void EKF::update(const State_With_Covariance &state_pred, State_With_Covariance 
   Matrix3d L = Sigma_xz * Sigma_z.inverse();
 
   // Sigma_corr (Joseph's form)
-  Matrix3d I = Matrix3d::Identity();
-  Matrix3d LH_x = L * H_x;
-  Matrix3d Sigma_corr = (I - LH_x) * Sigma_pred * (I - LH_x).transpose() + L * R * L.transpose();
+  Matrix3d I_LH_x = I_ - L * H_x;
+  Matrix3d Sigma_corr = I_LH_x * Sigma_pred * I_LH_x.transpose() + L * R * L.transpose();
 
   // Lambda_corr
   Matrix3d Lambda_corr = Lambda_pred + L * Sigma_xz.transpose();

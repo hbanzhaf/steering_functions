@@ -3,6 +3,8 @@ project(steering_functions)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
+## Enable vectorization for Eigen
+add_compile_options(-march=native)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
