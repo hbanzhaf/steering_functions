@@ -209,5 +209,10 @@ if(TARGET fresnel_test)
   target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
 endif()
 
+catkin_add_gtest(timing_test test/timing_test.cpp)
+if(TARGET timing_test)
+  target_link_libraries(timing_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+endif()
+
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
