@@ -150,7 +150,9 @@ TEST(Jacobian, F_x)
     control.sigma = random_boolean() * control.sigma;
     double integration_step = fabs(control.delta_s);
 
-    Matrix4d F_x_ana = ekf.get_motion_jacobi_x(state, control, integration_step);
+    Matrix4d F_x_ana(Matrix4d::Zero());
+    Matrix42d F_u_ana(Matrix42d::Zero());
+    ekf.get_motion_jacobi(state, control, integration_step, F_x_ana, F_u_ana);
     Matrix4d F_x_num = get_num_motion_jacobi_x(state, control, integration_step);
     for (int i = 0; i < F_x_ana.rows(); ++i)
     {
@@ -174,7 +176,9 @@ TEST(Jacobian, F_u)
     control.sigma = random_boolean() * control.sigma;
     double integration_step = fabs(control.delta_s);
 
-    Matrix42d F_u_ana = ekf.get_motion_jacobi_u(state, control, integration_step);
+    Matrix4d F_x_ana(Matrix4d::Zero());
+    Matrix42d F_u_ana(Matrix42d::Zero());
+    ekf.get_motion_jacobi(state, control, integration_step, F_x_ana, F_u_ana);
     Matrix42d F_u_num = get_num_motion_jacobi_u(state, control, integration_step);
     for (int i = 0; i < F_u_ana.rows(); ++i)
     {

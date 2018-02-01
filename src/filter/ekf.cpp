@@ -49,91 +49,8 @@ void EKF::eigen_to_covariance(const Matrix4d &covariance_eigen, double covarianc
   }
 }
 
-Matrix4d EKF::get_motion_jacobi_x(const State &state, const Control &control, double integration_step) const
+void EKF::get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix4d &F_x, Matrix42d &F_u) const
 {
-  Matrix4d F_x(Matrix4d::Zero());
-  double d(sgn(control.delta_s));
-
-  if (fabs(control.sigma) > get_epsilon())
-  {
-    double sgn_sigma = sgn(control.sigma);
-    double abs_sigma = fabs(control.sigma);
-    double sqrt_sigma_inv = 1 / sqrt(abs_sigma);
-    double k1 = state.theta - 0.5 * d * state.kappa * state.kappa / control.sigma;
-    double k2 = SQRT_PI_INV * sqrt_sigma_inv * (abs_sigma * integration_step + sgn_sigma * state.kappa);
-    double k3 = SQRT_PI_INV * sqrt_sigma_inv * sgn_sigma * state.kappa;
-    double k4 = k1 + d * sgn_sigma * HALF_PI * k2 * k2;
-    double k5 = k1 + d * sgn_sigma * HALF_PI * k3 * k3;
-    double cos_k1 = cos(k1);
-    double sin_k1 = sin(k1);
-    double fresnel_s_k2;
-    double fresnel_c_k2;
-    double fresnel_s_k3;
-    double fresnel_c_k3;
-    fresnel(k2, fresnel_s_k2, fresnel_c_k2);
-    fresnel(k3, fresnel_s_k3, fresnel_c_k3);
-
-    F_x(0, 0) = 1.0;
-    F_x(1, 1) = 1.0;
-
-    F_x(0, 2) = SQRT_PI * sqrt_sigma_inv *
-                (-d * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * cos_k1 * (fresnel_s_k2 - fresnel_s_k3));
-    F_x(1, 2) = SQRT_PI * sqrt_sigma_inv *
-                (d * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * sin_k1 * (fresnel_s_k2 - fresnel_s_k3));
-    F_x(2, 2) = 1.0;
-
-    F_x(0, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
-                    (sgn_sigma * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * cos_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
-                    abs_sigma +
-                d * (cos(k4) - cos(k5)) / control.sigma;
-    F_x(1, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
-                    (-sgn_sigma * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * sin_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
-                    abs_sigma +
-                d * (sin(k4) - sin(k5)) / control.sigma;
-    F_x(2, 3) = d * integration_step;
-    F_x(3, 3) = 1.0;
-  }
-  else
-  {
-    if (fabs(state.kappa) > get_epsilon())
-    {
-      double sin_th = sin(state.theta);
-      double cos_th = cos(state.theta);
-      double k9 = state.theta + d * integration_step * state.kappa;
-      double cos_k9 = cos(k9);
-      double sin_k9 = sin(k9);
-
-      F_x(0, 0) = 1.0;
-      F_x(1, 1) = 1.0;
-
-      F_x(0, 2) = (-cos_th + cos_k9) / state.kappa;
-      F_x(1, 2) = (-sin_th + sin_k9) / state.kappa;
-      F_x(2, 2) = 1.0;
-
-      F_x(0, 3) = (sin_th - sin_k9) / (state.kappa * state.kappa) + d * integration_step * cos_k9 / state.kappa;
-      F_x(1, 3) = (-cos_th + cos_k9) / (state.kappa * state.kappa) + d * integration_step * sin_k9 / state.kappa;
-      F_x(2, 3) = d * integration_step;
-      F_x(3, 3) = 1.0;
-    }
-    else
-    {
-      F_x(0, 0) = 1.0;
-      F_x(1, 1) = 1.0;
-
-      F_x(0, 2) = -d * integration_step * sin(state.theta);
-      F_x(1, 2) = d * integration_step * cos(state.theta);
-      F_x(2, 2) = 1.0;
-
-      F_x(2, 3) = d * integration_step;
-      F_x(3, 3) = 1.0;
-    }
-  }
-  return F_x;
-}
-
-Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, double integration_step) const
-{
-  Matrix42d F_u(Matrix42d::Zero());
   double d(sgn(control.delta_s));
 
   if (fabs(control.sigma) > get_epsilon())
@@ -153,6 +70,8 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
     double sin_k1 = sin(k1);
     double cos_k4 = cos(k4);
     double sin_k4 = sin(k4);
+    double cos_k5 = cos(k5);
+    double sin_k5 = sin(k5);
     double fresnel_s_k2;
     double fresnel_c_k2;
     double fresnel_s_k3;
@@ -160,6 +79,28 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
     fresnel(k2, fresnel_s_k2, fresnel_c_k2);
     fresnel(k3, fresnel_s_k3, fresnel_c_k3);
 
+    // df/dx
+    F_x(0, 0) = 1.0;
+    F_x(1, 1) = 1.0;
+
+    F_x(0, 2) = SQRT_PI * sqrt_sigma_inv *
+                (-d * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * cos_k1 * (fresnel_s_k2 - fresnel_s_k3));
+    F_x(1, 2) = SQRT_PI * sqrt_sigma_inv *
+                (d * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) - sgn_sigma * sin_k1 * (fresnel_s_k2 - fresnel_s_k3));
+    F_x(2, 2) = 1.0;
+
+    F_x(0, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (sgn_sigma * sin_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * cos_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
+                    abs_sigma +
+                d * (cos_k4 - cos_k5) / control.sigma;
+    F_x(1, 3) = SQRT_PI * sqrt_sigma_inv * state.kappa *
+                    (-sgn_sigma * cos_k1 * (fresnel_c_k2 - fresnel_c_k3) + d * sin_k1 * (fresnel_s_k2 - fresnel_s_k3)) /
+                    abs_sigma +
+                d * (sin_k4 - sin_k5) / control.sigma;
+    F_x(2, 3) = d * integration_step;
+    F_x(3, 3) = 1.0;
+
+    // df/du
     F_u(0, 0) = cos_k4;
     F_u(1, 0) = sin_k4;
     F_u(2, 0) = state.kappa + control.sigma * integration_step;
@@ -168,11 +109,11 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
     F_u(0, 1) = SQRT_PI * sqrt_sigma_inv *
                 (-d * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_c_k2 - fresnel_c_k3) +
                  sgn_sigma * (0.5 * sin_k1 / control.sigma - k6 * cos_k1) * (fresnel_s_k2 - fresnel_s_k3) +
-                 d * (k7 * cos_k4 - k8 * cos(k5)));
+                 d * (k7 * cos_k4 - k8 * cos_k5));
     F_u(1, 1) = SQRT_PI * sqrt_sigma_inv *
                 (d * (-0.5 * sin_k1 / control.sigma + k6 * cos_k1) * (fresnel_c_k2 - fresnel_c_k3) -
                  sgn_sigma * (0.5 * cos_k1 / control.sigma + k6 * sin_k1) * (fresnel_s_k2 - fresnel_s_k3) +
-                 d * (k7 * sin_k4 - k8 * sin(k5)));
+                 d * (k7 * sin_k4 - k8 * sin_k5));
     F_u(2, 1) = 0.5 * d * integration_step * integration_step;
     F_u(3, 1) = integration_step;
   }
@@ -180,8 +121,26 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
   {
     if (fabs(state.kappa) > get_epsilon())
     {
+      double sin_th = sin(state.theta);
+      double cos_th = cos(state.theta);
       double k9 = state.theta + d * integration_step * state.kappa;
+      double cos_k9 = cos(k9);
+      double sin_k9 = sin(k9);
 
+      // df/dx
+      F_x(0, 0) = 1.0;
+      F_x(1, 1) = 1.0;
+
+      F_x(0, 2) = (-cos_th + cos_k9) / state.kappa;
+      F_x(1, 2) = (-sin_th + sin_k9) / state.kappa;
+      F_x(2, 2) = 1.0;
+
+      F_x(0, 3) = (sin_th - sin_k9) / (state.kappa * state.kappa) + d * integration_step * cos_k9 / state.kappa;
+      F_x(1, 3) = (-cos_th + cos_k9) / (state.kappa * state.kappa) + d * integration_step * sin_k9 / state.kappa;
+      F_x(2, 3) = d * integration_step;
+      F_x(3, 3) = 1.0;
+
+      // df/du
       F_u(0, 0) = cos(k9);
       F_u(1, 0) = sin(k9);
       F_u(2, 0) = state.kappa + control.sigma * integration_step;
@@ -192,6 +151,18 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
     }
     else
     {
+      // df/dx
+      F_x(0, 0) = 1.0;
+      F_x(1, 1) = 1.0;
+
+      F_x(0, 2) = -d * integration_step * sin(state.theta);
+      F_x(1, 2) = d * integration_step * cos(state.theta);
+      F_x(2, 2) = 1.0;
+
+      F_x(2, 3) = d * integration_step;
+      F_x(3, 3) = 1.0;
+
+      // df/du
       F_u(0, 0) = cos(state.theta);
       F_u(1, 0) = sin(state.theta);
       F_u(2, 0) = state.kappa + control.sigma * integration_step;
@@ -201,10 +172,9 @@ Matrix42d EKF::get_motion_jacobi_u(const State &state, const Control &control, d
       F_u(3, 1) = integration_step;
     }
   }
-  return F_u;
 }
 
-Matrix4d EKF::get_observation_jacobi_x() const
+Matrix4d EKF::get_observation_jacobi() const
 {
   return Matrix4d::Identity();
 }
@@ -260,8 +230,9 @@ void EKF::predict(const State_With_Covariance &state, const Control &control, do
   Matrix4d Lambda = covariance_to_eigen(state.Lambda);
 
   // Sigma_pred
-  Matrix4d F_x = get_motion_jacobi_x(state.state, control, integration_step);
-  Matrix42d F_u = get_motion_jacobi_u(state.state, control, integration_step);
+  Matrix4d F_x(Matrix4d::Zero());
+  Matrix42d F_u(Matrix42d::Zero());
+  get_motion_jacobi(state.state, control, integration_step, F_x, F_u);
   Matrix2d Q = get_motion_covariance(state.state, control, integration_step);
   Matrix4d Sigma_pred = F_x * Sigma * F_x.transpose() + F_u * Q * F_u.transpose();
 
@@ -282,7 +253,7 @@ void EKF::update(const State_With_Covariance &state_pred, State_With_Covariance 
   Matrix4d Lambda_pred = covariance_to_eigen(state_pred.Lambda);
 
   // Kalman gain L
-  Matrix4d H_x = get_observation_jacobi_x();
+  Matrix4d H_x = get_observation_jacobi();
   Matrix4d R = get_observation_covariance();
   Matrix4d Sigma_xz = Sigma_pred * H_x.transpose();
   Matrix4d Sigma_z = H_x * Sigma_xz + R;

@@ -46,14 +46,12 @@ public:
   /** \brief Converts a covariance given by an Eigen matrix to a double array */
   void eigen_to_covariance(const Matrix4d &covariance_eigen, double covariance[16]) const;
 
-  /** \brief Computes the Jacobian of the motion equations with respect to the state */
-  Matrix4d get_motion_jacobi_x(const State &state, const Control &control, double integration_step) const;
-
-  /** \brief Computes the Jacobian of the motion equations with respect to the control */
-  Matrix42d get_motion_jacobi_u(const State &state, const Control &control, double integration_step) const;
+  /** \brief Computes the Jacobians of the motion equations with respect to the state and control */
+  void get_motion_jacobi(const State &state, const Control &control, double integration_step, Matrix4d &F_x,
+                         Matrix42d &F_u) const;
 
   /** \brief Computes the Jacobian of the observation equations with respect to the state */
-  Matrix4d get_observation_jacobi_x() const;
+  Matrix4d get_observation_jacobi() const;
 
   /** \brief Returns the motion covariance in control space */
   Matrix2d get_motion_covariance(const State &state, const Control &control, double integration_step) const;
