@@ -42,6 +42,16 @@ using namespace steer;
 #define OPERATING_REGION_X 20.0          // [m]
 #define OPERATING_REGION_Y 20.0          // [m]
 #define OPERATING_REGION_THETA 2 * M_PI  // [rad]
+#define ALPHA1 0.1                       // [-]
+#define ALPHA2 0.05                      // [-]
+#define ALPHA3 0.05                      // [-]
+#define ALPHA4 0.1                       // [-]
+#define STD_X 0.1                        // [m]
+#define STD_Y 0.1                        // [m]
+#define STD_THETA 0.05                   // [rad]
+#define K1 1.5                           // [-]
+#define K2 0.25                          // [-]
+#define K3 1.0                           // [-]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
 
 struct Statistic
@@ -249,7 +259,8 @@ vector<Statistic> get_path(const string& id, const vector<State>& starts, const 
   return stats;
 }
 
-vector<Statistic> get_path_with_covariance(const string& id, const vector<State_With_Covariance>& starts, const vector<State>& goals)
+vector<Statistic> get_path_with_covariance(const string& id, const vector<State_With_Covariance>& starts,
+                                           const vector<State>& goals)
 {
   clock_t clock_start;
   clock_t clock_finish;
@@ -413,14 +424,14 @@ TEST(Timing, getControls)
   cout << "[----------] " + rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
        << get_std(computation_times) << endl;
 
-//  write_to_file(cc_dubins_id, cc_dubins_stats);
-//  write_to_file(dubins_id, dubins_stats);
-//  write_to_file(cc_rs_id, cc_rs_stats);
-//  write_to_file(hc00_id, hc00_stats);
-//  write_to_file(hc0pm_id, hc0pm_stats);
-//  write_to_file(hcpm0_id, hcpm0_stats);
-//  write_to_file(hcpmpm_id, hcpmpm_stats);
-//  write_to_file(rs_id, rs_stats);
+  //  write_to_file(cc_dubins_id, cc_dubins_stats);
+  //  write_to_file(dubins_id, dubins_stats);
+  //  write_to_file(cc_rs_id, cc_rs_stats);
+  //  write_to_file(hc00_id, hc00_stats);
+  //  write_to_file(hc0pm_id, hc0pm_stats);
+  //  write_to_file(hcpm0_id, hcpm0_stats);
+  //  write_to_file(hcpmpm_id, hcpmpm_stats);
+  //  write_to_file(rs_id, rs_stats);
 }
 
 TEST(Timing, getPath)
@@ -523,6 +534,31 @@ TEST(Timing, getPath)
 
 TEST(Timing, getPathWithCovariance)
 {
+  // set filter parameters
+  Motion_Noise motion_noise;
+  Measurement_Noise measurement_noise;
+  Controller controller;
+  motion_noise.alpha1 = ALPHA1;
+  motion_noise.alpha2 = ALPHA2;
+  motion_noise.alpha3 = ALPHA3;
+  motion_noise.alpha4 = ALPHA4;
+  measurement_noise.std_x = STD_X;
+  measurement_noise.std_y = STD_Y;
+  measurement_noise.std_theta = STD_THETA;
+  controller.k1 = K1;
+  controller.k2 = K2;
+  controller.k3 = K3;
+  cc_dubins_forwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  cc_dubins_backwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  dubins_forwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  dubins_backwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  cc_rs_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  hc00_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  hc0pm_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  hcpm0_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  hcpmpm_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  rs_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+
   srand(0);
   vector<double> computation_times;
   computation_times.reserve(SAMPLES);
@@ -534,10 +570,9 @@ TEST(Timing, getPathWithCovariance)
   {
     State_With_Covariance start;
     start.state = get_random_state();
-    start.covariance[0 + 4 * 0] = start.Sigma[0 + 4 * 0] = pow(0.1, 2);
-    start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(0.1, 2);
-    start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(0.05, 2);
-    start.covariance[3 + 4 * 3] = start.Sigma[3 + 4 * 3] = pow(1e-6, 2);
+    start.covariance[0 + 4 * 0] = start.Sigma[0 + 4 * 0] = pow(STD_X, 2);
+    start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(STD_Y, 2);
+    start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(STD_THETA, 2);
     State goal = get_random_state();
     starts.push_back(start);
     goals.push_back(goal);
