@@ -76,6 +76,9 @@ public:
   /** \brief Predicts the covariances */
   void update(const State_With_Covariance &state_pred, State_With_Covariance &state_corr) const;
 
+  /** \brief Overload operator new for fixed-size vectorizable Eigen member variable */
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
 private:
   /** \brief Motion noise */
   Motion_Noise motion_noise_;

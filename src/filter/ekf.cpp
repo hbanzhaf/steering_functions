@@ -33,11 +33,11 @@ void EKF::set_parameters(const Motion_Noise &motion_noise, const Measurement_Noi
 Matrix3d EKF::covariance_to_eigen(const double covariance[16]) const
 {
   Matrix3d covariance_eigen;
-  for (int i = 0; i < covariance_eigen.rows(); ++i)
+  for (int i = 0, n = covariance_eigen.rows(); i < n; ++i)
   {
-    for (int j = 0; j < covariance_eigen.cols(); ++j)
+    for (int j = 0, m = covariance_eigen.cols(); j < m; ++j)
     {
-      covariance_eigen(i, j) = covariance[i * 4 + j];
+      covariance_eigen(i, j) = covariance[(i << 2) + j];  // bitwise operation for: covariance[i * 4 + j]
     }
   }
   return covariance_eigen;
@@ -45,11 +45,11 @@ Matrix3d EKF::covariance_to_eigen(const double covariance[16]) const
 
 void EKF::eigen_to_covariance(const Matrix3d &covariance_eigen, double covariance[16]) const
 {
-  for (int i = 0; i < covariance_eigen.rows(); ++i)
+  for (int i = 0, n = covariance_eigen.rows(); i < n; ++i)
   {
-    for (int j = 0; j < covariance_eigen.cols(); ++j)
+    for (int j = 0, m = covariance_eigen.cols(); j < m; ++j)
     {
-      covariance[i * 4 + j] = covariance_eigen(i, j);
+      covariance[(i << 2) + j] = covariance_eigen(i, j);  // bitwise operation for: covariance[i * 4 + j]
     }
   }
 }
