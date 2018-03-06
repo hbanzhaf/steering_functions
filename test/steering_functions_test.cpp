@@ -482,6 +482,32 @@ TEST(SteeringFunctions, interpolation)
   }
 }
 
+TEST(SteeringFunctions, symmetry)
+{
+  srand(seed);
+  for (int i = 0; i < SAMPLES; ++i)
+  {
+    State start = get_random_state();
+    State goal = get_random_state();
+
+    double cc_rs_distance_forwards = cc_rs_ss.get_distance(start, goal);
+    double cc_rs_distance_backwards = cc_rs_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(cc_rs_distance_forwards - cc_rs_distance_backwards), EPS_DISTANCE);
+
+    double hc00_distance_forwards = hc00_ss.get_distance(start, goal);
+    double hc00_distance_backwards = hc00_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(hc00_distance_forwards - hc00_distance_backwards), EPS_DISTANCE);
+
+    double hcpmpm_distance_forwards = hcpmpm_ss.get_distance(start, goal);
+    double hcpmpm_distance_backwards = hcpmpm_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(hcpmpm_distance_forwards - hcpmpm_distance_backwards), EPS_DISTANCE);
+
+    double rs_distance_forwards = rs_ss.get_distance(start, goal);
+    double rs_distance_backwards = rs_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(rs_distance_forwards - rs_distance_backwards), EPS_DISTANCE);
+  }
+}
+
 int main(int argc, char** argv)
 {
   testing::InitGoogleTest(&argc, argv);

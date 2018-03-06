@@ -570,7 +570,7 @@ public:
     double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
     double x, y;
 
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, +delta_y, &x, &y);
+    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
     TiST_tangent_circles(c1, tgt1, q2, q3);
@@ -665,7 +665,7 @@ public:
     double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
     double x, y;
 
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c1.left, !c1.forward, c1.regular, parent_->hc_cc_circle_param_);
 
     TcT_tangent_circles(c1, tgt1, q1);

@@ -581,7 +581,7 @@ public:
     double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
     double x, y;
 
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, +delta_y, &x, &y);
+    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
     TiST_tangent_circles(c1, tgt1, q2, q3);
@@ -673,11 +673,11 @@ public:
                      HC_CC_Circle **ci) const
   {
     double theta = angle;
-    double delta_y = (4 * c2.radius) / (fabs(c2.kappa) * distance);
+    double delta_y = (4 * parent_->radius_ * parent_->cos_mu_) / (fabs(c2.kappa) * distance);
     double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
     double x, y;
 
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
     HC_CC_Circle tgt1(x, y, !c2.left, !c2.forward, c2.regular, parent_->hc_cc_circle_param_);
 
     TcT_tangent_circles(c1, tgt1, q1);
