@@ -618,7 +618,7 @@ vector<State> Reeds_Shepp_State_Space::integrate(const State &state, const vecto
       path.push_back(state_curr);
     }
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;
@@ -675,7 +675,7 @@ vector<State_With_Covariance> Reeds_Shepp_State_Space::integrate_with_covariance
     state_curr.state.d = sgn(delta_s);
     path_with_covariance.push_back(state_curr);
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;
@@ -758,7 +758,7 @@ State Reeds_Shepp_State_Space::interpolate(const State &state, const vector<Cont
       interpolated = true;
     }
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;

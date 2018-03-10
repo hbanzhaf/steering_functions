@@ -328,7 +328,7 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
       path.push_back(state_curr);
     }
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;
@@ -385,7 +385,7 @@ vector<State_With_Covariance> Dubins_State_Space::integrate_with_covariance(cons
     state_curr.state.d = sgn(delta_s);
     path_with_covariance.push_back(state_curr);
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;
@@ -468,7 +468,7 @@ State Dubins_State_Space::interpolate(const State &state, const vector<Control> 
       interpolated = true;
     }
 
-    while (s_seg < abs_delta_s)
+    for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
       // get integration step
       s_seg += discretization_;
