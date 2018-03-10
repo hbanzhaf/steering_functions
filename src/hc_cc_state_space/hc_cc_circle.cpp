@@ -41,7 +41,6 @@ HC_CC_Circle::HC_CC_Circle(const Configuration &_start, bool _left, bool _forwar
                            const HC_CC_Circle_Param &_param)
 {
   start = _start;
-  start.kappa = 0;
   left = _left;
   forward = _forward;
   regular = _regular;

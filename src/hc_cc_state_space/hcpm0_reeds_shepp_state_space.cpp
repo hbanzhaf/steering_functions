@@ -1666,15 +1666,16 @@ label_end:
 HC_CC_RS_Path *HCpm0_Reeds_Shepp_State_Space::hcpm0_reeds_shepp(const State &state1, const State &state2) const
 {
   // compute the 4 circles at the intial and final configuration
-  Configuration start(state1.x, state1.y, state1.theta, state1.kappa);
+  Configuration start1(state1.x, state1.y, state1.theta, kappa_);
+  Configuration start2(state1.x, state1.y, state1.theta, -kappa_);
   Configuration end(state2.x, state2.y, state2.theta, 0.0);
 
   HC_CC_Circle *start_circle[4];
   HC_CC_Circle *end_circle[4];
-  start_circle[0] = new HC_CC_Circle(start, true, true, true, rs_circle_param_);
-  start_circle[1] = new HC_CC_Circle(start, false, true, true, rs_circle_param_);
-  start_circle[2] = new HC_CC_Circle(start, true, false, true, rs_circle_param_);
-  start_circle[3] = new HC_CC_Circle(start, false, false, true, rs_circle_param_);
+  start_circle[0] = new HC_CC_Circle(start1, true, true, true, rs_circle_param_);
+  start_circle[1] = new HC_CC_Circle(start2, false, true, true, rs_circle_param_);
+  start_circle[2] = new HC_CC_Circle(start1, true, false, true, rs_circle_param_);
+  start_circle[3] = new HC_CC_Circle(start2, false, false, true, rs_circle_param_);
   end_circle[0] = new HC_CC_Circle(end, true, true, true, hc_cc_circle_param_);
   end_circle[1] = new HC_CC_Circle(end, false, true, true, hc_cc_circle_param_);
   end_circle[2] = new HC_CC_Circle(end, true, false, true, hc_cc_circle_param_);
