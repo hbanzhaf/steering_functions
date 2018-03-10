@@ -155,6 +155,9 @@ public:
   HC_CC_Circle *cstart, *cend, *ci1, *ci2, *ci3;
 };
 
+/** \brief Reverses a control */
+void reverse_control(Control &control);
+
 /** \brief Appends controls with 0 input */
 void empty_controls(vector<Control> &controls);
 

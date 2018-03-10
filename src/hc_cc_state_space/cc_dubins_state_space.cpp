@@ -519,9 +519,7 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
     reverse(cc_dubins_controls.begin(), cc_dubins_controls.end());
     for (auto &control : cc_dubins_controls)
     {
-      control.delta_s = -control.delta_s;
-      control.kappa = control.kappa + fabs(control.delta_s) * control.sigma;
-      control.sigma = -control.sigma;
+      reverse_control(control);
     }
   }
   delete p;

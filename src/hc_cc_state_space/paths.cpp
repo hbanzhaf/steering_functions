@@ -273,6 +273,13 @@ void HC_CC_RS_Path::print(bool eol) const
   }
 }
 
+void reverse_control(Control &control)
+{
+  control.delta_s = -control.delta_s;
+  control.kappa = control.kappa + fabs(control.delta_s) * control.sigma;
+  control.sigma = -control.sigma;
+}
+
 void empty_controls(vector<Control> &controls)
 {
   Control control;
