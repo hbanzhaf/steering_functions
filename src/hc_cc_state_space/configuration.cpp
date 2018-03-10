@@ -59,10 +59,9 @@ bool configuration_aligned(const Configuration &q1, const Configuration &q2)
 
 bool configuration_equal(const Configuration &q1, const Configuration &q2)
 {
-  if (configuration_distance(q1, q2) < get_epsilon())
-    if (fabs(q2.theta - q1.theta) < get_epsilon())
-    {
-      return true;
-    }
-  return false;
+  if (fabs(q2.theta - q1.theta) > get_epsilon())
+    return false;
+  if (configuration_distance(q1, q2) > get_epsilon())
+    return false;
+  return true;
 }
