@@ -462,7 +462,7 @@ double CC_Dubins_State_Space::get_distance(const State &state1, const State &sta
 vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const State &state2) const
 {
   vector<Control> cc_dubins_controls;
-  cc_dubins_controls.reserve(3);
+  cc_dubins_controls.reserve(9);
   CC_Dubins_Path *p;
   if (forwards_)
     p = this->cc_dubins(state1, state2);

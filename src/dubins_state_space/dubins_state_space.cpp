@@ -303,7 +303,7 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
     double abs_delta_s(fabs(control.delta_s));
     n_states += ceil(abs_delta_s / discretization_);
   }
-  path.reserve(n_states + 1);
+  path.reserve(n_states + 3);
   // push back first state
   state_curr.x = state.x;
   state_curr.y = state.y;
@@ -361,7 +361,7 @@ vector<State_With_Covariance> Dubins_State_Space::integrate_with_covariance(cons
     double abs_delta_s(fabs(control.delta_s));
     n_states += ceil(abs_delta_s / discretization_);
   }
-  path_with_covariance.reserve(n_states + 1);
+  path_with_covariance.reserve(n_states + 3);
   // get first state
   state_curr.state.x = state.state.x;
   state_curr.state.y = state.state.y;

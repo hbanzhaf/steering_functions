@@ -1754,7 +1754,7 @@ double HC0pm_Reeds_Shepp_State_Space::get_distance(const State &state1, const St
 vector<Control> HC0pm_Reeds_Shepp_State_Space::get_controls(const State &state1, const State &state2) const
 {
   vector<Control> hc_rs_controls;
-  hc_rs_controls.reserve(5);
+  hc_rs_controls.reserve(9);
   HC_CC_RS_Path *p = this->hc0pm_reeds_shepp(state1, state2);
   switch (p->type)
   {
