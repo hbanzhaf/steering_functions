@@ -4,13 +4,13 @@
 
 This package contains a C++ library that implements the following steering functions for car-like robots with limited turning radius (CC = continuous curvature, HC = hybrid curvature):
 
-Steering Function           | Driving Direction          | Curvature Continuity       | Optimization Criterion
+Steering Function           | Driving Direction          | Continuity       | Optimization Criterion
 :---                        | :---                       | :---                       | :---
-CC-Dubins                   | forwards **or** backwards  | continuous                 | path length (suboptimal)
-Dubins                      | forwards **or** backwards  | discrete                   | path length (optimal)
-CC-Reeds-Shepp              | forwards **and** backwards | continuous                 | path length (suboptimal)
-HC-Reeds-Shepp<sup>*</sup>  | forwards **and** backwards | continuous except at cusps | path length (suboptimal)
-Reeds-Shepp                 | forwards **and** backwards | discrete                   | path length (optimal)
+Dubins                      | forwards **or** backwards  | G<sup>1</sup> | path length (optimal)
+CC-Dubins                   | forwards **or** backwards  | G<sup>2</sup> | path length (suboptimal)
+Reeds-Shepp                 | forwards **and** backwards | G<sup>1</sup> | path length (optimal)
+HC-Reeds-Shepp<sup>*</sup>  | forwards **and** backwards | G<sup>2</sup> btw. cusps | path length (suboptimal)
+CC-Reeds-Shepp              | forwards **and** backwards | G<sup>2</sup> | path length (suboptimal)
 
 <sub><sup>*</sup> HC-Reeds-Shepp is given with all its derivatives, namely HC<sup>00</sup>, HC<sup>0±</sup>, HC<sup>±0</sup>, and HC<sup>±±</sup>, where the superscript indicates the curvature at the start and goal configuration (± stands for maximum positive or negative curvature).</sub>
 
@@ -26,7 +26,7 @@ For contributions, please check the instructions in [CONTRIBUTING](CONTRIBUTING.
 ## Purpose of the project
 
 This software is a research prototype, originally developed for and published
-as part of the publication (Banzhaf, 2017).
+as part of the publication [2].
 
 The software is not ready for production use. It has neither been developed nor
 tested for a specific use case. However, the license conditions of the
@@ -39,13 +39,15 @@ standards (e.g. ISO 26262).
 ## Publications
 If you use one of the above steering functions in your work, please cite the appropriate publication:
 
-[1] H. Banzhaf et al., **"Hybrid Curvature Steer: A Novel Extend Function for Sampling-Based Nonholonomic Motion Planning in Tight Environments"**, in IEEE International Conference on Intelligent Transportation Systems, 2017.
+[1] H. Banzhaf et al., **"From Footprints to Beliefprints: Motion Planning under Uncertainty for Maneuvering Automated Vehicles in Dense Scenarios,"** (to be published).
 
-[2] L. E. Dubins, **"On Curves of Minimal Length with a Constraint on Average Curvature, and with Prescribed Initial and Terminal Positions and Tangents"**, in American Journal of Mathematics, 1957.
+[2] H. Banzhaf et al., **"Hybrid Curvature Steer: A Novel Extend Function for Sampling-Based Nonholonomic Motion Planning in Tight Environments,"** in IEEE International Conference on Intelligent Transportation Systems, 2017.
 
-[3] T. Fraichard and A. Scheuer, **"From Reeds and Shepp's to Continuous-Curvature Paths"**, in IEEE Transactions on Robotics, 2004.
+[3] L. E. Dubins, **"On Curves of Minimal Length with a Constraint on Average Curvature, and with Prescribed Initial and Terminal Positions and Tangents,"** in American Journal of Mathematics, 1957.
 
-[4] J. Reeds and L. Shepp, **"Optimal paths for a car that goes both forwards and backwards"**, in Pacific Journal of Mathematics, 1990.
+[4] J. Reeds and L. Shepp, **"Optimal paths for a car that goes both forwards and backwards,"** in Pacific Journal of Mathematics, 1990.
+
+[5] T. Fraichard and A. Scheuer, **"From Reeds and Shepp's to Continuous-Curvature Paths,"** in IEEE Transactions on Robotics, 2004.
 
 
 ## License
@@ -56,6 +58,17 @@ The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other ope
 
 
 ## Installation & Usage
+
+### Dependencies
+This package depends on the linear algebra library [Eigen], which can be installed by
+
+    sudo apt-get install libeigen3-dev
+
+The [ROS] dependencies are listed in the package.xml and can be installed by
+
+    rosdep install steering_functions
+
+
 ### Building
 
 To build this package from source, clone it into your catkin workspace and compile it in *Release* mode according to
@@ -97,26 +110,31 @@ Now the steering functions can be used in your package by including the appropri
 
 ### Testing
 
-To run the unit test, exectue
+To build the unit tests, exectue
 
-    catkin build steering_functions -DCMAKE_BUILD_TYPE=Debug --make-args tests
+    catkin build steering_functions -DCMAKE_BUILD_TYPE=Release --make-args tests
+
+To run a single test, e.g. the timing test, execute
+
     cd catkin_ws/devel/lib/steering_functions
-    ./steering_functions_test
+    ./timing_test
 
 
 ## Documentation
 ### Conventions
-In this implementation, a path is given by *N* segments. Each segment can be described by the open-loop control inputs **u**<sub>*k*</sub> = *[delta_s<sub>k</sub>, kappa<sub>k</sub>, sigma<sub>k</sub>]<sup>T</sup>*, where *k = 1...N* iterates over the *N* segments, *delta_s<sub>k</sub>* describes the signed arc length of segment *k*, *kappa<sub>k</sub>* the curvature at the beginning of segment *k*, and *sigma<sub>k</sub>* the linear change in curvature along segment *k*.
+In this implementation, a path is described by *N* segments. Each segment is given by the open-loop control inputs **u**<sub>*k*</sub> = *[delta_s<sub>k</sub>, kappa<sub>k</sub>, sigma<sub>k</sub>]<sup>T</sup>*, where *k = 1...N* iterates over the *N* segments, *delta_s<sub>k</sub>* describes the signed arc length of segment *k*, *kappa<sub>k</sub>* the curvature at the beginning of segment *k*, and *sigma<sub>k</sub>* the linear change in curvature along segment *k*.
 
-The states of the robot can be obtained with a user-specified discretization by forward integrating the open-loop controls **u**<sub>*k*</sub>. A robot state consists of **q** = *[x, y, theta, kappa, d]<sup>T</sup>*, where *x, y* describe the center of the rear axle, *theta* the orientation of the robot, *kappa* the curvature at position *x, y*, and *d* the driving direction ({-1,0,1}).
+The states of the robot can be obtained with a user-specified discretization by forward integrating the open-loop controls **u**<sub>*k*</sub>. A robot state consists of **x** = *[x, y, theta, kappa, d]<sup>T</sup>*, where *x, y* describe the center of the rear axle, *theta* the orientation of the robot, *kappa* the curvature at position *x, y*, and *d* the driving direction ({-1,0,1}).
+
+In addition to that, this package is capable of computing a Gaussian belief along the nominal path given an initial belief, the motion and measurement noise, and a feedback controller. A belief *bel*(**x**) is described by the mean *mu*, the covariance of the state estimate *Sigma*, the distribution over state estimates *Lambda*, and the total covariance *Sigma + Lambda*. Further details can be found in [1].
 
 
 ### Start and Goal State
-All steering functions expect a start state **q**<sub>*s*</sub> = *[x<sub>s</sub>, y<sub>s</sub>, theta<sub>s</sub>, kappa<sub>s</sub>, d<sub>s</sub>]<sup>T</sup>* and a goal state **q**<sub>*g*</sub> = *[x<sub>g</sub>, y<sub>g</sub>, theta<sub>g</sub>, kappa<sub>g</sub>, d<sub>g</sub>]<sup>T</sup>* as input. 
+All steering functions expect a start state **x**<sub>*s*</sub> = *[x<sub>s</sub>, y<sub>s</sub>, theta<sub>s</sub>, kappa<sub>s</sub>, d<sub>s</sub>]<sup>T</sup>* and a goal state **x**<sub>*g*</sub> = *[x<sub>g</sub>, y<sub>g</sub>, theta<sub>g</sub>, kappa<sub>g</sub>, d<sub>g</sub>]<sup>T</sup>* as input. Note that the initial and final driving direction are selected by the steering function according to the computed path. They can not be selected manually, therefore, leave *d<sub>s</sub>* = *d<sub>g</sub>* = 0.
 
-The steering functions CC-Dubins, Dubins, CC-Reeds-Shepp, HC<sup>00</sup>-Reeds-Shepp, and Reeds-Shepp only expect initial and final position and orientation (no curvature, no driving direction). In this case, it is recommended to set *kappa<sub>s</sub>* = *d<sub>s</sub>* = *kappa<sub>g</sub>* = *d<sub>g</sub>* = 0, and the steering function will select the appropriate values.
+Additonally, the steering functions Dubins, CC-Dubins, Reeds-Shepp, HC<sup>00</sup>-Reeds-Shepp, and CC-Reeds-Shepp only expect initial and final position and orientation, however, ignore manually set inital and final curvature. Therefore, it is recommended to set *kappa<sub>s</sub>* = *kappa<sub>g</sub>* = 0, and the steering function will select the appropriate values.
 
-In addition to that, HC<sup>±0</sup>-, HC<sup>0±</sup>-, and HC<sup>±±</sup>-Reeds-Shepp allow to assign the signed maximum curvature to the start (HC<sup>±0</sup>), goal (HC<sup>0±</sup>), or to the start and goal state (HC<sup>±±</sup>). This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions. If this feature is not desired, just set *kappa<sub>s</sub>* = *kappa<sub>g</sub>* = 0 and the steering function selects the initial and final curvature that minimizes the path length.
+In contrast to that, HC<sup>±0</sup>-, HC<sup>0±</sup>-, and HC<sup>±±</sup>-Reeds-Shepp allow to assign the signed maximum curvature to the start (HC<sup>±0</sup>), goal (HC<sup>0±</sup>), or to the start and goal state (HC<sup>±±</sup>). This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions. If this feature is not desired, just set *kappa<sub>s</sub>* = *kappa<sub>g</sub>* = 0 and the steering function selects the initial and final curvature that minimizes the path length.
 
 
 ### Path Length Comparison
@@ -150,3 +168,4 @@ Please use the [Issue Tracker](https://github.com/hbanzhaf/steering_functions/is
 [ROS]: http://www.ros.org
 [RViz]: http://wiki.ros.org/rviz
 [OMPL]: http://ompl.kavrakilab.org/
+[Eigen]: http://eigen.tuxfamily.org/
