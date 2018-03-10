@@ -155,8 +155,14 @@ public:
   HC_CC_Circle *cstart, *cend, *ci1, *ci2, *ci3;
 };
 
+/** \brief Checks whether two states are equal */
+bool state_equal(const State &state1, const State &state2);
+
 /** \brief Reverses a control */
 void reverse_control(Control &control);
+
+/** \brief Subtracts control2 from control1 */
+Control subtract_control(const Control &control1, const Control &control2);
 
 /** \brief Appends controls with 0 input */
 void empty_controls(vector<Control> &controls);

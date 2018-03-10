@@ -273,11 +273,32 @@ void HC_CC_RS_Path::print(bool eol) const
   }
 }
 
+bool state_equal(const State &state1, const State &state2)
+{
+  if (fabs(state2.kappa - state1.kappa) > get_epsilon())
+    return false;
+  if (fabs(twopify(state2.theta) - twopify(state1.theta)) > get_epsilon())
+    return false;
+  if (point_distance(state1.x, state1.y, state2.x, state2.y) > get_epsilon())
+    return false;
+  return true;
+}
+
 void reverse_control(Control &control)
 {
   control.delta_s = -control.delta_s;
   control.kappa = control.kappa + fabs(control.delta_s) * control.sigma;
   control.sigma = -control.sigma;
+}
+
+Control subtract_control(const Control &control1, const Control &control2)
+{
+  assert(sgn(control1.delta_s) * control1.sigma == sgn(control2.delta_s) * control2.sigma);
+  Control control;
+  control.delta_s = control1.delta_s - control2.delta_s;
+  control.kappa = control1.kappa;
+  control.sigma = control1.sigma;
+  return control;
 }
 
 void empty_controls(vector<Control> &controls)
