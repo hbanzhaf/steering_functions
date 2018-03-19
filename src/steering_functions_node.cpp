@@ -33,6 +33,7 @@
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc0pm_reeds_shepp_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpm0_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpmpm_reeds_shepp_state_space.hpp"
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
@@ -141,37 +142,44 @@ public:
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HC00")
+    else if (path_type_ == "HC")
     {
       id_ = "4";
+      HC_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
+      state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
+      path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
+    }
+    else if (path_type_ == "HC00")
+    {
+      id_ = "5";
       HC00_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HC0pm")
     {
-      id_ = "5";
+      id_ = "6";
       HC0pm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HCpm0")
     {
-      id_ = "6";
+      id_ = "7";
       HCpm0_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HCpmpm")
     {
-      id_ = "7";
+      id_ = "8";
       HCpmpm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "RS")
     {
-      id_ = "8";
+      id_ = "9";
       Reeds_Shepp_State_Space state_space(kappa_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
@@ -495,7 +503,7 @@ int main(int argc, char** argv)
     start.state.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
     start.state.y = random(-OPERATING_REGION_Y / 2.0, OPERATING_REGION_Y / 2.0);
     start.state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
-    start.state.kappa = 0.0;
+    start.state.kappa = random(-robot.kappa_max_, robot.kappa_max_);
     start.state.d = 0.0;
     start.covariance[0 * 4 + 0] = start.Sigma[0 * 4 + 0] = pow(robot.measurement_noise_.std_x, 2);
     start.covariance[1 * 4 + 1] = start.Sigma[1 * 4 + 1] = pow(robot.measurement_noise_.std_y, 2);
@@ -505,12 +513,13 @@ int main(int argc, char** argv)
     goal.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
     goal.y = random(-OPERATING_REGION_Y / 2.0, OPERATING_REGION_Y / 2.0);
     goal.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
-    goal.kappa = 0.0;
+    goal.kappa = random(-robot.kappa_max_, robot.kappa_max_);
     goal.d = 0.0;
 
     PathClass cc_dubins_path("CC_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass dubins_path("Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass cc_rs_path("CC_RS", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hc00_path("HC00", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hc0pm_path("HC0pm", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hcpm0_path("HCpm0", start, goal, robot.kappa_max_, robot.sigma_max_);
@@ -528,6 +537,10 @@ int main(int argc, char** argv)
 
     cc_rs_path.visualize();
     robot.visualize(cc_rs_path.path_);
+    ros::Duration(VISUALIZATION_DURATION).sleep();
+
+    hc_path.visualize();
+    robot.visualize(hc_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     hc00_path.visualize();

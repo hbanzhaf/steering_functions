@@ -25,6 +25,7 @@
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc0pm_reeds_shepp_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpm0_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpmpm_reeds_shepp_state_space.hpp"
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
@@ -44,6 +45,7 @@ using namespace steer;
 #define OPERATING_REGION_Y 20.0          // [m]
 #define OPERATING_REGION_THETA 2 * M_PI  // [rad]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
+#define random_boolean() rand() % 2
 
 State get_random_state()
 {
@@ -51,7 +53,7 @@ State get_random_state()
   state.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
   state.y = random(-OPERATING_REGION_Y / 2.0, OPERATING_REGION_Y / 2.0);
   state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
-  state.kappa = 0.0;
+  state.kappa = random_boolean() * random(-KAPPA, KAPPA);
   state.d = 0.0;
   return state;
 }
@@ -96,6 +98,7 @@ CC_Dubins_State_Space cc_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false
 Dubins_State_Space dubins_forwards_ss(KAPPA, DISCRETIZATION, true);
 Dubins_State_Space dubins_backwards_ss(KAPPA, DISCRETIZATION, false);
 CC_Reeds_Shepp_State_Space cc_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HC_Reeds_Shepp_State_Space hc_ss(KAPPA, SIGMA, DISCRETIZATION);
 HC00_Reeds_Shepp_State_Space hc00_ss(KAPPA, SIGMA, DISCRETIZATION);
 HC0pm_Reeds_Shepp_State_Space hc0pm_ss(KAPPA, SIGMA, DISCRETIZATION);
 HCpm0_Reeds_Shepp_State_Space hcpm0_ss(KAPPA, SIGMA, DISCRETIZATION);
@@ -140,6 +143,9 @@ TEST(SteeringFunctions, pathLength)
 
     vector<State> cc_rs_path = cc_rs_ss.get_path(start, goal);
     EXPECT_LT(fabs(cc_rs_ss.get_distance(start, goal) - get_path_length(cc_rs_path)), EPS_DISTANCE);
+
+    vector<State> hc_path = hc_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hc_ss.get_distance(start, goal) - get_path_length(hc_path)), EPS_DISTANCE);
 
     vector<State> hc00_path = hc00_ss.get_path(start, goal);
     EXPECT_LT(fabs(hc00_ss.get_distance(start, goal) - get_path_length(hc00_path)), EPS_DISTANCE);
@@ -192,6 +198,9 @@ TEST(SteeringFunctions, reachingGoal)
 
     vector<State> cc_rs_path = cc_rs_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, cc_rs_path.back()), EPS_DISTANCE);
+
+    vector<State> hc_path = hc_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hc_path.back()), EPS_DISTANCE);
 
     vector<State> hc00_path = hc00_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, hc00_path.back()), EPS_DISTANCE);
@@ -253,6 +262,17 @@ TEST(SteeringFunctions, curvatureContinuity)
     for (const auto& state2 : cc_rs_path)
     {
       EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      state1 = state2;
+    }
+
+    vector<State> hc_path = hc_ss.get_path(start, goal);
+    state1 = hc_path.front();
+    for (const auto& state2 : hc_path)
+    {
+      if (state1.d * state2.d >= 0)
+      {
+        EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      }
       state1 = state2;
     }
 
@@ -401,6 +421,32 @@ TEST(SteeringFunctions, interpolation)
     vector<State> cc_rs_path = cc_rs_ss.integrate(start, cc_rs_controls_inter);
     State cc_rs_state_inter = cc_rs_ss.interpolate(start, cc_rs_controls, t);
     EXPECT_EQ(is_equal(cc_rs_path.back(), cc_rs_state_inter), true);
+
+    vector<Control> hc_controls = hc_ss.get_controls(start, goal);
+    double hc_s_path = get_path_length(hc_controls);
+    double hc_s_inter = t * hc_s_path;
+    s = 0.0;
+    vector<Control> hc_controls_inter;
+    hc_controls_inter.reserve(hc_controls.size());
+    for (const auto& control : hc_controls)
+    {
+      double abs_delta_s = fabs(control.delta_s);
+      s += abs_delta_s;
+      if (s < hc_s_inter)
+        hc_controls_inter.push_back(control);
+      else
+      {
+        Control control_inter;
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hc_s_inter));
+        control_inter.kappa = control.kappa;
+        control_inter.sigma = control.sigma;
+        hc_controls_inter.push_back(control_inter);
+        break;
+      }
+    }
+    vector<State> hc_path = hc_ss.integrate(start, hc_controls_inter);
+    State hc_state_inter = hc_ss.interpolate(start, hc_controls, t);
+    EXPECT_EQ(is_equal(hc_path.back(), hc_state_inter), true);
 
     vector<Control> hc00_controls = hc00_ss.get_controls(start, goal);
     double hc00_s_path = get_path_length(hc00_controls);

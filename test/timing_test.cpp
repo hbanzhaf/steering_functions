@@ -27,6 +27,7 @@
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc0pm_reeds_shepp_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpm0_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpmpm_reeds_shepp_state_space.hpp"
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
@@ -68,7 +69,7 @@ State get_random_state()
   state.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
   state.y = random(-OPERATING_REGION_Y / 2.0, OPERATING_REGION_Y / 2.0);
   state.theta = random(-OPERATING_REGION_THETA / 2.0, OPERATING_REGION_THETA / 2.0);
-  state.kappa = 0.0;
+  state.kappa = random(-KAPPA, KAPPA);
   state.d = 0.0;
   return state;
 }
@@ -113,6 +114,7 @@ CC_Dubins_State_Space cc_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false
 Dubins_State_Space dubins_forwards_ss(KAPPA, DISCRETIZATION, true);
 Dubins_State_Space dubins_backwards_ss(KAPPA, DISCRETIZATION, false);
 CC_Reeds_Shepp_State_Space cc_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HC_Reeds_Shepp_State_Space hc_ss(KAPPA, SIGMA, DISCRETIZATION);
 HC00_Reeds_Shepp_State_Space hc00_ss(KAPPA, SIGMA, DISCRETIZATION);
 HC0pm_Reeds_Shepp_State_Space hc0pm_ss(KAPPA, SIGMA, DISCRETIZATION);
 HCpm0_Reeds_Shepp_State_Space hcpm0_ss(KAPPA, SIGMA, DISCRETIZATION);
@@ -149,6 +151,13 @@ vector<Statistic> get_controls(const string& id, const vector<State>& starts, co
       cc_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = cc_rs_ss.get_distance(*start, *goal);
+    }
+    else if (id == "HC")
+    {
+      clock_start = clock();
+      hc_ss.get_controls(*start, *goal);
+      clock_finish = clock();
+      path_length = hc_ss.get_distance(*start, *goal);
     }
     else if (id == "HC00")
     {
@@ -221,6 +230,12 @@ vector<Statistic> get_path(const string& id, const vector<State>& starts, const 
       cc_rs_ss.get_path(*start, *goal);
       clock_finish = clock();
     }
+    else if (id == "HC")
+    {
+      clock_start = clock();
+      hc_ss.get_path(*start, *goal);
+      clock_finish = clock();
+    }
     else if (id == "HC00")
     {
       clock_start = clock();
@@ -289,6 +304,12 @@ vector<Statistic> get_path_with_covariance(const string& id, const vector<State_
       cc_rs_ss.get_path_with_covariance(*start, *goal);
       clock_finish = clock();
     }
+    else if (id == "HC")
+    {
+      clock_start = clock();
+      hc_ss.get_path_with_covariance(*start, *goal);
+      clock_finish = clock();
+    }
     else if (id == "HC00")
     {
       clock_start = clock();
@@ -332,20 +353,26 @@ TEST(Timing, getControls)
   srand(0);
   vector<double> computation_times;
   computation_times.reserve(SAMPLES);
-  vector<State> starts;
-  starts.reserve(SAMPLES);
-  vector<State> goals;
-  goals.reserve(SAMPLES);
+  vector<State> starts_with_curvature, starts_without_curvature;
+  starts_with_curvature.reserve(SAMPLES);
+  starts_without_curvature.reserve(SAMPLES);
+  vector<State> goals_with_curvature, goals_without_curvature;
+  goals_with_curvature.reserve(SAMPLES);
+  goals_without_curvature.reserve(SAMPLES);
   for (int i = 0; i < SAMPLES; i++)
   {
     State start = get_random_state();
     State goal = get_random_state();
-    starts.push_back(start);
-    goals.push_back(goal);
+    starts_with_curvature.push_back(start);
+    goals_with_curvature.push_back(goal);
+    start.kappa = 0.0;
+    goal.kappa = 0.0;
+    starts_without_curvature.push_back(start);
+    goals_without_curvature.push_back(goal);
   }
 
   string cc_dubins_id = "CC_Dubins";
-  vector<Statistic> cc_dubins_stats = get_controls(cc_dubins_id, starts, goals);
+  vector<Statistic> cc_dubins_stats = get_controls(cc_dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_dubins_stats)
   {
@@ -355,7 +382,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string dubins_id = "Dubins";
-  vector<Statistic> dubins_stats = get_controls(dubins_id, starts, goals);
+  vector<Statistic> dubins_stats = get_controls(dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : dubins_stats)
   {
@@ -365,7 +392,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string cc_rs_id = "CC_RS";
-  vector<Statistic> cc_rs_stats = get_controls(cc_rs_id, starts, goals);
+  vector<Statistic> cc_rs_stats = get_controls(cc_rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_rs_stats)
   {
@@ -374,8 +401,18 @@ TEST(Timing, getControls)
   cout << "[----------] " + cc_rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
        << get_std(computation_times) << endl;
 
+  string hc_id = "HC";
+  vector<Statistic> hc_stats = get_controls(hc_id, starts_with_curvature, goals_with_curvature);
+  computation_times.clear();
+  for (const auto& stat : hc_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hc_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
   string hc00_id = "HC00";
-  vector<Statistic> hc00_stats = get_controls(hc00_id, starts, goals);
+  vector<Statistic> hc00_stats = get_controls(hc00_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc00_stats)
   {
@@ -385,7 +422,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string hc0pm_id = "HC0pm";
-  vector<Statistic> hc0pm_stats = get_controls(hc0pm_id, starts, goals);
+  vector<Statistic> hc0pm_stats = get_controls(hc0pm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc0pm_stats)
   {
@@ -395,7 +432,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string hcpm0_id = "HCpm0";
-  vector<Statistic> hcpm0_stats = get_controls(hcpm0_id, starts, goals);
+  vector<Statistic> hcpm0_stats = get_controls(hcpm0_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpm0_stats)
   {
@@ -405,7 +442,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string hcpmpm_id = "HCpmpm";
-  vector<Statistic> hcpmpm_stats = get_controls(hcpmpm_id, starts, goals);
+  vector<Statistic> hcpmpm_stats = get_controls(hcpmpm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpmpm_stats)
   {
@@ -415,7 +452,7 @@ TEST(Timing, getControls)
        << get_std(computation_times) << endl;
 
   string rs_id = "RS";
-  vector<Statistic> rs_stats = get_controls(rs_id, starts, goals);
+  vector<Statistic> rs_stats = get_controls(rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : rs_stats)
   {
@@ -427,6 +464,7 @@ TEST(Timing, getControls)
   //  write_to_file(cc_dubins_id, cc_dubins_stats);
   //  write_to_file(dubins_id, dubins_stats);
   //  write_to_file(cc_rs_id, cc_rs_stats);
+  //  write_to_file(hc_id, hc_stats);
   //  write_to_file(hc00_id, hc00_stats);
   //  write_to_file(hc0pm_id, hc0pm_stats);
   //  write_to_file(hcpm0_id, hcpm0_stats);
@@ -439,20 +477,26 @@ TEST(Timing, getPath)
   srand(0);
   vector<double> computation_times;
   computation_times.reserve(SAMPLES);
-  vector<State> starts;
-  starts.reserve(SAMPLES);
-  vector<State> goals;
-  goals.reserve(SAMPLES);
+  vector<State> starts_with_curvature, starts_without_curvature;
+  starts_with_curvature.reserve(SAMPLES);
+  starts_without_curvature.reserve(SAMPLES);
+  vector<State> goals_with_curvature, goals_without_curvature;
+  goals_with_curvature.reserve(SAMPLES);
+  goals_without_curvature.reserve(SAMPLES);
   for (int i = 0; i < SAMPLES; i++)
   {
     State start = get_random_state();
     State goal = get_random_state();
-    starts.push_back(start);
-    goals.push_back(goal);
+    starts_with_curvature.push_back(start);
+    goals_with_curvature.push_back(goal);
+    start.kappa = 0.0;
+    goal.kappa = 0.0;
+    starts_without_curvature.push_back(start);
+    goals_without_curvature.push_back(goal);
   }
 
   string cc_dubins_id = "CC_Dubins";
-  vector<Statistic> cc_dubins_stats = get_path(cc_dubins_id, starts, goals);
+  vector<Statistic> cc_dubins_stats = get_path(cc_dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_dubins_stats)
   {
@@ -462,7 +506,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string dubins_id = "Dubins";
-  vector<Statistic> dubins_stats = get_path(dubins_id, starts, goals);
+  vector<Statistic> dubins_stats = get_path(dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : dubins_stats)
   {
@@ -472,7 +516,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string cc_rs_id = "CC_RS";
-  vector<Statistic> cc_rs_stats = get_path(cc_rs_id, starts, goals);
+  vector<Statistic> cc_rs_stats = get_path(cc_rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_rs_stats)
   {
@@ -481,8 +525,18 @@ TEST(Timing, getPath)
   cout << "[----------] " + cc_rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
        << get_std(computation_times) << endl;
 
+  string hc_id = "HC";
+  vector<Statistic> hc_stats = get_path(hc_id, starts_with_curvature, goals_with_curvature);
+  computation_times.clear();
+  for (const auto& stat : hc_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hc_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
   string hc00_id = "HC00";
-  vector<Statistic> hc00_stats = get_path(hc00_id, starts, goals);
+  vector<Statistic> hc00_stats = get_path(hc00_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc00_stats)
   {
@@ -492,7 +546,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string hc0pm_id = "HC0pm";
-  vector<Statistic> hc0pm_stats = get_path(hc0pm_id, starts, goals);
+  vector<Statistic> hc0pm_stats = get_path(hc0pm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc0pm_stats)
   {
@@ -502,7 +556,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string hcpm0_id = "HCpm0";
-  vector<Statistic> hcpm0_stats = get_path(hcpm0_id, starts, goals);
+  vector<Statistic> hcpm0_stats = get_path(hcpm0_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpm0_stats)
   {
@@ -512,7 +566,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string hcpmpm_id = "HCpmpm";
-  vector<Statistic> hcpmpm_stats = get_path(hcpmpm_id, starts, goals);
+  vector<Statistic> hcpmpm_stats = get_path(hcpmpm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpmpm_stats)
   {
@@ -522,7 +576,7 @@ TEST(Timing, getPath)
        << get_std(computation_times) << endl;
 
   string rs_id = "RS";
-  vector<Statistic> rs_stats = get_path(rs_id, starts, goals);
+  vector<Statistic> rs_stats = get_path(rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : rs_stats)
   {
@@ -553,6 +607,7 @@ TEST(Timing, getPathWithCovariance)
   dubins_forwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
   dubins_backwards_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
   cc_rs_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
+  hc_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
   hc00_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
   hc0pm_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
   hcpm0_ss.set_filter_parameters(motion_noise, measurement_noise, controller);
@@ -562,10 +617,12 @@ TEST(Timing, getPathWithCovariance)
   srand(0);
   vector<double> computation_times;
   computation_times.reserve(SAMPLES);
-  vector<State_With_Covariance> starts;
-  starts.reserve(SAMPLES);
-  vector<State> goals;
-  goals.reserve(SAMPLES);
+  vector<State_With_Covariance> starts_with_curvature, starts_without_curvature;
+  starts_with_curvature.reserve(SAMPLES);
+  starts_without_curvature.reserve(SAMPLES);
+  vector<State> goals_with_curvature, goals_without_curvature;
+  goals_with_curvature.reserve(SAMPLES);
+  goals_without_curvature.reserve(SAMPLES);
   for (int i = 0; i < SAMPLES; i++)
   {
     State_With_Covariance start;
@@ -574,12 +631,17 @@ TEST(Timing, getPathWithCovariance)
     start.covariance[1 + 4 * 1] = start.Sigma[1 + 4 * 1] = pow(STD_Y, 2);
     start.covariance[2 + 4 * 2] = start.Sigma[2 + 4 * 2] = pow(STD_THETA, 2);
     State goal = get_random_state();
-    starts.push_back(start);
-    goals.push_back(goal);
+    starts_with_curvature.push_back(start);
+    goals_with_curvature.push_back(goal);
+    start.state.kappa = 0.0;
+    goal.kappa = 0.0;
+    starts_without_curvature.push_back(start);
+    goals_without_curvature.push_back(goal);
   }
 
   string cc_dubins_id = "CC_Dubins";
-  vector<Statistic> cc_dubins_stats = get_path_with_covariance(cc_dubins_id, starts, goals);
+  vector<Statistic> cc_dubins_stats =
+      get_path_with_covariance(cc_dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_dubins_stats)
   {
@@ -589,7 +651,8 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string dubins_id = "Dubins";
-  vector<Statistic> dubins_stats = get_path_with_covariance(dubins_id, starts, goals);
+  vector<Statistic> dubins_stats =
+      get_path_with_covariance(dubins_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : dubins_stats)
   {
@@ -599,7 +662,7 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string cc_rs_id = "CC_RS";
-  vector<Statistic> cc_rs_stats = get_path_with_covariance(cc_rs_id, starts, goals);
+  vector<Statistic> cc_rs_stats = get_path_with_covariance(cc_rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : cc_rs_stats)
   {
@@ -608,8 +671,18 @@ TEST(Timing, getPathWithCovariance)
   cout << "[----------] " + cc_rs_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
        << get_std(computation_times) << endl;
 
+  string hc_id = "HC";
+  vector<Statistic> hc_stats = get_path_with_covariance(hc_id, starts_with_curvature, goals_with_curvature);
+  computation_times.clear();
+  for (const auto& stat : hc_stats)
+  {
+    computation_times.push_back(stat.computation_time);
+  }
+  cout << "[----------] " + hc_id + " mean [s] +/- std [s]: " << get_mean(computation_times) << " +/- "
+       << get_std(computation_times) << endl;
+
   string hc00_id = "HC00";
-  vector<Statistic> hc00_stats = get_path_with_covariance(hc00_id, starts, goals);
+  vector<Statistic> hc00_stats = get_path_with_covariance(hc00_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc00_stats)
   {
@@ -619,7 +692,7 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string hc0pm_id = "HC0pm";
-  vector<Statistic> hc0pm_stats = get_path_with_covariance(hc0pm_id, starts, goals);
+  vector<Statistic> hc0pm_stats = get_path_with_covariance(hc0pm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hc0pm_stats)
   {
@@ -629,7 +702,7 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string hcpm0_id = "HCpm0";
-  vector<Statistic> hcpm0_stats = get_path_with_covariance(hcpm0_id, starts, goals);
+  vector<Statistic> hcpm0_stats = get_path_with_covariance(hcpm0_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpm0_stats)
   {
@@ -639,7 +712,8 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string hcpmpm_id = "HCpmpm";
-  vector<Statistic> hcpmpm_stats = get_path_with_covariance(hcpmpm_id, starts, goals);
+  vector<Statistic> hcpmpm_stats =
+      get_path_with_covariance(hcpmpm_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : hcpmpm_stats)
   {
@@ -649,7 +723,7 @@ TEST(Timing, getPathWithCovariance)
        << get_std(computation_times) << endl;
 
   string rs_id = "RS";
-  vector<Statistic> rs_stats = get_path_with_covariance(rs_id, starts, goals);
+  vector<Statistic> rs_stats = get_path_with_covariance(rs_id, starts_without_curvature, goals_without_curvature);
   computation_times.clear();
   for (const auto& stat : rs_stats)
   {

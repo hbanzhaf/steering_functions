@@ -57,6 +57,8 @@ class Output:
             self.id = "HC$^{\pm0}$"
         elif "HCpmpm" in fname:
             self.id = "HC$^{\pm\pm}$"
+        elif "HC" in fname:
+            self.id = "HC"
         elif "RS" in fname:
             self.id = "RS"
 
@@ -83,6 +85,7 @@ if __name__ == "__main__":
         dubins_outputs.append(CC_Dubins)
 
     rs_outputs = []
+    HC = Output()
     HC00 = Output()
     HC0pm = Output()
     HCpm0 = Output()
@@ -98,6 +101,8 @@ if __name__ == "__main__":
         rs_outputs.append(HC0pm)
     if HC00.load(filepath, "HC00_stats.csv"):
         rs_outputs.append(HC00)
+    if HC.load(filepath, "HC_stats.csv"):
+        rs_outputs.append(HC)
     if CC_RS.load(filepath, "CC_RS_stats.csv"):
         rs_outputs.append(CC_RS)
 
