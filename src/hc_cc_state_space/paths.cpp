@@ -125,7 +125,6 @@ HC_CC_RS_Path::HC_CC_RS_Path(const Configuration &_start, const Configuration &_
   cend = _cend;
   ci1 = _ci1;
   ci2 = _ci2;
-  ci3 = nullptr;
 }
 
 HC_CC_RS_Path::~HC_CC_RS_Path()
@@ -137,7 +136,6 @@ HC_CC_RS_Path::~HC_CC_RS_Path()
   delete cstart;
   delete ci1;
   delete ci2;
-  delete ci3;
   delete cend;
 }
 

@@ -144,7 +144,7 @@ public:
   Configuration *qi1, *qi2, *qi3, *qi4;
 
   /** \brief Start, end and intermediate circles */
-  HC_CC_Circle *cstart, *cend, *ci1, *ci2, *ci3;
+  HC_CC_Circle *cstart, *cend, *ci1, *ci2;
 };
 
 /** \brief Checks whether two states are equal */
