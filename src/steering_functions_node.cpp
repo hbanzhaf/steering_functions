@@ -29,6 +29,7 @@
 #include <Eigen/Dense>
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
@@ -123,63 +124,70 @@ public:
     // path
     if (path_type_ == "CC_Dubins")
     {
-      id_ = "1";
+      id_ = "2";
       CC_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
+      state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
+      path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
+    }
+    if (path_type_ == "CC0pm_Dubins")
+    {
+      id_ = "3";
+      CC0pm_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "Dubins")
     {
-      id_ = "2";
+      id_ = "6";
       Dubins_State_Space state_space(kappa_max_, discretization_, true);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "CC_RS")
     {
-      id_ = "3";
+      id_ = "7";
       CC_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HC")
     {
-      id_ = "4";
+      id_ = "8";
       HC_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HC00")
     {
-      id_ = "5";
+      id_ = "9";
       HC00_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HC0pm")
     {
-      id_ = "6";
+      id_ = "10";
       HC0pm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HCpm0")
     {
-      id_ = "7";
+      id_ = "11";
       HCpm0_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "HCpmpm")
     {
-      id_ = "8";
+      id_ = "12";
       HCpmpm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
     else if (path_type_ == "RS")
     {
-      id_ = "9";
+      id_ = "13";
       Reeds_Shepp_State_Space state_space(kappa_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
@@ -517,6 +525,7 @@ int main(int argc, char** argv)
     goal.d = 0.0;
 
     PathClass cc_dubins_path("CC_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass cc0pm_dubins_path("CC0pm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass dubins_path("Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass cc_rs_path("CC_RS", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
@@ -529,6 +538,10 @@ int main(int argc, char** argv)
     // visualize
     cc_dubins_path.visualize();
     robot.visualize(cc_dubins_path.path_);
+    ros::Duration(VISUALIZATION_DURATION).sleep();
+
+    cc0pm_dubins_path.visualize();
+    robot.visualize(cc0pm_dubins_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     dubins_path.visualize();

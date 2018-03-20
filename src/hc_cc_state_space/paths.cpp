@@ -36,12 +36,15 @@ Path::Path(const Configuration &_start, const Configuration &_end, double _kappa
 
 CC_Dubins_Path::CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type,
                                double _kappa, double _sigma, Configuration *_qi1, Configuration *_qi2,
-                               HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, double _length)
+                               Configuration *_qi3, Configuration *_qi4, HC_CC_Circle *_cstart, HC_CC_Circle *_cend,
+                               HC_CC_Circle *_ci1, double _length)
   : Path(_start, _end, _kappa, _sigma, _length)
 {
   type = _type;
   qi1 = _qi1;
   qi2 = _qi2;
+  qi3 = _qi3;
+  qi4 = _qi4;
   cstart = _cstart;
   cend = _cend;
   ci1 = _ci1;
@@ -52,6 +55,8 @@ CC_Dubins_Path::~CC_Dubins_Path()
 {
   delete qi1;
   delete qi2;
+  delete qi3;
+  delete qi4;
   delete cstart;
   delete cend;
   delete ci1;

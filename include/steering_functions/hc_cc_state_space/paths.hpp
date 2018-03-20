@@ -75,8 +75,8 @@ class CC_Dubins_Path : public Path
 public:
   /** \brief Constructor */
   CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type, double _kappa,
-                 double _sigma, Configuration *_qi1, Configuration *_qi2, HC_CC_Circle *_cstart, HC_CC_Circle *_cend,
-                 HC_CC_Circle *_ci1, double _length);
+                 double _sigma, Configuration *_qi1, Configuration *_qi2, Configuration *_qi3, Configuration *_qi4,
+                 HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, double _length);
 
   /** \brief Destructor */
   ~CC_Dubins_Path();
@@ -88,7 +88,7 @@ public:
   cc_dubins::path_type type;
 
   /** \brief Intermediate configurations */
-  Configuration *qi1, *qi2;
+  Configuration *qi1, *qi2, *qi3, *qi4;
 
   /** \brief Start, end and intermediate circles */
   HC_CC_Circle *cstart, *cend, *ci1, *ci2;

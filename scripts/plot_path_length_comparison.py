@@ -45,6 +45,8 @@ class Output:
             return 0
         if "CC_Dubins" in fname:
             self.id = "CC-Dubins"
+        elif "CC0pm_Dubins" in fname:
+            self.id = "CC$^{0\pm}$-Dubins"
         elif "Dubins" in fname:
             self.id = "Dubins"
         elif "CC_RS" in fname:
@@ -77,14 +79,17 @@ if __name__ == "__main__":
 
     dubins_outputs = []
     Dubins = Output()
-    CC_RS = Output()
     CC_Dubins = Output()
+    CC0pm_Dubins = Output()
     if Dubins.load(filepath, "Dubins_stats.csv"):
         dubins_outputs.append(Dubins)
     if CC_Dubins.load(filepath, "CC_Dubins_stats.csv"):
         dubins_outputs.append(CC_Dubins)
+    if CC0pm_Dubins.load(filepath, "CC0pm_Dubins_stats.csv"):
+        dubins_outputs.append(CC0pm_Dubins)
 
     rs_outputs = []
+    CC_RS = Output()
     HC = Output()
     HC00 = Output()
     HC0pm = Output()
@@ -154,5 +159,5 @@ if __name__ == "__main__":
     ax2.xaxis.set_major_formatter(formatter)
     ax2.yaxis.set_major_formatter(formatter)
 
-    f.savefig('../doc/images/path_length_comparison.png', bbox_inches='tight', pad_inches=0)
+    # f.savefig('../doc/images/path_length_comparison.png', bbox_inches='tight', pad_inches=0)
     plt.show()

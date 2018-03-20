@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
@@ -95,6 +96,8 @@ bool is_equal(const State& state1, const State& state2)
 
 CC_Dubins_State_Space cc_dubins_forwards_ss(KAPPA, SIGMA, DISCRETIZATION, true);
 CC_Dubins_State_Space cc_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false);
+CC_Dubins_State_Space cc0pm_dubins_forwards_ss(KAPPA, SIGMA, DISCRETIZATION, true);
+CC_Dubins_State_Space cc0pm_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false);
 Dubins_State_Space dubins_forwards_ss(KAPPA, DISCRETIZATION, true);
 Dubins_State_Space dubins_backwards_ss(KAPPA, DISCRETIZATION, false);
 CC_Reeds_Shepp_State_Space cc_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
@@ -132,6 +135,14 @@ TEST(SteeringFunctions, pathLength)
 
     vector<State> cc_dubins_path_backwards = cc_dubins_backwards_ss.get_path(start, goal);
     EXPECT_LT(fabs(cc_dubins_backwards_ss.get_distance(start, goal) - get_path_length(cc_dubins_path_backwards)),
+              EPS_DISTANCE);
+
+    vector<State> cc0pm_dubins_path_forwards = cc0pm_dubins_forwards_ss.get_path(start, goal);
+    EXPECT_LT(fabs(cc0pm_dubins_forwards_ss.get_distance(start, goal) - get_path_length(cc0pm_dubins_path_forwards)),
+              EPS_DISTANCE);
+
+    vector<State> cc0pm_dubins_path_backwards = cc0pm_dubins_backwards_ss.get_path(start, goal);
+    EXPECT_LT(fabs(cc0pm_dubins_backwards_ss.get_distance(start, goal) - get_path_length(cc0pm_dubins_path_backwards)),
               EPS_DISTANCE);
 
     vector<State> dubins_path_forwards = dubins_forwards_ss.get_path(start, goal);
@@ -189,6 +200,12 @@ TEST(SteeringFunctions, reachingGoal)
 
     vector<State> cc_dubins_path_backwards = cc_dubins_backwards_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, cc_dubins_path_backwards.back()), EPS_DISTANCE);
+
+    vector<State> cc0pm_dubins_path_forwards = cc0pm_dubins_forwards_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, cc0pm_dubins_path_forwards.back()), EPS_DISTANCE);
+
+    vector<State> cc0pm_dubins_path_backwards = cc0pm_dubins_backwards_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, cc0pm_dubins_path_backwards.back()), EPS_DISTANCE);
 
     vector<State> dubins_path_forwards = dubins_forwards_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, dubins_path_forwards.back()), EPS_DISTANCE);
@@ -252,6 +269,22 @@ TEST(SteeringFunctions, curvatureContinuity)
     vector<State> cc_dubins_backwards_path = cc_dubins_backwards_ss.get_path(start, goal);
     state1 = cc_dubins_backwards_path.front();
     for (const auto& state2 : cc_dubins_backwards_path)
+    {
+      EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      state1 = state2;
+    }
+
+    vector<State> cc0pm_dubins_forwards_path = cc0pm_dubins_forwards_ss.get_path(start, goal);
+    state1 = cc0pm_dubins_forwards_path.front();
+    for (const auto& state2 : cc0pm_dubins_forwards_path)
+    {
+      EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      state1 = state2;
+    }
+
+    vector<State> cc0pm_dubins_backwards_path = cc0pm_dubins_backwards_ss.get_path(start, goal);
+    state1 = cc0pm_dubins_backwards_path.front();
+    for (const auto& state2 : cc0pm_dubins_backwards_path)
     {
       EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
       state1 = state2;
@@ -369,6 +402,34 @@ TEST(SteeringFunctions, interpolation)
     vector<State> cc_dubins_forwards_path = cc_dubins_forwards_ss.integrate(start, cc_dubins_forwards_controls_inter);
     State cc_dubins_forwards_state_inter = cc_dubins_forwards_ss.interpolate(start, cc_dubins_forwards_controls, t);
     EXPECT_EQ(is_equal(cc_dubins_forwards_path.back(), cc_dubins_forwards_state_inter), true);
+
+    vector<Control> cc0pm_dubins_forwards_controls = cc0pm_dubins_forwards_ss.get_controls(start, goal);
+    double cc0pm_dubins_forwards_s_path = get_path_length(cc0pm_dubins_forwards_controls);
+    double cc0pm_dubins_forwards_s_inter = t * cc0pm_dubins_forwards_s_path;
+    s = 0.0;
+    vector<Control> cc0pm_dubins_forwards_controls_inter;
+    cc0pm_dubins_forwards_controls_inter.reserve(cc0pm_dubins_forwards_controls.size());
+    for (const auto& control : cc0pm_dubins_forwards_controls)
+    {
+      double abs_delta_s = fabs(control.delta_s);
+      s += abs_delta_s;
+      if (s < cc0pm_dubins_forwards_s_inter)
+        cc0pm_dubins_forwards_controls_inter.push_back(control);
+      else
+      {
+        Control control_inter;
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - cc0pm_dubins_forwards_s_inter));
+        control_inter.kappa = control.kappa;
+        control_inter.sigma = control.sigma;
+        cc0pm_dubins_forwards_controls_inter.push_back(control_inter);
+        break;
+      }
+    }
+    vector<State> cc0pm_dubins_forwards_path =
+        cc0pm_dubins_forwards_ss.integrate(start, cc0pm_dubins_forwards_controls_inter);
+    State cc0pm_dubins_forwards_state_inter =
+        cc0pm_dubins_forwards_ss.interpolate(start, cc0pm_dubins_forwards_controls, t);
+    EXPECT_EQ(is_equal(cc0pm_dubins_forwards_path.back(), cc0pm_dubins_forwards_state_inter), true);
 
     vector<Control> dubins_forwards_controls = dubins_forwards_ss.get_controls(start, goal);
     double dubins_forwards_s_path = get_path_length(dubins_forwards_controls);
