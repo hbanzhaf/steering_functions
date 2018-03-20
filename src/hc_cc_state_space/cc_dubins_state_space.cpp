@@ -334,10 +334,16 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_circles_dubins_path(const HC_CC_Circle
     length[cc_dubins::E] = 0;
     goto label_end;
   }
-  // case S
-  if (configuration_aligned(c1.start, c2.start))
+  // case S forwards
+  if (forwards_ && configuration_aligned(c1.start, c2.start))
   {
     length[cc_dubins::S] = configuration_distance(c1.start, c2.start);
+    goto label_end;
+  }
+  // case S backwards
+  if (!forwards_ && configuration_aligned(c2.start, c1.start))
+  {
+    length[cc_dubins::S] = configuration_distance(c2.start, c1.start);
     goto label_end;
   }
   // case T
@@ -374,8 +380,8 @@ label_end:
   // select shortest path
   cc_dubins::path_type best_path = (cc_dubins::path_type)array_index_min(length, nb_cc_dubins_paths);
   CC_Dubins_Path *path;
-  path = new CC_Dubins_Path(c1.start, c2.start, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path],
-                            cstart[best_path], cend[best_path], ci1[best_path], length[best_path]);
+  path = new CC_Dubins_Path(c1.start, c2.start, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path], nullptr,
+                            nullptr, cstart[best_path], cend[best_path], ci1[best_path], length[best_path]);
 
   // clean up
   for (int i = 0; i < nb_cc_dubins_paths; i++)
@@ -400,10 +406,20 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
 
   HC_CC_Circle *start_circle[2];
   HC_CC_Circle *end_circle[2];
-  start_circle[0] = new HC_CC_Circle(start, true, true, true, hc_cc_circle_param_);
-  start_circle[1] = new HC_CC_Circle(start, false, true, true, hc_cc_circle_param_);
-  end_circle[0] = new HC_CC_Circle(end, true, false, true, hc_cc_circle_param_);
-  end_circle[1] = new HC_CC_Circle(end, false, false, true, hc_cc_circle_param_);
+  if (forwards_)
+  {
+    start_circle[0] = new HC_CC_Circle(start, true, true, true, hc_cc_circle_param_);
+    start_circle[1] = new HC_CC_Circle(start, false, true, true, hc_cc_circle_param_);
+    end_circle[0] = new HC_CC_Circle(end, true, false, true, hc_cc_circle_param_);
+    end_circle[1] = new HC_CC_Circle(end, false, false, true, hc_cc_circle_param_);
+  }
+  else
+  {
+    start_circle[0] = new HC_CC_Circle(start, true, false, true, hc_cc_circle_param_);
+    start_circle[1] = new HC_CC_Circle(start, false, false, true, hc_cc_circle_param_);
+    end_circle[0] = new HC_CC_Circle(end, true, true, true, hc_cc_circle_param_);
+    end_circle[1] = new HC_CC_Circle(end, false, true, true, hc_cc_circle_param_);
+  }
 
   // compute the shortest path for the 4 combinations (2 circles at the beginning and 2 at the end)
   CC_Dubins_Path *path[] = { nullptr, nullptr, nullptr, nullptr };
@@ -458,11 +474,7 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
 
 double CC_Dubins_State_Space::get_distance(const State &state1, const State &state2) const
 {
-  CC_Dubins_Path *p;
-  if (forwards_)
-    p = this->cc_dubins(state1, state2);
-  else
-    p = this->cc_dubins(state2, state1);
+  CC_Dubins_Path *p = this->cc_dubins(state1, state2);
   double length = p->length;
   delete p;
   return length;
@@ -472,11 +484,7 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
 {
   vector<Control> cc_dubins_controls;
   cc_dubins_controls.reserve(9);
-  CC_Dubins_Path *p;
-  if (forwards_)
-    p = this->cc_dubins(state1, state2);
-  else
-    p = this->cc_dubins(state2, state1);
+  CC_Dubins_Path *p = this->cc_dubins(state1, state2);
   switch (p->type)
   {
     case cc_dubins::E:
@@ -504,15 +512,6 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
       break;
     default:
       break;
-  }
-  // reverse controls
-  if (!forwards_)
-  {
-    reverse(cc_dubins_controls.begin(), cc_dubins_controls.end());
-    for (auto &control : cc_dubins_controls)
-    {
-      reverse_control(control);
-    }
   }
   delete p;
   return cc_dubins_controls;
