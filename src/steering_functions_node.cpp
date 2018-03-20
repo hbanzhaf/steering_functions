@@ -32,6 +32,7 @@
 #include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/ccpm0_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc0pm_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
@@ -129,10 +130,17 @@ public:
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    if (path_type_ == "CC0pm_Dubins")
+    else if (path_type_ == "CC0pm_Dubins")
     {
       id_ = "3";
       CC0pm_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
+      state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
+      path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
+    }
+    else if (path_type_ == "CCpm0_Dubins")
+    {
+      id_ = "4";
+      CCpm0_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
@@ -526,6 +534,7 @@ int main(int argc, char** argv)
 
     PathClass cc_dubins_path("CC_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass cc0pm_dubins_path("CC0pm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass ccpm0_dubins_path("CCpm0_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass dubins_path("Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass cc_rs_path("CC_RS", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
@@ -542,6 +551,10 @@ int main(int argc, char** argv)
 
     cc0pm_dubins_path.visualize();
     robot.visualize(cc0pm_dubins_path.path_);
+    ros::Duration(VISUALIZATION_DURATION).sleep();
+
+    ccpm0_dubins_path.visualize();
+    robot.visualize(ccpm0_dubins_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     dubins_path.visualize();
