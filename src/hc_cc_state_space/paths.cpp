@@ -105,7 +105,7 @@ void CC_Dubins_Path::print(bool eol) const
   }
 }
 
-HC_CC_RS_Path::HC_CC_RS_Path(const Configuration &_start, const Configuration &_end, hc_cc_rs_path_type _type,
+HC_CC_RS_Path::HC_CC_RS_Path(const Configuration &_start, const Configuration &_end, hc_cc_rs::path_type _type,
                              double _kappa, double _sigma, Configuration *_qi1, Configuration *_qi2,
                              Configuration *_qi3, Configuration *_qi4, HC_CC_Circle *_cstart, HC_CC_Circle *_cend,
                              HC_CC_Circle *_ci1, HC_CC_Circle *_ci2, double _length)
@@ -141,60 +141,60 @@ void HC_CC_RS_Path::print(bool eol) const
   cout << "HC_CC_RS_Path: type ";
   switch (type)
   {
-    case EMPTY:
-      cout << "EMPTY";
+    case hc_cc_rs::E:
+      cout << "E";
       break;
-    case STRAIGHT:
-      cout << "STRAIGHT";
+    case hc_cc_rs::S:
+      cout << "S";
       break;
-    case T:
+    case hc_cc_rs::T:
       cout << "T";
       break;
-    case TT:
+    case hc_cc_rs::TT:
       cout << "TT";
       break;
-    case TcT:
+    case hc_cc_rs::TcT:
       cout << "TcT";
       break;
     // Reeds-Shepp families:
-    case TcTcT:
+    case hc_cc_rs::TcTcT:
       cout << "TcTcT";
       break;
-    case TcTT:
+    case hc_cc_rs::TcTT:
       cout << "TcTT";
       break;
-    case TTcT:
+    case hc_cc_rs::TTcT:
       cout << "TTcT";
       break;
-    case TST:
+    case hc_cc_rs::TST:
       cout << "TST";
       break;
-    case TSTcT:
+    case hc_cc_rs::TSTcT:
       cout << "TSTcT";
       break;
-    case TcTST:
+    case hc_cc_rs::TcTST:
       cout << "TcTST";
       break;
-    case TcTSTcT:
+    case hc_cc_rs::TcTSTcT:
       cout << "TcTSTcT";
       break;
-    case TTcTT:
+    case hc_cc_rs::TTcTT:
       cout << "TTcTT";
       break;
-    case TcTTcT:
+    case hc_cc_rs::TcTTcT:
       cout << "TcTTcT";
       break;
     // #####################
-    case TTT:
+    case hc_cc_rs::TTT:
       cout << "TTT";
       break;
-    case TcST:
+    case hc_cc_rs::TcST:
       cout << "TcST";
       break;
-    case TScT:
+    case hc_cc_rs::TScT:
       cout << "TScT";
       break;
-    case TcScT:
+    case hc_cc_rs::TcScT:
       cout << "TcScT";
       break;
     default:

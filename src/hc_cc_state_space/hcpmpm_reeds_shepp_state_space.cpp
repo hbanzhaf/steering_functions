@@ -1566,112 +1566,126 @@ HC_CC_RS_Path *HCpmpm_Reeds_Shepp_State_Space::hcpmpm_circles_rs_path(const HC_C
   hcpmpm_reeds_shepp_->distance = center_distance(c1, c2);
   hcpmpm_reeds_shepp_->angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
 
-  // case Empty
+  // case E
   if (configuration_equal(c1.start, c2.start))
   {
-    length[EMPTY] = 0;
+    length[hc_cc_rs::E] = 0;
     goto label_end;
   }
   // case T
   if (configuration_on_hc_cc_circle(c1, c2.start))
   {
-    cstart[T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, false, rs_circle_param_);
-    length[T] = cstart[T]->rs_turn_length(c2.start);
+    cstart[hc_cc_rs::T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, false, rs_circle_param_);
+    length[hc_cc_rs::T] = cstart[hc_cc_rs::T]->rs_turn_length(c2.start);
     goto label_end;
   }
   // case TT
   if (hcpmpm_reeds_shepp_->TT_exists(c1, c2))
   {
-    length[TT] = hcpmpm_reeds_shepp_->TT_path(c1, c2, &cstart[TT], &cend[TT], &qi1[TT], &qi2[TT], &qi3[TT]);
+    length[hc_cc_rs::TT] = hcpmpm_reeds_shepp_->TT_path(c1, c2, &cstart[hc_cc_rs::TT], &cend[hc_cc_rs::TT],
+                                                        &qi1[hc_cc_rs::TT], &qi2[hc_cc_rs::TT], &qi3[hc_cc_rs::TT]);
   }
   // case TcT
   if (hcpmpm_reeds_shepp_->TcT_exists(c1, c2))
   {
-    length[TcT] = hcpmpm_reeds_shepp_->TcT_path(c1, c2, &cstart[TcT], &cend[TcT], &qi1[TcT]);
+    length[hc_cc_rs::TcT] =
+        hcpmpm_reeds_shepp_->TcT_path(c1, c2, &cstart[hc_cc_rs::TcT], &cend[hc_cc_rs::TcT], &qi1[hc_cc_rs::TcT]);
   }
   // ##### Reeds-Shepp families: ############################################
   // case TcTcT
   if (hcpmpm_reeds_shepp_->TcTcT_exists(c1, c2))
   {
-    length[TcTcT] =
-        hcpmpm_reeds_shepp_->TcTcT_path(c1, c2, &cstart[TcTcT], &cend[TcTcT], &qi1[TcTcT], &qi2[TcTcT], &ci1[TcTcT]);
+    length[hc_cc_rs::TcTcT] =
+        hcpmpm_reeds_shepp_->TcTcT_path(c1, c2, &cstart[hc_cc_rs::TcTcT], &cend[hc_cc_rs::TcTcT], &qi1[hc_cc_rs::TcTcT],
+                                        &qi2[hc_cc_rs::TcTcT], &ci1[hc_cc_rs::TcTcT]);
   }
   // case TcTT
   if (hcpmpm_reeds_shepp_->TcTT_exists(c1, c2))
   {
-    length[TcTT] =
-        hcpmpm_reeds_shepp_->TcTT_path(c1, c2, &cstart[TcTT], &cend[TcTT], &qi1[TcTT], &qi2[TcTT], &ci1[TcTT]);
+    length[hc_cc_rs::TcTT] =
+        hcpmpm_reeds_shepp_->TcTT_path(c1, c2, &cstart[hc_cc_rs::TcTT], &cend[hc_cc_rs::TcTT], &qi1[hc_cc_rs::TcTT],
+                                       &qi2[hc_cc_rs::TcTT], &ci1[hc_cc_rs::TcTT]);
   }
   // case TTcT
   if (hcpmpm_reeds_shepp_->TTcT_exists(c1, c2))
   {
-    length[TTcT] =
-        hcpmpm_reeds_shepp_->TTcT_path(c1, c2, &cstart[TTcT], &cend[TTcT], &qi1[TTcT], &qi2[TTcT], &ci1[TTcT]);
+    length[hc_cc_rs::TTcT] =
+        hcpmpm_reeds_shepp_->TTcT_path(c1, c2, &cstart[hc_cc_rs::TTcT], &cend[hc_cc_rs::TTcT], &qi1[hc_cc_rs::TTcT],
+                                       &qi2[hc_cc_rs::TTcT], &ci1[hc_cc_rs::TTcT]);
   }
   // case TST
   if (hcpmpm_reeds_shepp_->TST_exists(c1, c2))
   {
-    length[TST] =
-        hcpmpm_reeds_shepp_->TST_path(c1, c2, &cstart[TST], &cend[TST], &qi1[TST], &qi2[TST], &qi3[TST], &qi4[TST]);
+    length[hc_cc_rs::TST] =
+        hcpmpm_reeds_shepp_->TST_path(c1, c2, &cstart[hc_cc_rs::TST], &cend[hc_cc_rs::TST], &qi1[hc_cc_rs::TST],
+                                      &qi2[hc_cc_rs::TST], &qi3[hc_cc_rs::TST], &qi4[hc_cc_rs::TST]);
   }
   // case TSTcT
   if (hcpmpm_reeds_shepp_->TSTcT_exists(c1, c2))
   {
-    length[TSTcT] = hcpmpm_reeds_shepp_->TSTcT_path(c1, c2, &cstart[TSTcT], &cend[TSTcT], &qi1[TSTcT], &qi2[TSTcT],
-                                                    &qi3[TSTcT], &qi4[TSTcT], &ci1[TSTcT]);
+    length[hc_cc_rs::TSTcT] = hcpmpm_reeds_shepp_->TSTcT_path(
+        c1, c2, &cstart[hc_cc_rs::TSTcT], &cend[hc_cc_rs::TSTcT], &qi1[hc_cc_rs::TSTcT], &qi2[hc_cc_rs::TSTcT],
+        &qi3[hc_cc_rs::TSTcT], &qi4[hc_cc_rs::TSTcT], &ci1[hc_cc_rs::TSTcT]);
   }
   // case TcTST
   if (hcpmpm_reeds_shepp_->TcTST_exists(c1, c2))
   {
-    length[TcTST] = hcpmpm_reeds_shepp_->TcTST_path(c1, c2, &cstart[TcTST], &cend[TcTST], &qi1[TcTST], &qi2[TcTST],
-                                                    &qi3[TcTST], &qi4[TcTST], &ci1[TcTST]);
+    length[hc_cc_rs::TcTST] = hcpmpm_reeds_shepp_->TcTST_path(
+        c1, c2, &cstart[hc_cc_rs::TcTST], &cend[hc_cc_rs::TcTST], &qi1[hc_cc_rs::TcTST], &qi2[hc_cc_rs::TcTST],
+        &qi3[hc_cc_rs::TcTST], &qi4[hc_cc_rs::TcTST], &ci1[hc_cc_rs::TcTST]);
   }
   // case TcTSTcT
   if (hcpmpm_reeds_shepp_->TcTSTcT_exists(c1, c2))
   {
-    length[TcTSTcT] =
-        hcpmpm_reeds_shepp_->TcTSTcT_path(c1, c2, &cstart[TcTSTcT], &cend[TcTSTcT], &qi1[TcTSTcT], &qi2[TcTSTcT],
-                                          &qi3[TcTSTcT], &qi4[TcTSTcT], &ci1[TcTSTcT], &ci2[TcTSTcT]);
+    length[hc_cc_rs::TcTSTcT] = hcpmpm_reeds_shepp_->TcTSTcT_path(
+        c1, c2, &cstart[hc_cc_rs::TcTSTcT], &cend[hc_cc_rs::TcTSTcT], &qi1[hc_cc_rs::TcTSTcT], &qi2[hc_cc_rs::TcTSTcT],
+        &qi3[hc_cc_rs::TcTSTcT], &qi4[hc_cc_rs::TcTSTcT], &ci1[hc_cc_rs::TcTSTcT], &ci2[hc_cc_rs::TcTSTcT]);
   }
   // case TTcTT
   if (hcpmpm_reeds_shepp_->TTcTT_exists(c1, c2))
   {
-    length[TTcTT] = hcpmpm_reeds_shepp_->TTcTT_path(c1, c2, &cstart[TTcTT], &cend[TTcTT], &qi1[TTcTT], &qi2[TTcTT],
-                                                    &qi3[TTcTT], &ci1[TTcTT], &ci2[TTcTT]);
+    length[hc_cc_rs::TTcTT] = hcpmpm_reeds_shepp_->TTcTT_path(
+        c1, c2, &cstart[hc_cc_rs::TTcTT], &cend[hc_cc_rs::TTcTT], &qi1[hc_cc_rs::TTcTT], &qi2[hc_cc_rs::TTcTT],
+        &qi3[hc_cc_rs::TTcTT], &ci1[hc_cc_rs::TTcTT], &ci2[hc_cc_rs::TTcTT]);
   }
   // case TcTTcT
   if (hcpmpm_reeds_shepp_->TcTTcT_exists(c1, c2))
   {
-    length[TcTTcT] = hcpmpm_reeds_shepp_->TcTTcT_path(c1, c2, &cstart[TcTTcT], &cend[TcTTcT], &qi1[TcTTcT],
-                                                      &qi2[TcTTcT], &ci1[TcTTcT], &ci2[TcTTcT]);
+    length[hc_cc_rs::TcTTcT] = hcpmpm_reeds_shepp_->TcTTcT_path(
+        c1, c2, &cstart[hc_cc_rs::TcTTcT], &cend[hc_cc_rs::TcTTcT], &qi1[hc_cc_rs::TcTTcT], &qi2[hc_cc_rs::TcTTcT],
+        &ci1[hc_cc_rs::TcTTcT], &ci2[hc_cc_rs::TcTTcT]);
   }
   //  ############################################################################
   // case TTT
   if (hcpmpm_reeds_shepp_->TTT_exists(c1, c2))
   {
-    length[TTT] =
-        hcpmpm_reeds_shepp_->TTT_path(c1, c2, &cstart[TTT], &cend[TTT], &qi1[TTT], &qi2[TTT], &qi3[TTT], &ci1[TTT]);
+    length[hc_cc_rs::TTT] =
+        hcpmpm_reeds_shepp_->TTT_path(c1, c2, &cstart[hc_cc_rs::TTT], &cend[hc_cc_rs::TTT], &qi1[hc_cc_rs::TTT],
+                                      &qi2[hc_cc_rs::TTT], &qi3[hc_cc_rs::TTT], &ci1[hc_cc_rs::TTT]);
   }
   // case TcST
   if (hcpmpm_reeds_shepp_->TcST_exists(c1, c2))
   {
-    length[TcST] = hcpmpm_reeds_shepp_->TcST_path(c1, c2, &cstart[TcST], &cend[TcST], &qi1[TcST], &qi2[TcST],
-                                                  &qi3[TcST], &qi4[TcST]);
+    length[hc_cc_rs::TcST] =
+        hcpmpm_reeds_shepp_->TcST_path(c1, c2, &cstart[hc_cc_rs::TcST], &cend[hc_cc_rs::TcST], &qi1[hc_cc_rs::TcST],
+                                       &qi2[hc_cc_rs::TcST], &qi3[hc_cc_rs::TcST], &qi4[hc_cc_rs::TcST]);
   }
   // case TScT
   if (hcpmpm_reeds_shepp_->TScT_exists(c1, c2))
   {
-    length[TScT] = hcpmpm_reeds_shepp_->TScT_path(c1, c2, &cstart[TScT], &cend[TScT], &qi1[TScT], &qi2[TScT],
-                                                  &qi3[TScT], &qi4[TScT]);
+    length[hc_cc_rs::TScT] =
+        hcpmpm_reeds_shepp_->TScT_path(c1, c2, &cstart[hc_cc_rs::TScT], &cend[hc_cc_rs::TScT], &qi1[hc_cc_rs::TScT],
+                                       &qi2[hc_cc_rs::TScT], &qi3[hc_cc_rs::TScT], &qi4[hc_cc_rs::TScT]);
   }
   // case TcScT
   if (hcpmpm_reeds_shepp_->TcScT_exists(c1, c2))
   {
-    length[TcScT] = hcpmpm_reeds_shepp_->TcScT_path(c1, c2, &cstart[TcScT], &cend[TcScT], &qi1[TcScT], &qi2[TcScT]);
+    length[hc_cc_rs::TcScT] = hcpmpm_reeds_shepp_->TcScT_path(c1, c2, &cstart[hc_cc_rs::TcScT], &cend[hc_cc_rs::TcScT],
+                                                              &qi1[hc_cc_rs::TcScT], &qi2[hc_cc_rs::TcScT]);
   }
 label_end:
   // select shortest path
-  hc_cc_rs_path_type best_path = (hc_cc_rs_path_type)array_index_min(length, nb_hc_cc_rs_paths);
+  hc_cc_rs::path_type best_path = (hc_cc_rs::path_type)array_index_min(length, nb_hc_cc_rs_paths);
   HC_CC_RS_Path *path;
   path = new HC_CC_RS_Path(c1.start, c2.start, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path],
                            qi3[best_path], qi4[best_path], cstart[best_path], cend[best_path], ci1[best_path],
@@ -1803,85 +1817,85 @@ vector<Control> HCpmpm_Reeds_Shepp_State_Space::get_controls(const State &state1
   HC_CC_RS_Path *p = this->hcpmpm_reeds_shepp(state1, state2);
   switch (p->type)
   {
-    case EMPTY:
+    case hc_cc_rs::E:
       empty_controls(hc_rs_controls);
       break;
-    case T:
+    case hc_cc_rs::T:
       rs_turn_controls(*(p->cstart), p->end, true, hc_rs_controls);
       break;
-    case TT:
+    case hc_cc_rs::TT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi3), true, hc_rs_controls);
       break;
-    case TcT:
+    case hc_cc_rs::TcT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi1), false, hc_rs_controls);
       break;
     // ##### Reeds-Shepp families: ############################################
-    case TcTcT:
+    case hc_cc_rs::TcTcT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       rs_turn_controls(*(p->ci1), *(p->qi2), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
-    case TcTT:
+    case hc_cc_rs::TcTT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi1), false, hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi2), true, hc_rs_controls);
       break;
-    case TTcT:
+    case hc_cc_rs::TTcT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi2), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
-    case TST:
+    case hc_cc_rs::TST:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       straight_controls(*(p->qi2), *(p->qi3), hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi4), true, hc_rs_controls);
       break;
-    case TSTcT:
+    case hc_cc_rs::TSTcT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       straight_controls(*(p->qi2), *(p->qi3), hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi4), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi4), false, hc_rs_controls);
       break;
-    case TcTST:
+    case hc_cc_rs::TcTST:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi1), false, hc_rs_controls);
       straight_controls(*(p->qi2), *(p->qi3), hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi4), true, hc_rs_controls);
       break;
-    case TcTSTcT:
+    case hc_cc_rs::TcTSTcT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi1), false, hc_rs_controls);
       straight_controls(*(p->qi2), *(p->qi3), hc_rs_controls);
       hc_turn_controls(*(p->ci2), *(p->qi4), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi4), false, hc_rs_controls);
       break;
-    case TTcTT:
+    case hc_cc_rs::TTcTT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi2), true, hc_rs_controls);
       hc_turn_controls(*(p->ci2), *(p->qi2), false, hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi3), true, hc_rs_controls);
       break;
-    case TcTTcT:
+    case hc_cc_rs::TcTTcT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       hc_turn_controls(*(p->ci1), *(p->qi1), false, hc_rs_controls);
       hc_turn_controls(*(p->ci2), *(p->qi2), true, hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
     // ########################################################################
-    case TTT:
+    case hc_cc_rs::TTT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       cc_turn_controls(*(p->ci1), *(p->qi2), true, hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi3), true, hc_rs_controls);
       break;
-    case TcST:
-    case TScT:
+    case hc_cc_rs::TcST:
+    case hc_cc_rs::TScT:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, hc_rs_controls);
       straight_controls(*(p->qi2), *(p->qi3), hc_rs_controls);
       hc_turn_controls(*(p->cend), *(p->qi4), true, hc_rs_controls);
       break;
-    case TcScT:
+    case hc_cc_rs::TcScT:
       rs_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       straight_controls(*(p->qi1), *(p->qi2), hc_rs_controls);
       rs_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);

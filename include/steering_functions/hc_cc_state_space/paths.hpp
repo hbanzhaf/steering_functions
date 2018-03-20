@@ -94,11 +94,13 @@ public:
   HC_CC_Circle *cstart, *cend, *ci1, *ci2;
 };
 
-/** \brief hc-/cc-reeds-shepp path types: T (Turn), S (Straight), c (Cusp) */
-enum hc_cc_rs_path_type
+/** \brief hc-/cc-reeds-shepp path types: E (Empty), S (Straight), T (Turn), c (Cusp) */
+namespace hc_cc_rs
 {
-  EMPTY,
-  STRAIGHT,
+enum path_type
+{
+  E,
+  S,
   T,
   TT,
   TcT,
@@ -118,13 +120,14 @@ enum hc_cc_rs_path_type
   TScT,
   TcScT
 };
+}
 const int nb_hc_cc_rs_paths = 18;
 
 class HC_CC_RS_Path : public Path
 {
 public:
   /** \brief Constructor */
-  HC_CC_RS_Path(const Configuration &_start, const Configuration &_end, hc_cc_rs_path_type _type, double _kappa,
+  HC_CC_RS_Path(const Configuration &_start, const Configuration &_end, hc_cc_rs::path_type _type, double _kappa,
                 double _sigma, Configuration *_qi1, Configuration *_qi2, Configuration *_qi3, Configuration *_qi4,
                 HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, HC_CC_Circle *_ci2, double _length);
 
@@ -135,7 +138,7 @@ public:
   void print(bool eol) const;
 
   /** \brief Path type */
-  hc_cc_rs_path_type type;
+  hc_cc_rs::path_type type;
 
   /** \brief Intermediate configurations */
   Configuration *qi1, *qi2, *qi3, *qi4;
