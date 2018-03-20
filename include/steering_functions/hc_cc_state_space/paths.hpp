@@ -55,37 +55,26 @@ public:
   double length;
 };
 
-/** \brief cc-dubins path types: E (Empty), L (Left), S (Straight), R (Right) */
-enum cc_dubins_path_type
+/** \brief cc-dubins path types: E (Empty), S (Straight), T (Turn) */
+namespace cc_dubins
+{
+enum path_type
 {
   E,
-  LSL,
-  LSR,
-  RSL,
-  RSR,
-  LR1L,
-  LR2L,
-  RL1R,
-  RL2R,
   S,
-  L,
-  R,
-  LeS,
-  LiS,
-  eSL,
-  iSL,
-  eSR,
-  iSR,
-  ReS,
-  RiS
+  T,
+  TT,
+  TST,
+  TTT
 };
-const int nb_cc_dubins_paths = 20;
+}
+const int nb_cc_dubins_paths = 6;
 
 class CC_Dubins_Path : public Path
 {
 public:
   /** \brief Constructor */
-  CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins_path_type _type, double _kappa,
+  CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type, double _kappa,
                  double _sigma, Configuration *_qi1, Configuration *_qi2, HC_CC_Circle *_cstart, HC_CC_Circle *_cend,
                  HC_CC_Circle *_ci1, double _length);
 
@@ -96,7 +85,7 @@ public:
   void print(bool eol) const;
 
   /** \brief Path type */
-  cc_dubins_path_type type;
+  cc_dubins::path_type type;
 
   /** \brief Intermediate configurations */
   Configuration *qi1, *qi2;

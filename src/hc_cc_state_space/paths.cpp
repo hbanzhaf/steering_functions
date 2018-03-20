@@ -34,7 +34,7 @@ Path::Path(const Configuration &_start, const Configuration &_end, double _kappa
   length = _length;
 }
 
-CC_Dubins_Path::CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins_path_type _type,
+CC_Dubins_Path::CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type,
                                double _kappa, double _sigma, Configuration *_qi1, Configuration *_qi2,
                                HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, double _length)
   : Path(_start, _end, _kappa, _sigma, _length)
@@ -63,65 +63,23 @@ void CC_Dubins_Path::print(bool eol) const
   cout << "CC_Dubins_Path: type ";
   switch (type)
   {
-    case E:
-      cout << "EMPTY";
+    case cc_dubins::E:
+      cout << "E";
       break;
-    case LSL:
-      cout << "LSL";
-      break;
-    case LSR:
-      cout << "LSR";
-      break;
-    case RSL:
-      cout << "RSL";
-      break;
-    case RSR:
-      cout << "RSR";
-      break;
-    case LR1L:
-      cout << "LR1L";
-      break;
-    case LR2L:
-      cout << "LR2L";
-      break;
-    case RL1R:
-      cout << "RL1R";
-      break;
-    case RL2R:
-      cout << "RL2R";
-      break;
-    case S:
+    case cc_dubins::S:
       cout << "S";
       break;
-    case L:
-      cout << "L";
+    case cc_dubins::T:
+      cout << "T";
       break;
-    case R:
-      cout << "R";
+    case cc_dubins::TT:
+      cout << "TT";
       break;
-    case LeS:
-      cout << "LeS";
+    case cc_dubins::TST:
+      cout << "TST";
       break;
-    case LiS:
-      cout << "LiS";
-      break;
-    case eSL:
-      cout << "eSL";
-      break;
-    case iSL:
-      cout << "iSL";
-      break;
-    case eSR:
-      cout << "eSR";
-      break;
-    case iSR:
-      cout << "iSR";
-      break;
-    case ReS:
-      cout << "ReS";
-      break;
-    case RiS:
-      cout << "RiS";
+    case cc_dubins::TTT:
+      cout << "TTT";
       break;
     default:
       cout << "?";

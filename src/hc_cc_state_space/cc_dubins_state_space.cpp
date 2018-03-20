@@ -25,164 +25,290 @@
 
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 
-namespace cc_dubins
+class CC_Dubins_State_Space::CC_Dubins
 {
-bool external_mu_tangent_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
+private:
+  CC_Dubins_State_Space *parent_;
+
+public:
+  explicit CC_Dubins(CC_Dubins_State_Space *parent)
+  {
+    parent_ = parent;
+  }
+
+  double distance = 0.0;
+  double angle = 0.0;
+
+  // ##### TT ###################################################################
+  bool TT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+  {
+    if (c1.left == c2.left)
+    {
+      return false;
+    }
+    if (c1.forward == c2.forward)
+    {
+      return false;
+    }
+    return fabs(distance - 2 * c1.radius) < get_epsilon();
+  }
+
+  void TT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
+  {
+    double x = (c1.xc + c2.xc) / 2;
+    double y = (c1.yc + c2.yc) / 2;
+    double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
+    double theta;
+    if (c1.left)
+    {
+      if (c1.forward)
+      {
+        theta = angle + HALF_PI - c1.mu;
+      }
+      else
+      {
+        theta = angle + HALF_PI + c1.mu;
+      }
+    }
+    else
+    {
+      if (c1.forward)
+      {
+        theta = angle - HALF_PI + c1.mu;
+      }
+      else
+      {
+        theta = angle - HALF_PI - c1.mu;
+      }
+    }
+    *q = new Configuration(x, y, theta, 0);
+  }
+
+  double TT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
+  {
+    TT_tangent_circles(c1, c2, q);
+    return c1.cc_turn_length(**q) + c2.cc_turn_length(**q);
+  }
+
+  // ##### TST ##################################################################
+  bool TiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+  {
+    if (c1.left == c2.left)
+    {
+      return false;
+    }
+    if (c1.forward == c2.forward)
+    {
+      return false;
+    }
+    return (distance >= 2 * c1.radius);
+  }
+
+  bool TeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+  {
+    if (c1.left != c2.left)
+    {
+      return false;
+    }
+    if (c1.forward == c2.forward)
+    {
+      return false;
+    }
+    return (distance >= 2 * c1.radius * c1.sin_mu);
+  }
+
+  bool TST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+  {
+    return TiST_exists(c1, c2) || TeST_exists(c1, c2);
+  }
+
+  void TiST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
+                            Configuration **q2) const
+  {
+    double distance = center_distance(c1, c2);
+    double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
+    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
+    double delta_x = fabs(c1.radius * c1.sin_mu);
+    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double x, y, theta;
+    if (c1.left && c1.forward)
+    {
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta, 0);
+    }
+    if (c1.left && !c1.forward)
+    {
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, 0);
+    }
+    if (!c1.left && c1.forward)
+    {
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta, 0);
+    }
+    if (!c1.left && !c1.forward)
+    {
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, 0);
+    }
+  }
+
+  void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
+                            Configuration **q2) const
+  {
+    double delta_x = fabs(c1.radius * c1.sin_mu);
+    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
+    double x, y;
+    if (c1.left && c1.forward)
+    {
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta, 0);
+    }
+    if (c1.left && !c1.forward)
+    {
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, 0);
+    }
+    if (!c1.left && c1.forward)
+    {
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta, 0);
+    }
+    if (!c1.left && !c1.forward)
+    {
+      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, 0);
+    }
+  }
+
+  double TiST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
+  {
+    TiST_tangent_circles(c1, c2, q1, q2);
+    return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
+  }
+
+  double TeST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
+  {
+    TeST_tangent_circles(c1, c2, q1, q2);
+    return c1.cc_turn_length(**q1) + configuration_distance(**q1, **q2) + c2.cc_turn_length(**q2);
+  }
+
+  double TST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
+  {
+    if (TiST_exists(c1, c2))
+    {
+      return TiST_path(c1, c2, q1, q2);
+    }
+    if (TeST_exists(c1, c2))
+    {
+      return TeST_path(c1, c2, q1, q2);
+    }
+    return numeric_limits<double>::max();
+  }
+
+  // ##### TTT ##################################################################
+  bool TTT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+  {
+    if (c1.left != c2.left)
+    {
+      return false;
+    }
+    if (c1.forward == c2.forward)
+    {
+      return false;
+    }
+    return distance <= 4 * c1.radius;
+  }
+
+  void TTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
+                           Configuration **q3, Configuration **q4) const
+  {
+    double theta = angle;
+    double r = 2 * c1.radius;
+    double delta_x = 0.5 * distance;
+    double delta_y = sqrt(fabs(pow(delta_x, 2) - pow(r, 2)));
+    double x, y;
+
+    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+    HC_CC_Circle tgt1(x, y, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
+    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+    HC_CC_Circle tgt2(x, y, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
+
+    TT_tangent_circles(c1, tgt1, q1);
+    TT_tangent_circles(tgt1, c2, q2);
+    TT_tangent_circles(c1, tgt2, q3);
+    TT_tangent_circles(tgt2, c2, q4);
+  }
+
+  double TTT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
+                  HC_CC_Circle **ci) const
+  {
+    Configuration *qa, *qb, *qc, *qd;
+    TTT_tangent_circles(c1, c2, &qa, &qb, &qc, &qd);
+    HC_CC_Circle *middle1, *middle2;
+    middle1 = new HC_CC_Circle(*qa, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
+    middle2 = new HC_CC_Circle(*qc, !c1.left, c1.forward, c1.regular, parent_->hc_cc_circle_param_);
+
+    // select shortest connection
+    double length1 = c1.cc_turn_length(*qa) + middle1->cc_turn_length(*qb) + c2.cc_turn_length(*qb);
+    double length2 = c1.cc_turn_length(*qc) + middle2->cc_turn_length(*qd) + c2.cc_turn_length(*qd);
+    if (length1 < length2)
+    {
+      *q1 = qa;
+      *q2 = qb;
+      *ci = middle1;
+      delete qc;
+      delete qd;
+      delete middle2;
+      return length1;
+    }
+    else
+    {
+      *q1 = qc;
+      *q2 = qd;
+      *ci = middle2;
+      delete qa;
+      delete qb;
+      delete middle1;
+      return length2;
+    }
+    return numeric_limits<double>::max();
+  }
+};
+
+// ############################################################################
+
+CC_Dubins_State_Space::CC_Dubins_State_Space(double kappa, double sigma, double discretization, bool forwards)
+  : HC_CC_State_Space(kappa, sigma, discretization)
+  , forwards_(forwards)
+  , cc_dubins_{ unique_ptr<CC_Dubins>(new CC_Dubins(this)) }
 {
-  if (fabs(c1.radius - c2.radius) > get_epsilon())
-  {
-    return false;
-  }
-  if (fabs(c1.mu - c2.mu) > get_epsilon())
-  {
-    return false;
-  }
-  if (c1.left != c2.left)
-  {
-    return false;
-  }
-  if (c1.forward == c2.forward)
-  {
-    return false;
-  }
-  double distance = point_distance(c1.xc, c1.yc, c2.xc, c2.yc);
-  return (distance >= 2 * c1.radius * c1.sin_mu);
 }
 
-void external_mu_tangent(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
-{
-  double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-  double delta_x = fabs(c1.radius * c1.sin_mu);
-  double delta_y = fabs(c1.radius * c1.cos_mu);
-  double x, y;
-  if (c1.left && c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta, 0);
-  }
-  if (!c1.left && c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta, 0);
-  }
-}
+CC_Dubins_State_Space::~CC_Dubins_State_Space() = default;
 
-bool internal_mu_tangent_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
-{
-  if (c1.left == c2.left)
-  {
-    return false;
-  }
-  if (c1.forward == c2.forward)
-  {
-    return false;
-  }
-  double distance = point_distance(c1.xc, c1.yc, c2.xc, c2.yc);
-  return (distance >= 2 * c1.radius);
-}
-
-void internal_mu_tangent(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2)
-{
-  double distance = point_distance(c1.xc, c1.yc, c2.xc, c2.yc);
-  double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-  double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-  double delta_x = fabs(c1.radius * c1.sin_mu);
-  double delta_y = fabs(c1.radius * c1.cos_mu);
-  double x, y;
-  if (c1.left && c1.forward)
-  {
-    theta = theta + alpha;
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta, 0);
-  }
-  if (!c1.left && c1.forward)
-  {
-    theta = theta - alpha;
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta, 0);
-  }
-}
-
-bool tangent_circle_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2)
-{
-  if (c1.left != c2.left)
-  {
-    return false;
-  }
-  if (c1.forward == c2.forward)
-  {
-    return false;
-  }
-  double distance = point_distance(c1.xc, c1.yc, c2.xc, c2.yc);
-  return (distance <= 4 * c1.radius);
-}
-
-void tangent_circle(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
-                    Configuration **q3, Configuration **q4)
-{
-  double distance = point_distance(c1.xc, c1.yc, c2.xc, c2.yc);
-  double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-  double h = sqrt(fabs(pow(2 * c1.radius, 2) - pow(0.5 * distance, 2)));
-  double alpha = fabs(atan(2 * h / distance));
-  double delta_x = fabs(c1.radius * cos(alpha));
-  double delta_y = fabs(c1.radius * sin(alpha));
-  double x, y;
-  if (c1.left && c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta + alpha + HALF_PI - c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta - alpha + 1.5 * PI + c1.mu, 0);
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q3 = new Configuration(x, y, theta - alpha + HALF_PI - c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q4 = new Configuration(x, y, theta + alpha + 1.5 * PI + c1.mu, 0);
-  }
-  if (c1.left && !c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta - alpha + HALF_PI + c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta + alpha + 1.5 * PI - c1.mu, 0);
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q3 = new Configuration(x, y, theta + alpha + HALF_PI + c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q4 = new Configuration(x, y, theta - alpha + 1.5 * PI - c1.mu, 0);
-  }
-  if (!c1.left && c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta - alpha - HALF_PI + c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta + alpha + HALF_PI - c1.mu, 0);
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q3 = new Configuration(x, y, theta + alpha - HALF_PI + c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q4 = new Configuration(x, y, theta - alpha + HALF_PI - c1.mu, 0);
-  }
-  if (!c1.left && !c1.forward)
-  {
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    *q1 = new Configuration(x, y, theta + alpha - HALF_PI - c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
-    *q2 = new Configuration(x, y, theta - alpha + HALF_PI + c1.mu, 0);
-    global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    *q3 = new Configuration(x, y, theta - alpha - HALF_PI - c1.mu, 0);
-    global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
-    *q4 = new Configuration(x, y, theta + alpha - HALF_PI + c1.mu, 0);
-  }
-}
-}
-
-CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const State &state2) const
+CC_Dubins_Path *CC_Dubins_State_Space::cc_circles_dubins_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
 {
   // table containing the lengths of the paths, the intermediate configurations and circles
   double length[nb_cc_dubins_paths];
@@ -198,241 +324,60 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
   HC_CC_Circle *cend[nb_cc_dubins_paths];
   pointer_array_init((void **)cend, nb_cc_dubins_paths);
 
-  // compute the 2 circles at the intial and final configuration
-  Configuration start(state1.x, state1.y, state1.theta, 0.0);
-  Configuration end(state2.x, state2.y, state2.theta, 0.0);
+  // precomputations
+  cc_dubins_->distance = center_distance(c1, c2);
+  cc_dubins_->angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
 
-  HC_CC_Circle *start_left_forward, *start_right_forward;
-  HC_CC_Circle *end_left_backward, *end_right_backward;
-  start_left_forward = new HC_CC_Circle(start, true, true, true, hc_cc_circle_param_);
-  start_right_forward = new HC_CC_Circle(start, false, true, true, hc_cc_circle_param_);
-  end_left_backward = new HC_CC_Circle(end, true, false, true, hc_cc_circle_param_);
-  end_right_backward = new HC_CC_Circle(end, false, false, true, hc_cc_circle_param_);
-
-  // case Empty
-  if (configuration_equal(start, end))
+  // case E
+  if (configuration_equal(c1.start, c2.start))
   {
-    length[E] = 0;
+    length[cc_dubins::E] = 0;
     goto label_end;
   }
-  // case Straight
-  if (configuration_aligned(start, end))
+  // case S
+  if (configuration_aligned(c1.start, c2.start))
   {
-    length[S] = configuration_distance(start, end);
+    length[cc_dubins::S] = configuration_distance(c1.start, c2.start);
     goto label_end;
   }
-  // case Left
-  if (configuration_on_hc_cc_circle(*start_left_forward, end))
+  // case T
+  if (configuration_on_hc_cc_circle(c1, c2.start))
   {
-    cstart[L] = new HC_CC_Circle(*start_left_forward);
-    length[L] = start_left_forward->cc_turn_length(end);
+    cstart[cc_dubins::T] = new HC_CC_Circle(c1);
+    length[cc_dubins::T] = cstart[cc_dubins::T]->cc_turn_length(c2.start);
     goto label_end;
   }
-  // case Right
-  if (configuration_on_hc_cc_circle(*start_right_forward, end))
+  // case TT
+  if (cc_dubins_->TT_exists(c1, c2))
   {
-    cstart[R] = new HC_CC_Circle(*start_right_forward);
-    length[R] = start_right_forward->cc_turn_length(end);
-    goto label_end;
+    cstart[cc_dubins::TT] = new HC_CC_Circle(c1);
+    cend[cc_dubins::TT] = new HC_CC_Circle(c2);
+    length[cc_dubins::TT] = cc_dubins_->TT_path(*cstart[cc_dubins::TT], *cend[cc_dubins::TT], &qi1[cc_dubins::TT]);
   }
-  // case LSL and subcases LeS, eSL
-  if (cc_dubins::external_mu_tangent_exists(*start_left_forward, *end_left_backward))
+  // case TST
+  if (cc_dubins_->TST_exists(c1, c2))
   {
-    Configuration *qa, *qb;
-    cc_dubins::external_mu_tangent(*start_left_forward, *end_left_backward, &qa, &qb);
-    // subcase LeS
-    if (configuration_aligned(*qb, end))
-    {
-      cstart[LeS] = new HC_CC_Circle(*start_left_forward);
-      qi1[LeS] = new Configuration(*qa);
-      length[LeS] = start_left_forward->cc_turn_length(*qa) + configuration_distance(*qa, end);
-    }
-    // subcase eSL
-    else if (configuration_aligned(start, *qa))
-    {
-      cend[eSL] = new HC_CC_Circle(*end_left_backward);
-      qi1[eSL] = new Configuration(*qb);
-      length[eSL] = configuration_distance(start, *qb) + end_left_backward->cc_turn_length(*qb);
-    }
-    // case LSL
-    else
-    {
-      cstart[LSL] = new HC_CC_Circle(*start_left_forward);
-      cend[LSL] = new HC_CC_Circle(*end_left_backward);
-      qi1[LSL] = new Configuration(*qa);
-      qi2[LSL] = new Configuration(*qb);
-      length[LSL] = start_left_forward->cc_turn_length(*qa) + configuration_distance(*qa, *qb) +
-                    end_left_backward->cc_turn_length(*qb);
-    }
-    delete qa;
-    delete qb;
+    cstart[cc_dubins::TST] = new HC_CC_Circle(c1);
+    cend[cc_dubins::TST] = new HC_CC_Circle(c2);
+    length[cc_dubins::TST] = cc_dubins_->TST_path(*cstart[cc_dubins::TST], *cend[cc_dubins::TST], &qi1[cc_dubins::TST],
+                                                  &qi2[cc_dubins::TST]);
   }
-  // case LSR and subcases LiS, iSR
-  if (cc_dubins::internal_mu_tangent_exists(*start_left_forward, *end_right_backward))
+  // case TTT
+  if (cc_dubins_->TTT_exists(c1, c2))
   {
-    Configuration *qa, *qb;
-    cc_dubins::internal_mu_tangent(*start_left_forward, *end_right_backward, &qa, &qb);
-    // subcase LiS
-    if (configuration_aligned(*qb, end))
-    {
-      cstart[LiS] = new HC_CC_Circle(*start_left_forward);
-      qi1[LiS] = new Configuration(*qa);
-      length[LiS] = start_left_forward->cc_turn_length(*qa) + configuration_distance(*qa, end);
-    }
-    // subcase iSR
-    else if (configuration_aligned(start, *qa))
-    {
-      cend[iSR] = new HC_CC_Circle(*end_right_backward);
-      qi1[iSR] = new Configuration(*qb);
-      length[iSR] = configuration_distance(start, *qb) + end_right_backward->cc_turn_length(*qb);
-    }
-    // case LSR
-    else
-    {
-      cstart[LSR] = new HC_CC_Circle(*start_left_forward);
-      cend[LSR] = new HC_CC_Circle(*end_right_backward);
-      qi1[LSR] = new Configuration(*qa);
-      qi2[LSR] = new Configuration(*qb);
-      length[LSR] = start_left_forward->cc_turn_length(*qa) + configuration_distance(*qa, *qb) +
-                    end_right_backward->cc_turn_length(*qb);
-    }
-    delete qa;
-    delete qb;
-  }
-  // case RSL and subcases RiS, iSL
-  if (cc_dubins::internal_mu_tangent_exists(*start_right_forward, *end_left_backward))
-  {
-    Configuration *qa, *qb;
-    cc_dubins::internal_mu_tangent(*start_right_forward, *end_left_backward, &qa, &qb);
-    // subcase RiS
-    if (configuration_aligned(*qb, end))
-    {
-      cstart[RiS] = new HC_CC_Circle(*start_right_forward);
-      qi1[RiS] = new Configuration(*qa);
-      length[RiS] = start_right_forward->cc_turn_length(*qa) + configuration_distance(*qa, end);
-    }
-    // subcase iSL
-    else if (configuration_aligned(start, *qa))
-    {
-      cend[iSL] = new HC_CC_Circle(*end_left_backward);
-      qi1[iSL] = new Configuration(*qb);
-      length[iSL] = configuration_distance(start, *qb) + end_left_backward->cc_turn_length(*qb);
-    }
-    // case RSL
-    else
-    {
-      cstart[RSL] = new HC_CC_Circle(*start_right_forward);
-      cend[RSL] = new HC_CC_Circle(*end_left_backward);
-      qi1[RSL] = new Configuration(*qa);
-      qi2[RSL] = new Configuration(*qb);
-      length[RSL] = start_right_forward->cc_turn_length(*qa) + configuration_distance(*qa, *qb) +
-                    end_left_backward->cc_turn_length(*qb);
-    }
-    delete qa;
-    delete qb;
-  }
-  // case RSR and subcases ReS, eSR
-  if (cc_dubins::external_mu_tangent_exists(*start_right_forward, *end_right_backward))
-  {
-    Configuration *qa, *qb;
-    cc_dubins::external_mu_tangent(*start_right_forward, *end_right_backward, &qa, &qb);
-    // subcase ReS
-    if (configuration_aligned(*qb, end))
-    {
-      cstart[ReS] = new HC_CC_Circle(*start_right_forward);
-      qi1[ReS] = new Configuration(*qa);
-      length[ReS] = start_right_forward->cc_turn_length(*qa) + configuration_distance(*qa, end);
-    }
-    // subcase eSR
-    else if (configuration_aligned(start, *qa))
-    {
-      cend[eSR] = new HC_CC_Circle(*end_right_backward);
-      qi1[eSR] = new Configuration(*qb);
-      length[eSR] = configuration_distance(start, *qb) + end_right_backward->cc_turn_length(*qb);
-    }
-    // case RSR
-    else
-    {
-      cstart[RSR] = new HC_CC_Circle(*start_right_forward);
-      cend[RSR] = new HC_CC_Circle(*end_right_backward);
-      qi1[RSR] = new Configuration(*qa);
-      qi2[RSR] = new Configuration(*qb);
-      length[RSR] = start_right_forward->cc_turn_length(*qa) + configuration_distance(*qa, *qb) +
-                    end_right_backward->cc_turn_length(*qb);
-    }
-    delete qa;
-    delete qb;
-  }
-  // case LRL
-  if (cc_dubins::tangent_circle_exists(*start_left_forward, *end_left_backward))
-  {
-    HC_CC_Circle *middle_right_forward = nullptr;
-    cc_dubins::tangent_circle(*start_left_forward, *end_left_backward, &qi1[LR1L], &qi2[LR1L], &qi1[LR2L], &qi2[LR2L]);
-    cstart[LR1L] = new HC_CC_Circle(*start_left_forward);
-    cend[LR1L] = new HC_CC_Circle(*end_left_backward);
-    middle_right_forward = new HC_CC_Circle(*qi1[LR1L], false, true, true, hc_cc_circle_param_);
-    ci1[LR1L] = middle_right_forward;
-    length[LR1L] = start_left_forward->cc_turn_length(*qi1[LR1L]) + middle_right_forward->cc_turn_length(*qi2[LR1L]) +
-                   end_left_backward->cc_turn_length(*qi2[LR1L]);
-
-    cstart[LR2L] = new HC_CC_Circle(*start_left_forward);
-    cend[LR2L] = new HC_CC_Circle(*end_left_backward);
-    middle_right_forward = new HC_CC_Circle(*qi1[LR2L], false, true, true, hc_cc_circle_param_);
-    ci1[LR2L] = middle_right_forward;
-    length[LR2L] = start_left_forward->cc_turn_length(*qi1[LR2L]) + middle_right_forward->cc_turn_length(*qi2[LR2L]) +
-                   end_left_backward->cc_turn_length(*qi2[LR2L]);
-  }
-  // case RLR
-  if (cc_dubins::tangent_circle_exists(*start_right_forward, *end_right_backward))
-  {
-    HC_CC_Circle *middle_left_forward = nullptr;
-    cc_dubins::tangent_circle(*start_right_forward, *end_right_backward, &qi1[RL1R], &qi2[RL1R], &qi1[RL2R],
-                              &qi2[RL2R]);
-    cstart[RL1R] = new HC_CC_Circle(*start_right_forward);
-    cend[RL1R] = new HC_CC_Circle(*end_right_backward);
-    middle_left_forward = new HC_CC_Circle(*qi1[RL1R], true, true, true, hc_cc_circle_param_);
-    ci1[RL1R] = middle_left_forward;
-    length[RL1R] = start_right_forward->cc_turn_length(*qi1[RL1R]) + middle_left_forward->cc_turn_length(*qi2[RL1R]) +
-                   end_right_backward->cc_turn_length(*qi2[RL1R]);
-
-    cstart[RL2R] = new HC_CC_Circle(*start_right_forward);
-    cend[RL2R] = new HC_CC_Circle(*end_right_backward);
-    middle_left_forward = new HC_CC_Circle(*qi1[RL2R], true, true, true, hc_cc_circle_param_);
-    ci1[RL2R] = middle_left_forward;
-    length[RL2R] = start_right_forward->cc_turn_length(*qi1[RL2R]) + middle_left_forward->cc_turn_length(*qi2[RL2R]) +
-                   end_right_backward->cc_turn_length(*qi2[RL2R]);
+    cstart[cc_dubins::TTT] = new HC_CC_Circle(c1);
+    cend[cc_dubins::TTT] = new HC_CC_Circle(c2);
+    length[cc_dubins::TTT] = cc_dubins_->TTT_path(*cstart[cc_dubins::TTT], *cend[cc_dubins::TTT], &qi1[cc_dubins::TTT],
+                                                  &qi2[cc_dubins::TTT], &ci1[cc_dubins::TTT]);
   }
 label_end:
   // select shortest path
-  cc_dubins_path_type best_path = (cc_dubins_path_type)array_index_min(length, nb_cc_dubins_paths);
+  cc_dubins::path_type best_path = (cc_dubins::path_type)array_index_min(length, nb_cc_dubins_paths);
   CC_Dubins_Path *path;
-  path = new CC_Dubins_Path(start, end, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path], cstart[best_path],
-                            cend[best_path], ci1[best_path], length[best_path]);
-
-  //  // display calculations
-  //  cout << endl << "CC_Dubins_State_Space" << endl;
-  //  for (int i = 0; i < nb_cc_dubins_paths; i++)
-  //  {
-  //    cout << i << ": ";
-  //    if (qi1[i])
-  //    {
-  //      qi1[i]->print(false);
-  //    }
-  //    cout << ", ";
-  //    if (qi2[i])
-  //    {
-  //      qi2[i]->print(false);
-  //    }
-  //    cout << ", " << length[i] << endl;
-  //  }
-  //  cout << "shortest path: " << (int)best_path << endl;
-  //  path->print(true);
+  path = new CC_Dubins_Path(c1.start, c2.start, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path],
+                            cstart[best_path], cend[best_path], ci1[best_path], length[best_path]);
 
   // clean up
-  delete start_left_forward;
-  delete start_right_forward;
-  delete end_left_backward;
-  delete end_right_backward;
   for (int i = 0; i < nb_cc_dubins_paths; i++)
   {
     if (i != best_path)
@@ -445,6 +390,70 @@ label_end:
     }
   }
   return path;
+}
+
+CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const State &state2) const
+{
+  // compute the 2 circles at the intial and final configuration
+  Configuration start(state1.x, state1.y, state1.theta, 0.0);
+  Configuration end(state2.x, state2.y, state2.theta, 0.0);
+
+  HC_CC_Circle *start_circle[2];
+  HC_CC_Circle *end_circle[2];
+  start_circle[0] = new HC_CC_Circle(start, true, true, true, hc_cc_circle_param_);
+  start_circle[1] = new HC_CC_Circle(start, false, true, true, hc_cc_circle_param_);
+  end_circle[0] = new HC_CC_Circle(end, true, false, true, hc_cc_circle_param_);
+  end_circle[1] = new HC_CC_Circle(end, false, false, true, hc_cc_circle_param_);
+
+  // compute the shortest path for the 4 combinations (2 circles at the beginning and 2 at the end)
+  CC_Dubins_Path *path[] = { nullptr, nullptr, nullptr, nullptr };
+
+  double lg[] = { numeric_limits<double>::max(), numeric_limits<double>::max(), numeric_limits<double>::max(),
+                  numeric_limits<double>::max() };
+
+  for (int i = 0; i < 2; i++)
+  {
+    for (int j = 0; j < 2; j++)
+    {
+      path[2 * i + j] = cc_circles_dubins_path(*start_circle[i], *end_circle[j]);
+      if (path[2 * i + j])
+      {
+        lg[2 * i + j] = path[2 * i + j]->length;
+      }
+    }
+  }
+
+  // select shortest path
+  int best_path = array_index_min(lg, 4);
+
+  //  // display calculations
+  //  cout << endl << "CC_Dubins_State_Space" << endl;
+  //  for (int i = 0; i < 4; i++)
+  //  {
+  //    cout << i << ": ";
+  //    if (path[i])
+  //    {
+  //      path[i]->print(true);
+  //      cout << endl;
+  //    }
+  //  }
+  //  cout << "shortest path: " << (int)best_path << endl;
+  //  path[best_path]->print(true);
+
+  // clean up
+  for (int i = 0; i < 2; i++)
+  {
+    delete start_circle[i];
+    delete end_circle[i];
+  }
+  for (int i = 0; i < 4; i++)
+  {
+    if (i != best_path)
+    {
+      delete path[i];
+    }
+  }
+  return path[best_path];
 }
 
 double CC_Dubins_State_Space::get_distance(const State &state1, const State &state2) const
@@ -470,42 +479,25 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
     p = this->cc_dubins(state2, state1);
   switch (p->type)
   {
-    case E:
+    case cc_dubins::E:
       empty_controls(cc_dubins_controls);
       break;
-    case S:
+    case cc_dubins::S:
       straight_controls(p->start, p->end, cc_dubins_controls);
       break;
-    case R:
-    case L:
+    case cc_dubins::T:
       cc_turn_controls(*(p->cstart), p->end, true, cc_dubins_controls);
       break;
-    case eSL:
-    case iSL:
-    case eSR:
-    case iSR:
-      straight_controls(p->start, *(p->qi1), cc_dubins_controls);
+    case cc_dubins::TT:
+      cc_turn_controls(*(p->cstart), *(p->qi1), true, cc_dubins_controls);
       cc_turn_controls(*(p->cend), *(p->qi1), false, cc_dubins_controls);
       break;
-    case ReS:
-    case RiS:
-    case LeS:
-    case LiS:
-      cc_turn_controls(*(p->cstart), *(p->qi1), true, cc_dubins_controls);
-      straight_controls(*(p->qi1), p->end, cc_dubins_controls);
-      break;
-    case LSL:
-    case LSR:
-    case RSL:
-    case RSR:
+    case cc_dubins::TST:
       cc_turn_controls(*(p->cstart), *(p->qi1), true, cc_dubins_controls);
       straight_controls(*(p->qi1), *(p->qi2), cc_dubins_controls);
       cc_turn_controls(*(p->cend), *(p->qi2), false, cc_dubins_controls);
       break;
-    case LR1L:
-    case LR2L:
-    case RL1R:
-    case RL2R:
+    case cc_dubins::TTT:
       cc_turn_controls(*(p->cstart), *(p->qi1), true, cc_dubins_controls);
       cc_turn_controls(*(p->ci1), *(p->qi2), true, cc_dubins_controls);
       cc_turn_controls(*(p->cend), *(p->qi2), false, cc_dubins_controls);
