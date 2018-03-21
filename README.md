@@ -9,10 +9,8 @@ Steering Function           | Driving Direction          | Continuity       | Op
 Dubins                      | forwards **or** backwards  | G<sup>1</sup> | path length (optimal)
 CC-Dubins                   | forwards **or** backwards  | G<sup>2</sup> | path length (suboptimal)
 Reeds-Shepp                 | forwards **and** backwards | G<sup>1</sup> | path length (optimal)
-HC-Reeds-Shepp<sup>*</sup>  | forwards **and** backwards | G<sup>2</sup> btw. cusps | path length (suboptimal)
+HC-Reeds-Shepp              | forwards **and** backwards | G<sup>2</sup> btw. cusps | path length (suboptimal)
 CC-Reeds-Shepp              | forwards **and** backwards | G<sup>2</sup> | path length (suboptimal)
-
-<sub><sup>*</sup> HC-Reeds-Shepp is given with all its derivatives, namely HC<sup>00</sup>, HC<sup>0±</sup>, HC<sup>±0</sup>, and HC<sup>±±</sup>, where the superscript indicates the curvature at the start and goal configuration (± stands for maximum positive or negative curvature).</sub>
 
 [![Steering Functions for Car-Like Robots](https://img.youtube.com/vi/YCT8ycMk6f8/0.jpg)](http://www.youtube.com/watch?v=YCT8ycMk6f8)
 
@@ -132,9 +130,9 @@ In addition to that, this package is capable of computing a Gaussian belief alon
 ### Start and Goal State
 All steering functions expect a start state **x**<sub>*s*</sub> = *[x<sub>s</sub>, y<sub>s</sub>, theta<sub>s</sub>, kappa<sub>s</sub>, d<sub>s</sub>]<sup>T</sup>* and a goal state **x**<sub>*g*</sub> = *[x<sub>g</sub>, y<sub>g</sub>, theta<sub>g</sub>, kappa<sub>g</sub>, d<sub>g</sub>]<sup>T</sup>* as input. Note that the initial and final driving direction are selected by the steering function according to the computed path. They can not be selected manually, therefore, leave *d<sub>s</sub>* = *d<sub>g</sub>* = 0.
 
-Additonally, the steering functions Dubins, CC-Dubins, Reeds-Shepp, HC<sup>00</sup>-Reeds-Shepp, and CC-Reeds-Shepp only expect initial and final position and orientation, however, ignore manually set inital and final curvature. Therefore, it is recommended to set *kappa<sub>s</sub>* = *kappa<sub>g</sub>* = 0, and the steering function will select the appropriate values.
+Depending on the two superscripts in the name of the steering function (see Section *Computation Times* for an overview), a different curvature is applied to the start (first superscript) and goal state (second superscript). The superscript 0 denotes that zero curvature is enfored no matter which curvature is given at that state. The superscript ± indicates that either positive or negative max. curvature is selected by the steering function if the user inputs no curvature. However, if a non-zero curvature is assigned, the steering function computes that path with the corresponding signed maximum curvature. This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions.
 
-In contrast to that, HC<sup>±0</sup>-, HC<sup>0±</sup>-, and HC<sup>±±</sup>-Reeds-Shepp allow to assign the signed maximum curvature to the start (HC<sup>±0</sup>), goal (HC<sup>0±</sup>), or to the start and goal state (HC<sup>±±</sup>). This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions. If this feature is not desired, just set *kappa<sub>s</sub>* = *kappa<sub>g</sub>* = 0 and the steering function selects the initial and final curvature that minimizes the path length.
+Additionally, the steering functions CC-Dubins and HC-Reeds-Shepp compute a path that takes into account an arbitrary start and goal curvature specified by the user.
 
 
 ### Path Length Comparison
@@ -148,14 +146,20 @@ The following table shows the current computation times of the implemented steer
 
 Steering Function           | mean [µs] | std [µs]
 :---                        | :---      | :---
-CC-Dubins                   | 3.7       | ±1.2
-Dubins                      | 1.1       | ±0.3
-CC-Reeds-Shepp              | 52.6      | ±7.8
-HC<sup>00</sup>-Reeds-Shepp | 54.4      | ±7.7
-HC<sup>0±</sup>-Reeds-Shepp | 55.1      | ±8.2
-HC<sup>±0</sup>-Reeds-Shepp | 55.5      | ±8.3
-HC<sup>±±</sup>-Reeds-Shepp | 55.4      | ±8.9
-Reeds-Shepp                 | 7.0       | ±1.8
+Dubins                      | 1.3       | ±0.8
+CC<sup>±±</sup>-Dubins      | 7.1       | ±3.1
+CC<sup>±0</sup>-Dubins      | 5.6       | ±1.5
+CC<sup>0±</sup>-Dubins      | 5.6       | ±1.6
+CC<sup>00</sup>-Dubins      | 4.9       | ±1.5
+CC-Dubins                   | 14.8      | ±4.3
+                            |           |
+Reeds-Shepp                 | 7.4       | ±1.7
+HC<sup>±±</sup>-Reeds-Shepp | 58.1      | ±10.1
+HC<sup>±0</sup>-Reeds-Shepp | 56.4      | ±8.8
+HC<sup>0±</sup>-Reeds-Shepp | 51.0      | ±10.2
+HC<sup>00</sup>-Reeds-Shepp | 55.9      | ±9.5
+HC-Reeds-Shepp              | 464.3     | ±72.8
+CC<sup>00</sup>-Reeds-Shepp | 53.8      | ±8.4
 
 
 ### Interfacing with OMPL
