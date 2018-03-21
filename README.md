@@ -130,7 +130,7 @@ In addition to that, this package is capable of computing a Gaussian belief alon
 ### Start and Goal State
 All steering functions expect a start state **x**<sub>*s*</sub> = *[x<sub>s</sub>, y<sub>s</sub>, theta<sub>s</sub>, kappa<sub>s</sub>, d<sub>s</sub>]<sup>T</sup>* and a goal state **x**<sub>*g*</sub> = *[x<sub>g</sub>, y<sub>g</sub>, theta<sub>g</sub>, kappa<sub>g</sub>, d<sub>g</sub>]<sup>T</sup>* as input. Note that the initial and final driving direction are selected by the steering function according to the computed path. They can not be selected manually, therefore, leave *d<sub>s</sub>* = *d<sub>g</sub>* = 0.
 
-Depending on the two superscripts in the name of the steering function (see Section *Computation Times* for an overview), a different curvature is applied to the start (first superscript) and goal state (second superscript). The superscript 0 denotes that zero curvature is enfored no matter which curvature is given at that state. The superscript ± indicates that either positive or negative max. curvature is selected by the steering function if the user inputs no curvature. However, if a non-zero curvature is assigned, the steering function computes that path with the corresponding signed maximum curvature. This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions.
+Depending on the two superscripts in the name of the steering function (see Section *Computation Times* for an overview), a different curvature is applied to the start (first superscript) and goal state (second superscript). The superscript 0 denotes that zero curvature is enfored no matter which curvature is given at that state. The superscript ± indicates that either positive or negative max. curvature is selected by the steering function if the user inputs no curvature. However, if a non-zero curvature is assigned, the steering function computes that path with the corresponding signed max. curvature. This feature can be useful in sampling-based motion planners when cuvature continuity has to be ensured at the connection of two extensions.
 
 Additionally, the steering functions CC-Dubins and HC-Reeds-Shepp compute a path that takes into account an arbitrary start and goal curvature specified by the user.
 
@@ -152,7 +152,7 @@ CC<sup>±0</sup>-Dubins      | 5.6       | ±1.5
 CC<sup>0±</sup>-Dubins      | 5.6       | ±1.6
 CC<sup>00</sup>-Dubins      | 4.9       | ±1.5
 CC-Dubins                   | 14.8      | ±4.3
-                            |           |
+---                         | ---       | ---
 Reeds-Shepp                 | 7.4       | ±1.7
 HC<sup>±±</sup>-Reeds-Shepp | 58.1      | ±10.1
 HC<sup>±0</sup>-Reeds-Shepp | 56.4      | ±8.8
