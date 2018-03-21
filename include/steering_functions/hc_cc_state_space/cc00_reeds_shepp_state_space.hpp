@@ -23,8 +23,8 @@
 *  directory of this source tree.
 **********************************************************************/
 
-#ifndef CC_REEDS_SHEPP_STATE_SPACE_HPP
-#define CC_REEDS_SHEPP_STATE_SPACE_HPP
+#ifndef CC00_REEDS_SHEPP_STATE_SPACE_HPP
+#define CC00_REEDS_SHEPP_STATE_SPACE_HPP
 
 #include <iostream>
 #include <limits>
@@ -42,29 +42,30 @@ using namespace std;
 using namespace steer;
 
 /** \brief
-    An implementation of a Reeds-Shepp car with continuous curvature (CC)
-    steer as described in: T. Fraichard and A. Scheuer, "From Reeds and
-    Shepp's to continuous-curvature paths," IEEE Transactions on Robotics
-    (Volume 20, Issue: 6, Dec. 2004).
+    An implementation of continuous curvature (CC) steer for a Reeds-Shepp
+    car with zero curvature at the start and goal configuration as described
+    in: T. Fraichard and A. Scheuer, "From Reeds and Shepp's to continuous-
+    curvature paths," IEEE Transactions on Robotics (Volume 20, Issue: 6,
+    Dec. 2004).
     It evaluates all Reeds-Shepp families plus the four families TTT, TcST,
     TScT, TcScT, where "T" stands for a turn, "S" for a straight line and
     "c" for a cusp, and returns the shortest path. Topological paths are
     not included in this implementation.
     */
-class CC_Reeds_Shepp_State_Space : public HC_CC_State_Space
+class CC00_Reeds_Shepp_State_Space : public HC_CC_State_Space
 {
 public:
   /** \brief Constructor */
-  CC_Reeds_Shepp_State_Space(double kappa, double sigma, double discretization = 0.1);
+  CC00_Reeds_Shepp_State_Space(double kappa, double sigma, double discretization = 0.1);
 
   /** \brief Destructor */
-  ~CC_Reeds_Shepp_State_Space();
+  ~CC00_Reeds_Shepp_State_Space();
 
   /** \brief Returns a sequence of turns and straight lines connecting the two circles c1 and c2 */
-  HC_CC_RS_Path* cc_circles_rs_path(const HC_CC_Circle& c1, const HC_CC_Circle& c2) const;
+  HC_CC_RS_Path* cc00_circles_rs_path(const HC_CC_Circle& c1, const HC_CC_Circle& c2) const;
 
   /** \brief Returns a sequence of turns and straight lines connecting a start and an end configuration */
-  HC_CC_RS_Path* cc_reeds_shepp(const State& state1, const State& state2) const;
+  HC_CC_RS_Path* cc00_reeds_shepp(const State& state1, const State& state2) const;
 
   /** \brief Returns shortest path length from state1 to state2 */
   double get_distance(const State& state1, const State& state2) const;
@@ -74,10 +75,10 @@ public:
 
 private:
   /** \brief Pimpl Idiom: class that contains functions to compute the families  */
-  class CC_Reeds_Shepp;
+  class CC00_Reeds_Shepp;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<CC_Reeds_Shepp> cc_reeds_shepp_;
+  unique_ptr<CC00_Reeds_Shepp> cc00_reeds_shepp_;
 };
 
 #endif

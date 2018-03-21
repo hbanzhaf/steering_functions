@@ -55,8 +55,8 @@ class Output:
             self.id = "CC-Dubins"
         elif "Dubins" in fname:
             self.id = "Dubins"
-        elif "CC_RS" in fname:
-            self.id = "CC-RS"
+        elif "CC00_RS" in fname:
+            self.id = "CC$^{00}$-RS"
         elif "HC00" in fname:
             self.id = "HC$^{00}$"
         elif "HC0pm" in fname:
@@ -104,7 +104,7 @@ if __name__ == "__main__":
         dubins_outputs.append(CC_Dubins)
 
     rs_outputs = []
-    CC_RS = Output()
+    CC00_RS = Output()
     HC = Output()
     HC00 = Output()
     HC0pm = Output()
@@ -123,8 +123,8 @@ if __name__ == "__main__":
         rs_outputs.append(HC00)
     if HC.load(filepath, "HC_stats.csv"):
         rs_outputs.append(HC)
-    if CC_RS.load(filepath, "CC_RS_stats.csv"):
-        rs_outputs.append(CC_RS)
+    if CC00_RS.load(filepath, "CC00_RS_stats.csv"):
+        rs_outputs.append(CC00_RS)
 
     print("\nComputation Times [µs]: mean ± std\n")
     n_samples = rs_outputs[0].n_samples

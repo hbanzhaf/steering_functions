@@ -30,9 +30,9 @@
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/cc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
-#include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpm0_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpmpm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
@@ -167,10 +167,10 @@ public:
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "CC_RS")
+    else if (path_type_ == "CC00_RS")
     {
       id_ = "7";
-      CC_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
+      CC00_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
@@ -570,7 +570,7 @@ int main(int argc, char** argv)
     PathClass ccpm0_dubins_path("CCpm0_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass ccpmpm_dubins_path("CCpmpm_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass dubins_path("Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
-    PathClass cc_rs_path("CC_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass cc00_rs_path("CC00_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass hc00_path("HC00", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass hc0pm_path("HC0pm", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
@@ -603,8 +603,8 @@ int main(int argc, char** argv)
     robot.visualize(dubins_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    cc_rs_path.visualize();
-    robot.visualize(cc_rs_path.path_);
+    cc00_rs_path.visualize();
+    robot.visualize(cc00_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     hc_path.visualize();
