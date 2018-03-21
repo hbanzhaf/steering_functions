@@ -23,8 +23,8 @@
 *  directory of this source tree.
 **********************************************************************/
 
-#ifndef CC_DUBINS_STATE_SPACE_HPP
-#define CC_DUBINS_STATE_SPACE_HPP
+#ifndef CC00_DUBINS_STATE_SPACE_HPP
+#define CC00_DUBINS_STATE_SPACE_HPP
 
 #include <iostream>
 #include <limits>
@@ -42,26 +42,26 @@ using namespace std;
 using namespace steer;
 
 /** \brief
-    An implementation of continuous curvature (CC) steer for a a Dubins car
+    An implementation of continuous curvature (CC) steer for a Dubins car
     with zero curvature at the start and goal configuration as described in:
     T. Fraichard and A. Scheuer, "From Reeds and Shepp's to continuous-curvature
     paths," IEEE Transactions on Robotics (Volume 20, Issue: 6, Dec. 2004).
     It evaluates all Dubins families and returns the shortest path.
     */
-class CC_Dubins_State_Space : public HC_CC_State_Space
+class CC00_Dubins_State_Space : public HC_CC_State_Space
 {
 public:
   /** \brief Constructor */
-  CC_Dubins_State_Space(double kappa, double sigma, double discretization = 0.1, bool forwards = true);
+  CC00_Dubins_State_Space(double kappa, double sigma, double discretization = 0.1, bool forwards = true);
 
   /** \brief Destructor */
-  ~CC_Dubins_State_Space();
+  ~CC00_Dubins_State_Space();
 
   /** \brief Returns a sequence of turns and straight lines connecting the two circles c1 and c2 */
-  CC_Dubins_Path* cc_circles_dubins_path(const HC_CC_Circle& c1, const HC_CC_Circle& c2) const;
+  CC_Dubins_Path* cc00_circles_dubins_path(const HC_CC_Circle& c1, const HC_CC_Circle& c2) const;
 
   /** \brief Returns a sequence of turns and straight lines connecting a start and an end configuration */
-  CC_Dubins_Path* cc_dubins(const State& state1, const State& state2) const;
+  CC_Dubins_Path* cc00_dubins(const State& state1, const State& state2) const;
 
   /** \brief Returns shortest path length from state1 to state2 */
   double get_distance(const State& state1, const State& state2) const;
@@ -74,10 +74,10 @@ private:
   bool forwards_;
 
   /** \brief Pimpl Idiom: class that contains functions to compute the families  */
-  class CC_Dubins;
+  class CC00_Dubins;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<CC_Dubins> cc_dubins_;
+  unique_ptr<CC00_Dubins> cc00_dubins_;
 };
 
 #endif

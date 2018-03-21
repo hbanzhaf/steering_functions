@@ -43,8 +43,8 @@ class Output:
     def load(self, fpath, fname):
         if not os.path.exists(fpath + fname):
             return 0
-        if "CC_Dubins" in fname:
-            self.id = "CC-Dubins"
+        if "CC00_Dubins" in fname:
+            self.id = "CC$^{00}$-Dubins"
         elif "CC0pm_Dubins" in fname:
             self.id = "CC$^{0\pm}$-Dubins"
         elif "CCpm0_Dubins" in fname:
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     dubins_outputs = []
     Dubins = Output()
-    CC_Dubins = Output()
+    CC00_Dubins = Output()
     CC0pm_Dubins = Output()
     CCpm0_Dubins = Output()
     CCpmpm_Dubins = Output()
@@ -95,8 +95,8 @@ if __name__ == "__main__":
         dubins_outputs.append(CCpm0_Dubins)
     if CC0pm_Dubins.load(filepath, "CC0pm_Dubins_stats.csv"):
         dubins_outputs.append(CC0pm_Dubins)
-    if CC_Dubins.load(filepath, "CC_Dubins_stats.csv"):
-        dubins_outputs.append(CC_Dubins)
+    if CC00_Dubins.load(filepath, "CC00_Dubins_stats.csv"):
+        dubins_outputs.append(CC00_Dubins)
 
     rs_outputs = []
     CC_RS = Output()

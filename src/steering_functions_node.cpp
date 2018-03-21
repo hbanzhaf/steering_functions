@@ -29,8 +29,8 @@
 #include <Eigen/Dense>
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
-#include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpm0_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpmpm_dubins_state_space.hpp"
@@ -124,10 +124,10 @@ public:
       ros::Duration(0.001).sleep();
 
     // path
-    if (path_type_ == "CC_Dubins")
+    if (path_type_ == "CC00_Dubins")
     {
       id_ = "2";
-      CC_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
+      CC00_Dubins_State_Space state_space(kappa_max_, sigma_max_, discretization_, true);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
@@ -540,7 +540,7 @@ int main(int argc, char** argv)
     goal.kappa = random(-robot.kappa_max_, robot.kappa_max_);
     goal.d = 0.0;
 
-    PathClass cc_dubins_path("CC_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass cc00_dubins_path("CC00_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass cc0pm_dubins_path("CC0pm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass ccpm0_dubins_path("CCpm0_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
     PathClass ccpmpm_dubins_path("CCpmpm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
@@ -554,8 +554,8 @@ int main(int argc, char** argv)
     PathClass rs_path("RS", start, goal, robot.kappa_max_, robot.sigma_max_);
 
     // visualize
-    cc_dubins_path.visualize();
-    robot.visualize(cc_dubins_path.path_);
+    cc00_dubins_path.visualize();
+    robot.visualize(cc00_dubins_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     cc0pm_dubins_path.visualize();

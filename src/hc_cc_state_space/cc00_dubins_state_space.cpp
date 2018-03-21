@@ -23,15 +23,15 @@
 *  directory of this source tree.
 **********************************************************************/
 
-#include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
 
-class CC_Dubins_State_Space::CC_Dubins
+class CC00_Dubins_State_Space::CC00_Dubins
 {
 private:
-  CC_Dubins_State_Space *parent_;
+  CC00_Dubins_State_Space *parent_;
 
 public:
-  explicit CC_Dubins(CC_Dubins_State_Space *parent)
+  explicit CC00_Dubins(CC00_Dubins_State_Space *parent)
   {
     parent_ = parent;
   }
@@ -299,16 +299,16 @@ public:
 
 // ############################################################################
 
-CC_Dubins_State_Space::CC_Dubins_State_Space(double kappa, double sigma, double discretization, bool forwards)
+CC00_Dubins_State_Space::CC00_Dubins_State_Space(double kappa, double sigma, double discretization, bool forwards)
   : HC_CC_State_Space(kappa, sigma, discretization)
   , forwards_(forwards)
-  , cc_dubins_{ unique_ptr<CC_Dubins>(new CC_Dubins(this)) }
+  , cc00_dubins_{ unique_ptr<CC00_Dubins>(new CC00_Dubins(this)) }
 {
 }
 
-CC_Dubins_State_Space::~CC_Dubins_State_Space() = default;
+CC00_Dubins_State_Space::~CC00_Dubins_State_Space() = default;
 
-CC_Dubins_Path *CC_Dubins_State_Space::cc_circles_dubins_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
+CC_Dubins_Path *CC00_Dubins_State_Space::cc00_circles_dubins_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
 {
   // table containing the lengths of the paths, the intermediate configurations and circles
   double length[nb_cc_dubins_paths];
@@ -325,8 +325,8 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_circles_dubins_path(const HC_CC_Circle
   pointer_array_init((void **)cend, nb_cc_dubins_paths);
 
   // precomputations
-  cc_dubins_->distance = center_distance(c1, c2);
-  cc_dubins_->angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
+  cc00_dubins_->distance = center_distance(c1, c2);
+  cc00_dubins_->angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
 
   // case E
   if (configuration_equal(c1.start, c2.start))
@@ -354,27 +354,27 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_circles_dubins_path(const HC_CC_Circle
     goto label_end;
   }
   // case TT
-  if (cc_dubins_->TT_exists(c1, c2))
+  if (cc00_dubins_->TT_exists(c1, c2))
   {
     cstart[cc_dubins::TT] = new HC_CC_Circle(c1);
     cend[cc_dubins::TT] = new HC_CC_Circle(c2);
-    length[cc_dubins::TT] = cc_dubins_->TT_path(*cstart[cc_dubins::TT], *cend[cc_dubins::TT], &qi1[cc_dubins::TT]);
+    length[cc_dubins::TT] = cc00_dubins_->TT_path(*cstart[cc_dubins::TT], *cend[cc_dubins::TT], &qi1[cc_dubins::TT]);
   }
   // case TST
-  if (cc_dubins_->TST_exists(c1, c2))
+  if (cc00_dubins_->TST_exists(c1, c2))
   {
     cstart[cc_dubins::TST] = new HC_CC_Circle(c1);
     cend[cc_dubins::TST] = new HC_CC_Circle(c2);
-    length[cc_dubins::TST] = cc_dubins_->TST_path(*cstart[cc_dubins::TST], *cend[cc_dubins::TST], &qi1[cc_dubins::TST],
-                                                  &qi2[cc_dubins::TST]);
+    length[cc_dubins::TST] = cc00_dubins_->TST_path(*cstart[cc_dubins::TST], *cend[cc_dubins::TST],
+                                                    &qi1[cc_dubins::TST], &qi2[cc_dubins::TST]);
   }
   // case TTT
-  if (cc_dubins_->TTT_exists(c1, c2))
+  if (cc00_dubins_->TTT_exists(c1, c2))
   {
     cstart[cc_dubins::TTT] = new HC_CC_Circle(c1);
     cend[cc_dubins::TTT] = new HC_CC_Circle(c2);
-    length[cc_dubins::TTT] = cc_dubins_->TTT_path(*cstart[cc_dubins::TTT], *cend[cc_dubins::TTT], &qi1[cc_dubins::TTT],
-                                                  &qi2[cc_dubins::TTT], &ci1[cc_dubins::TTT]);
+    length[cc_dubins::TTT] = cc00_dubins_->TTT_path(*cstart[cc_dubins::TTT], *cend[cc_dubins::TTT],
+                                                    &qi1[cc_dubins::TTT], &qi2[cc_dubins::TTT], &ci1[cc_dubins::TTT]);
   }
 label_end:
   // select shortest path
@@ -398,7 +398,7 @@ label_end:
   return path;
 }
 
-CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const State &state2) const
+CC_Dubins_Path *CC00_Dubins_State_Space::cc00_dubins(const State &state1, const State &state2) const
 {
   // compute the 2 circles at the intial and final configuration
   Configuration start(state1.x, state1.y, state1.theta, 0.0);
@@ -431,7 +431,7 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
   {
     for (int j = 0; j < 2; j++)
     {
-      path[2 * i + j] = cc_circles_dubins_path(*start_circle[i], *end_circle[j]);
+      path[2 * i + j] = cc00_circles_dubins_path(*start_circle[i], *end_circle[j]);
       if (path[2 * i + j])
       {
         lg[2 * i + j] = path[2 * i + j]->length;
@@ -443,7 +443,7 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
   int best_path = array_index_min(lg, 4);
 
   //  // display calculations
-  //  cout << endl << "CC_Dubins_State_Space" << endl;
+  //  cout << endl << "CC00_Dubins_State_Space" << endl;
   //  for (int i = 0; i < 4; i++)
   //  {
   //    cout << i << ": ";
@@ -472,19 +472,19 @@ CC_Dubins_Path *CC_Dubins_State_Space::cc_dubins(const State &state1, const Stat
   return path[best_path];
 }
 
-double CC_Dubins_State_Space::get_distance(const State &state1, const State &state2) const
+double CC00_Dubins_State_Space::get_distance(const State &state1, const State &state2) const
 {
-  CC_Dubins_Path *p = this->cc_dubins(state1, state2);
+  CC_Dubins_Path *p = this->cc00_dubins(state1, state2);
   double length = p->length;
   delete p;
   return length;
 }
 
-vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const State &state2) const
+vector<Control> CC00_Dubins_State_Space::get_controls(const State &state1, const State &state2) const
 {
   vector<Control> cc_dubins_controls;
   cc_dubins_controls.reserve(9);
-  CC_Dubins_Path *p = this->cc_dubins(state1, state2);
+  CC_Dubins_Path *p = this->cc00_dubins(state1, state2);
   switch (p->type)
   {
     case cc_dubins::E:
