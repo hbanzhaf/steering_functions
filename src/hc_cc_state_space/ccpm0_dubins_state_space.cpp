@@ -94,6 +94,8 @@ public:
     return (*cstart)->hc_turn_length(**q1) + (*cend)->cc_turn_length(**q2);
   }
 
+  // ##### Dubins families: #####################################################
+
   // ##### TST ##################################################################
   bool TiST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
   {
@@ -375,6 +377,7 @@ CC_Dubins_Path *CCpm0_Dubins_State_Space::ccpm0_circles_dubins_path(const HC_CC_
     length[cc_dubins::TT] = ccpm0_dubins_->TT_path(c1, c2, &cstart[cc_dubins::TT], &cend[cc_dubins::TT],
                                                    &qi1[cc_dubins::TT], &qi2[cc_dubins::TT]);
   }
+  // ##### Dubins families: #####################################################
   // case TST
   if (ccpm0_dubins_->TST_exists(c1, c2))
   {
@@ -516,6 +519,7 @@ vector<Control> CCpm0_Dubins_State_Space::get_controls(const State &state1, cons
       hc_turn_controls(*(p->cstart), *(p->qi1), false, cc_dubins_controls);
       cc_turn_controls(*(p->cend), *(p->qi2), false, cc_dubins_controls);
       break;
+    // ##### Dubins families: #####################################################
     case cc_dubins::TST:
       hc_turn_controls(*(p->cstart), *(p->qi1), false, cc_dubins_controls);
       straight_controls(*(p->qi2), *(p->qi3), cc_dubins_controls);
