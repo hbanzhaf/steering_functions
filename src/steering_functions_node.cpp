@@ -533,6 +533,15 @@ int main(int argc, char** argv)
     start.covariance[1 * 4 + 1] = start.Sigma[1 * 4 + 1] = pow(robot.measurement_noise_.std_y, 2);
     start.covariance[2 * 4 + 2] = start.Sigma[2 * 4 + 2] = pow(robot.measurement_noise_.std_theta, 2);
 
+    State_With_Covariance start_wout_curv;
+    start_wout_curv.state.x = start.state.x;
+    start_wout_curv.state.y = start.state.y;
+    start_wout_curv.state.theta = start.state.theta;
+    start_wout_curv.state.kappa = 0.0;
+    start_wout_curv.state.d = start.state.d;
+    copy(&start.covariance[0], &start.covariance[15], &start_wout_curv.covariance[0]);
+    copy(&start.Sigma[0], &start.Sigma[15], &start_wout_curv.Sigma[0]);
+
     State goal;
     goal.x = random(-OPERATING_REGION_X / 2.0, OPERATING_REGION_X / 2.0);
     goal.y = random(-OPERATING_REGION_Y / 2.0, OPERATING_REGION_Y / 2.0);
@@ -540,18 +549,25 @@ int main(int argc, char** argv)
     goal.kappa = random(-robot.kappa_max_, robot.kappa_max_);
     goal.d = 0.0;
 
-    PathClass cc00_dubins_path("CC00_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass cc0pm_dubins_path("CC0pm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass ccpm0_dubins_path("CCpm0_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass ccpmpm_dubins_path("CCpmpm_Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass dubins_path("Dubins", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass cc_rs_path("CC_RS", start, goal, robot.kappa_max_, robot.sigma_max_);
+    State goal_wout_curv;
+    goal_wout_curv.x = goal.x;
+    goal_wout_curv.y = goal.y;
+    goal_wout_curv.theta = goal.theta;
+    goal_wout_curv.kappa = 0.0;
+    goal_wout_curv.d = goal.d;
+
+    PathClass cc00_dubins_path("CC00_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass cc0pm_dubins_path("CC0pm_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass ccpm0_dubins_path("CCpm0_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass ccpmpm_dubins_path("CCpmpm_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass dubins_path("Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass cc_rs_path("CC_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass hc00_path("HC00", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass hc0pm_path("HC0pm", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass hcpm0_path("HCpm0", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass hcpmpm_path("HCpmpm", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass rs_path("RS", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc00_path("HC00", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc0pm_path("HC0pm", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hcpm0_path("HCpm0", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hcpmpm_path("HCpmpm", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass rs_path("RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
 
     // visualize
     cc00_dubins_path.visualize();
