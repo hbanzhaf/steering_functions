@@ -51,6 +51,8 @@ class Output:
             self.id = "CC$^{\pm0}$-Dubins"
         elif "CCpmpm_Dubins" in fname:
             self.id = "CC$^{\pm\pm}$-Dubins"
+        elif "CC_Dubins" in fname:
+            self.id = "CC-Dubins"
         elif "Dubins" in fname:
             self.id = "Dubins"
         elif "CC_RS" in fname:
@@ -83,6 +85,7 @@ if __name__ == "__main__":
 
     dubins_outputs = []
     Dubins = Output()
+    CC_Dubins = Output()
     CC00_Dubins = Output()
     CC0pm_Dubins = Output()
     CCpm0_Dubins = Output()
@@ -97,6 +100,8 @@ if __name__ == "__main__":
         dubins_outputs.append(CC0pm_Dubins)
     if CC00_Dubins.load(filepath, "CC00_Dubins_stats.csv"):
         dubins_outputs.append(CC00_Dubins)
+    if CC_Dubins.load(filepath, "CC_Dubins_stats.csv"):
+        dubins_outputs.append(CC_Dubins)
 
     rs_outputs = []
     CC_RS = Output()
@@ -150,7 +155,7 @@ if __name__ == "__main__":
     formatter = FuncFormatter(to_percent)
     weight = np.ones(n_samples, dtype='float')/n_samples
 
-    ax1.hist(dubins_hist, bins=800, weights=[weight]*len(dubins_hist), label=dubins_labels, linewidth=.1)
+    ax1.hist(dubins_hist, bins=370, weights=[weight]*len(dubins_hist), label=dubins_labels, linewidth=.1)
     ax1.legend(loc='best')
     ax1.set_xlim([0, 0.4])
     ax1.grid('on')
