@@ -1739,9 +1739,9 @@ HC_CC_RS_Path *HCpmpm_Reeds_Shepp_State_Space::hcpmpm_reeds_shepp(const State &s
                   numeric_limits<double>::max(), numeric_limits<double>::max(), numeric_limits<double>::max(),
                   numeric_limits<double>::max() };
 
-  // skip circle at the beginning for curvature continuity
   for (int i = 0; i < 4; i++)
   {
+    // skip circle at the beginning for curvature continuity
     if (i == 0 && state1.kappa < 0)
       continue;
     else if (i == 1 && state1.kappa > 0)
@@ -1750,9 +1750,9 @@ HC_CC_RS_Path *HCpmpm_Reeds_Shepp_State_Space::hcpmpm_reeds_shepp(const State &s
       continue;
     else if (i == 3 && state1.kappa > 0)
       continue;
-    // skip circle at the end for curvature continuity
     for (int j = 0; j < 4; j++)
     {
+      // skip circle at the end for curvature continuity
       if (j == 0 && state2.kappa < 0)
         continue;
       else if (j == 1 && state2.kappa > 0)

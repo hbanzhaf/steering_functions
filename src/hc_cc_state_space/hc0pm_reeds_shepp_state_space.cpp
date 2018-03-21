@@ -1706,9 +1706,9 @@ HC_CC_RS_Path *HC0pm_Reeds_Shepp_State_Space::hc0pm_reeds_shepp(const State &sta
 
   for (int i = 0; i < 4; i++)
   {
-    // skip circle at the end for curvature continuity
     for (int j = 0; j < 4; j++)
     {
+      // skip circle at the end for curvature continuity
       if (j == 0 && state2.kappa < 0)
         continue;
       else if (j == 1 && state2.kappa > 0)
