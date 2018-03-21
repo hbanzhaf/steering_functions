@@ -841,12 +841,12 @@ public:
     if (distance < 4 * c1.radius - 2 / fabs(c1.kappa))
     {
       delta_x = (distance + r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow((distance + r1) / 2, 2))));
+      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
     }
     else
     {
       delta_x = (distance - r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow((distance - r1) / 2, 2))));
+      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
     }
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
