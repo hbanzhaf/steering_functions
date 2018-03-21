@@ -37,7 +37,7 @@ Path::Path(const Configuration &_start, const Configuration &_end, double _kappa
 CC_Dubins_Path::CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type,
                                double _kappa, double _sigma, Configuration *_qi1, Configuration *_qi2,
                                Configuration *_qi3, Configuration *_qi4, HC_CC_Circle *_cstart, HC_CC_Circle *_cend,
-                               HC_CC_Circle *_ci1, double _length)
+                               HC_CC_Circle *_ci1, HC_CC_Circle *_ci2, double _length)
   : Path(_start, _end, _kappa, _sigma, _length)
 {
   type = _type;
@@ -48,7 +48,7 @@ CC_Dubins_Path::CC_Dubins_Path(const Configuration &_start, const Configuration 
   cstart = _cstart;
   cend = _cend;
   ci1 = _ci1;
-  ci2 = nullptr;
+  ci2 = _ci2;
 }
 
 CC_Dubins_Path::~CC_Dubins_Path()
@@ -80,11 +80,16 @@ void CC_Dubins_Path::print(bool eol) const
     case cc_dubins::TT:
       cout << "TT";
       break;
+    // Dubins families:
     case cc_dubins::TST:
       cout << "TST";
       break;
     case cc_dubins::TTT:
       cout << "TTT";
+      break;
+    // #####################
+    case cc_dubins::TTTT:
+      cout << "TTTT";
       break;
     default:
       cout << "?";

@@ -394,7 +394,7 @@ label_end:
   CC_Dubins_Path *path;
   path =
       new CC_Dubins_Path(c1.start, c2.start, best_path, kappa_, sigma_, qi1[best_path], qi2[best_path], qi3[best_path],
-                         nullptr, cstart[best_path], cend[best_path], ci1[best_path], length[best_path]);
+                         nullptr, cstart[best_path], cend[best_path], ci1[best_path], nullptr, length[best_path]);
 
   // clean up
   for (int i = 0; i < nb_cc_dubins_paths; i++)

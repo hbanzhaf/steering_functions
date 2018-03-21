@@ -49,6 +49,8 @@ class Output:
             self.id = "CC$^{0\pm}$-Dubins"
         elif "CCpm0_Dubins" in fname:
             self.id = "CC$^{\pm0}$-Dubins"
+        elif "CCpmpm_Dubins" in fname:
+            self.id = "CC$^{\pm\pm}$-Dubins"
         elif "Dubins" in fname:
             self.id = "Dubins"
         elif "CC_RS" in fname:
@@ -84,14 +86,17 @@ if __name__ == "__main__":
     CC_Dubins = Output()
     CC0pm_Dubins = Output()
     CCpm0_Dubins = Output()
+    CCpmpm_Dubins = Output()
     if Dubins.load(filepath, "Dubins_stats.csv"):
         dubins_outputs.append(Dubins)
-    if CC_Dubins.load(filepath, "CC_Dubins_stats.csv"):
-        dubins_outputs.append(CC_Dubins)
-    if CC0pm_Dubins.load(filepath, "CC0pm_Dubins_stats.csv"):
-        dubins_outputs.append(CC0pm_Dubins)
+    if CCpmpm_Dubins.load(filepath, "CCpmpm_Dubins_stats.csv"):
+        dubins_outputs.append(CCpmpm_Dubins)
     if CCpm0_Dubins.load(filepath, "CCpm0_Dubins_stats.csv"):
         dubins_outputs.append(CCpm0_Dubins)
+    if CC0pm_Dubins.load(filepath, "CC0pm_Dubins_stats.csv"):
+        dubins_outputs.append(CC0pm_Dubins)
+    if CC_Dubins.load(filepath, "CC_Dubins_stats.csv"):
+        dubins_outputs.append(CC_Dubins)
 
     rs_outputs = []
     CC_RS = Output()

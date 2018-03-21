@@ -25,6 +25,7 @@
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpm0_dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/ccpmpm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc0pm_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
@@ -101,6 +102,8 @@ CC0pm_Dubins_State_Space cc0pm_dubins_forwards_ss(KAPPA, SIGMA, DISCRETIZATION, 
 CC0pm_Dubins_State_Space cc0pm_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false);
 CCpm0_Dubins_State_Space ccpm0_dubins_forwards_ss(KAPPA, SIGMA, DISCRETIZATION, true);
 CCpm0_Dubins_State_Space ccpm0_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false);
+CCpmpm_Dubins_State_Space ccpmpm_dubins_forwards_ss(KAPPA, SIGMA, DISCRETIZATION, true);
+CCpmpm_Dubins_State_Space ccpmpm_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATION, false);
 Dubins_State_Space dubins_forwards_ss(KAPPA, DISCRETIZATION, true);
 Dubins_State_Space dubins_backwards_ss(KAPPA, DISCRETIZATION, false);
 CC_Reeds_Shepp_State_Space cc_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
@@ -155,6 +158,15 @@ TEST(SteeringFunctions, pathLength)
     vector<State> ccpm0_dubins_path_backwards = ccpm0_dubins_backwards_ss.get_path(start, goal);
     EXPECT_LT(fabs(ccpm0_dubins_backwards_ss.get_distance(start, goal) - get_path_length(ccpm0_dubins_path_backwards)),
               EPS_DISTANCE);
+
+    vector<State> ccpmpm_dubins_path_forwards = ccpmpm_dubins_forwards_ss.get_path(start, goal);
+    EXPECT_LT(fabs(ccpmpm_dubins_forwards_ss.get_distance(start, goal) - get_path_length(ccpmpm_dubins_path_forwards)),
+              EPS_DISTANCE);
+
+    vector<State> ccpmpm_dubins_path_backwards = ccpmpm_dubins_backwards_ss.get_path(start, goal);
+    EXPECT_LT(
+        fabs(ccpmpm_dubins_backwards_ss.get_distance(start, goal) - get_path_length(ccpmpm_dubins_path_backwards)),
+        EPS_DISTANCE);
 
     vector<State> dubins_path_forwards = dubins_forwards_ss.get_path(start, goal);
     EXPECT_LT(fabs(dubins_forwards_ss.get_distance(start, goal) - get_path_length(dubins_path_forwards)), EPS_DISTANCE);
@@ -223,6 +235,12 @@ TEST(SteeringFunctions, reachingGoal)
 
     vector<State> ccpm0_dubins_path_backwards = ccpm0_dubins_backwards_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, ccpm0_dubins_path_backwards.back()), EPS_DISTANCE);
+
+    vector<State> ccpmpm_dubins_path_forwards = ccpmpm_dubins_forwards_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, ccpmpm_dubins_path_forwards.back()), EPS_DISTANCE);
+
+    vector<State> ccpmpm_dubins_path_backwards = ccpmpm_dubins_backwards_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, ccpmpm_dubins_path_backwards.back()), EPS_DISTANCE);
 
     vector<State> dubins_path_forwards = dubins_forwards_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, dubins_path_forwards.back()), EPS_DISTANCE);
@@ -318,6 +336,22 @@ TEST(SteeringFunctions, curvatureContinuity)
     vector<State> ccpm0_dubins_backwards_path = ccpm0_dubins_backwards_ss.get_path(start, goal);
     state1 = ccpm0_dubins_backwards_path.front();
     for (const auto& state2 : ccpm0_dubins_backwards_path)
+    {
+      EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      state1 = state2;
+    }
+
+    vector<State> ccpmpm_dubins_forwards_path = ccpmpm_dubins_forwards_ss.get_path(start, goal);
+    state1 = ccpmpm_dubins_forwards_path.front();
+    for (const auto& state2 : ccpmpm_dubins_forwards_path)
+    {
+      EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
+      state1 = state2;
+    }
+
+    vector<State> ccpmpm_dubins_backwards_path = ccpmpm_dubins_backwards_ss.get_path(start, goal);
+    state1 = ccpmpm_dubins_backwards_path.front();
+    for (const auto& state2 : ccpmpm_dubins_backwards_path)
     {
       EXPECT_LE(fabs(state1.kappa - state2.kappa), DISCRETIZATION * SIGMA + EPS_KAPPA);
       state1 = state2;
@@ -491,6 +525,34 @@ TEST(SteeringFunctions, interpolation)
     State ccpm0_dubins_forwards_state_inter =
         ccpm0_dubins_forwards_ss.interpolate(start, ccpm0_dubins_forwards_controls, t);
     EXPECT_EQ(is_equal(ccpm0_dubins_forwards_path.back(), ccpm0_dubins_forwards_state_inter), true);
+
+    vector<Control> ccpmpm_dubins_forwards_controls = ccpmpm_dubins_forwards_ss.get_controls(start, goal);
+    double ccpmpm_dubins_forwards_s_path = get_path_length(ccpmpm_dubins_forwards_controls);
+    double ccpmpm_dubins_forwards_s_inter = t * ccpmpm_dubins_forwards_s_path;
+    s = 0.0;
+    vector<Control> ccpmpm_dubins_forwards_controls_inter;
+    ccpmpm_dubins_forwards_controls_inter.reserve(ccpmpm_dubins_forwards_controls.size());
+    for (const auto& control : ccpmpm_dubins_forwards_controls)
+    {
+      double abs_delta_s = fabs(control.delta_s);
+      s += abs_delta_s;
+      if (s < ccpmpm_dubins_forwards_s_inter)
+        ccpmpm_dubins_forwards_controls_inter.push_back(control);
+      else
+      {
+        Control control_inter;
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - ccpmpm_dubins_forwards_s_inter));
+        control_inter.kappa = control.kappa;
+        control_inter.sigma = control.sigma;
+        ccpmpm_dubins_forwards_controls_inter.push_back(control_inter);
+        break;
+      }
+    }
+    vector<State> ccpmpm_dubins_forwards_path =
+        ccpmpm_dubins_forwards_ss.integrate(start, ccpmpm_dubins_forwards_controls_inter);
+    State ccpmpm_dubins_forwards_state_inter =
+        ccpmpm_dubins_forwards_ss.interpolate(start, ccpmpm_dubins_forwards_controls, t);
+    EXPECT_EQ(is_equal(ccpmpm_dubins_forwards_path.back(), ccpmpm_dubins_forwards_state_inter), true);
 
     vector<Control> dubins_forwards_controls = dubins_forwards_ss.get_controls(start, goal);
     double dubins_forwards_s_path = get_path_length(dubins_forwards_controls);

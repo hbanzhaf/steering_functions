@@ -64,11 +64,14 @@ enum path_type
   S,
   T,
   TT,
+  // Dubins families:
   TST,
-  TTT
+  TTT,
+  // #####################
+  TTTT
 };
 }
-const int nb_cc_dubins_paths = 6;
+const int nb_cc_dubins_paths = 7;
 
 class CC_Dubins_Path : public Path
 {
@@ -76,7 +79,7 @@ public:
   /** \brief Constructor */
   CC_Dubins_Path(const Configuration &_start, const Configuration &_end, cc_dubins::path_type _type, double _kappa,
                  double _sigma, Configuration *_qi1, Configuration *_qi2, Configuration *_qi3, Configuration *_qi4,
-                 HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, double _length);
+                 HC_CC_Circle *_cstart, HC_CC_Circle *_cend, HC_CC_Circle *_ci1, HC_CC_Circle *_ci2, double _length);
 
   /** \brief Destructor */
   ~CC_Dubins_Path();
