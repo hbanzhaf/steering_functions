@@ -57,16 +57,16 @@ class Output:
             self.id = "Dubins"
         elif "CC00_RS" in fname:
             self.id = "CC$^{00}$-RS"
-        elif "HC00" in fname:
-            self.id = "HC$^{00}$"
-        elif "HC0pm" in fname:
-            self.id = "HC$^{0\pm}$"
-        elif "HCpm0" in fname:
-            self.id = "HC$^{\pm0}$"
-        elif "HCpmpm" in fname:
-            self.id = "HC$^{\pm\pm}$"
-        elif "HC" in fname:
-            self.id = "HC"
+        elif "HC00_RS" in fname:
+            self.id = "HC$^{00}$-RS"
+        elif "HC0pm_RS" in fname:
+            self.id = "HC$^{0\pm}$-RS"
+        elif "HCpm0_RS" in fname:
+            self.id = "HC$^{\pm0}$-RS"
+        elif "HCpmpm_RS" in fname:
+            self.id = "HC$^{\pm\pm}$-RS"
+        elif "HC_RS" in fname:
+            self.id = "HC-RS"
         elif "RS" in fname:
             self.id = "RS"
 
@@ -105,24 +105,24 @@ if __name__ == "__main__":
 
     rs_outputs = []
     CC00_RS = Output()
-    HC = Output()
-    HC00 = Output()
-    HC0pm = Output()
-    HCpm0 = Output()
-    HCpmpm = Output()
+    HC_RS = Output()
+    HC00_RS = Output()
+    HC0pm_RS = Output()
+    HCpm0_RS = Output()
+    HCpmpm_RS = Output()
     RS = Output()
     if RS.load(filepath, "RS_stats.csv"):
         rs_outputs.append(RS)
-    if HCpmpm.load(filepath, "HCpmpm_stats.csv"):
-        rs_outputs.append(HCpmpm)
-    if HCpm0.load(filepath, "HCpm0_stats.csv"):
-        rs_outputs.append(HCpm0)
-    if HC0pm.load(filepath, "HC0pm_stats.csv"):
-        rs_outputs.append(HC0pm)
-    if HC00.load(filepath, "HC00_stats.csv"):
-        rs_outputs.append(HC00)
-    if HC.load(filepath, "HC_stats.csv"):
-        rs_outputs.append(HC)
+    if HCpmpm_RS.load(filepath, "HCpmpm_RS_stats.csv"):
+        rs_outputs.append(HCpmpm_RS)
+    if HCpm0_RS.load(filepath, "HCpm0_RS_stats.csv"):
+        rs_outputs.append(HCpm0_RS)
+    if HC0pm_RS.load(filepath, "HC0pm_RS_stats.csv"):
+        rs_outputs.append(HC0pm_RS)
+    if HC00_RS.load(filepath, "HC00_RS_stats.csv"):
+        rs_outputs.append(HC00_RS)
+    if HC_RS.load(filepath, "HC_RS_stats.csv"):
+        rs_outputs.append(HC_RS)
     if CC00_RS.load(filepath, "CC00_RS_stats.csv"):
         rs_outputs.append(CC00_RS)
 

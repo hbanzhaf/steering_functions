@@ -110,11 +110,11 @@ CCpmpm_Dubins_State_Space ccpmpm_dubins_backwards_ss(KAPPA, SIGMA, DISCRETIZATIO
 Dubins_State_Space dubins_forwards_ss(KAPPA, DISCRETIZATION, true);
 Dubins_State_Space dubins_backwards_ss(KAPPA, DISCRETIZATION, false);
 CC00_Reeds_Shepp_State_Space cc00_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
-HC_Reeds_Shepp_State_Space hc_ss(KAPPA, SIGMA, DISCRETIZATION);
-HC00_Reeds_Shepp_State_Space hc00_ss(KAPPA, SIGMA, DISCRETIZATION);
-HC0pm_Reeds_Shepp_State_Space hc0pm_ss(KAPPA, SIGMA, DISCRETIZATION);
-HCpm0_Reeds_Shepp_State_Space hcpm0_ss(KAPPA, SIGMA, DISCRETIZATION);
-HCpmpm_Reeds_Shepp_State_Space hcpmpm_ss(KAPPA, SIGMA, DISCRETIZATION);
+HC_Reeds_Shepp_State_Space hc_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HC00_Reeds_Shepp_State_Space hc00_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HC0pm_Reeds_Shepp_State_Space hc0pm_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HCpm0_Reeds_Shepp_State_Space hcpm0_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
+HCpmpm_Reeds_Shepp_State_Space hcpmpm_rs_ss(KAPPA, SIGMA, DISCRETIZATION);
 Reeds_Shepp_State_Space rs_ss(KAPPA, DISCRETIZATION);
 int seed(time(nullptr));
 
@@ -189,20 +189,20 @@ TEST(SteeringFunctions, pathLength)
     vector<State> cc00_rs_path = cc00_rs_ss.get_path(start, goal);
     EXPECT_LT(fabs(cc00_rs_ss.get_distance(start, goal) - get_path_length(cc00_rs_path)), EPS_DISTANCE);
 
-    vector<State> hc_path = hc_ss.get_path(start, goal);
-    EXPECT_LT(fabs(hc_ss.get_distance(start, goal) - get_path_length(hc_path)), EPS_DISTANCE);
+    vector<State> hc_rs_path = hc_rs_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hc_rs_ss.get_distance(start, goal) - get_path_length(hc_rs_path)), EPS_DISTANCE);
 
-    vector<State> hc00_path = hc00_ss.get_path(start, goal);
-    EXPECT_LT(fabs(hc00_ss.get_distance(start, goal) - get_path_length(hc00_path)), EPS_DISTANCE);
+    vector<State> hc00_rs_path = hc00_rs_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hc00_rs_ss.get_distance(start, goal) - get_path_length(hc00_rs_path)), EPS_DISTANCE);
 
-    vector<State> hc0pm_path = hc0pm_ss.get_path(start, goal);
-    EXPECT_LT(fabs(hc0pm_ss.get_distance(start, goal) - get_path_length(hc0pm_path)), EPS_DISTANCE);
+    vector<State> hc0pm_rs_path = hc0pm_rs_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hc0pm_rs_ss.get_distance(start, goal) - get_path_length(hc0pm_rs_path)), EPS_DISTANCE);
 
-    vector<State> hcpm0_path = hcpm0_ss.get_path(start, goal);
-    EXPECT_LT(fabs(hcpm0_ss.get_distance(start, goal) - get_path_length(hcpm0_path)), EPS_DISTANCE);
+    vector<State> hcpm0_rs_path = hcpm0_rs_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hcpm0_rs_ss.get_distance(start, goal) - get_path_length(hcpm0_rs_path)), EPS_DISTANCE);
 
-    vector<State> hcpmpm_path = hcpmpm_ss.get_path(start, goal);
-    EXPECT_LT(fabs(hcpmpm_ss.get_distance(start, goal) - get_path_length(hcpmpm_path)), EPS_DISTANCE);
+    vector<State> hcpmpm_rs_path = hcpmpm_rs_ss.get_path(start, goal);
+    EXPECT_LT(fabs(hcpmpm_rs_ss.get_distance(start, goal) - get_path_length(hcpmpm_rs_path)), EPS_DISTANCE);
 
     vector<State> rs_path = rs_ss.get_path(start, goal);
     EXPECT_LT(fabs(rs_ss.get_distance(start, goal) - get_path_length(rs_path)), EPS_DISTANCE);
@@ -268,20 +268,20 @@ TEST(SteeringFunctions, reachingGoal)
     vector<State> cc00_rs_path = cc00_rs_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, cc00_rs_path.back()), EPS_DISTANCE);
 
-    vector<State> hc_path = hc_ss.get_path(start, goal);
-    EXPECT_LT(get_distance(goal, hc_path.back()), EPS_DISTANCE);
+    vector<State> hc_rs_path = hc_rs_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hc_rs_path.back()), EPS_DISTANCE);
 
-    vector<State> hc00_path = hc00_ss.get_path(start, goal);
-    EXPECT_LT(get_distance(goal, hc00_path.back()), EPS_DISTANCE);
+    vector<State> hc00_rs_path = hc00_rs_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hc00_rs_path.back()), EPS_DISTANCE);
 
-    vector<State> hc0pm_path = hc0pm_ss.get_path(start, goal);
-    EXPECT_LT(get_distance(goal, hc0pm_path.back()), EPS_DISTANCE);
+    vector<State> hc0pm_rs_path = hc0pm_rs_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hc0pm_rs_path.back()), EPS_DISTANCE);
 
-    vector<State> hcpm0_path = hcpm0_ss.get_path(start, goal);
-    EXPECT_LT(get_distance(goal, hcpm0_path.back()), EPS_DISTANCE);
+    vector<State> hcpm0_rs_path = hcpm0_rs_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hcpm0_rs_path.back()), EPS_DISTANCE);
 
-    vector<State> hcpmpm_path = hcpmpm_ss.get_path(start, goal);
-    EXPECT_LT(get_distance(goal, hcpmpm_path.back()), EPS_DISTANCE);
+    vector<State> hcpmpm_rs_path = hcpmpm_rs_ss.get_path(start, goal);
+    EXPECT_LT(get_distance(goal, hcpmpm_rs_path.back()), EPS_DISTANCE);
 
     vector<State> rs_path = rs_ss.get_path(start, goal);
     EXPECT_LT(get_distance(goal, rs_path.back()), EPS_DISTANCE);
@@ -398,9 +398,9 @@ TEST(SteeringFunctions, curvatureContinuity)
       state1 = state2;
     }
 
-    vector<State> hc_path = hc_ss.get_path(start, goal);
-    state1 = hc_path.front();
-    for (const auto& state2 : hc_path)
+    vector<State> hc_rs_path = hc_rs_ss.get_path(start, goal);
+    state1 = hc_rs_path.front();
+    for (const auto& state2 : hc_rs_path)
     {
       if (state1.d * state2.d >= 0)
       {
@@ -409,9 +409,9 @@ TEST(SteeringFunctions, curvatureContinuity)
       state1 = state2;
     }
 
-    vector<State> hc00_path = hc00_ss.get_path(start, goal);
-    state1 = hc00_path.front();
-    for (const auto& state2 : hc00_path)
+    vector<State> hc00_rs_path = hc00_rs_ss.get_path(start, goal);
+    state1 = hc00_rs_path.front();
+    for (const auto& state2 : hc00_rs_path)
     {
       if (state1.d * state2.d >= 0)
       {
@@ -420,9 +420,9 @@ TEST(SteeringFunctions, curvatureContinuity)
       state1 = state2;
     }
 
-    vector<State> hc0pm_path = hc0pm_ss.get_path(start, goal);
-    state1 = hc0pm_path.front();
-    for (const auto& state2 : hc0pm_path)
+    vector<State> hc0pm_rs_path = hc0pm_rs_ss.get_path(start, goal);
+    state1 = hc0pm_rs_path.front();
+    for (const auto& state2 : hc0pm_rs_path)
     {
       if (state1.d * state2.d >= 0)
       {
@@ -431,9 +431,9 @@ TEST(SteeringFunctions, curvatureContinuity)
       state1 = state2;
     }
 
-    vector<State> hcpm0_path = hcpm0_ss.get_path(start, goal);
-    state1 = hcpm0_path.front();
-    for (const auto& state2 : hcpm0_path)
+    vector<State> hcpm0_rs_path = hcpm0_rs_ss.get_path(start, goal);
+    state1 = hcpm0_rs_path.front();
+    for (const auto& state2 : hcpm0_rs_path)
     {
       if (state1.d * state2.d >= 0)
       {
@@ -442,9 +442,9 @@ TEST(SteeringFunctions, curvatureContinuity)
       state1 = state2;
     }
 
-    vector<State> hcpmpm_path = hcpmpm_ss.get_path(start, goal);
-    state1 = hcpmpm_path.front();
-    for (const auto& state2 : hcpmpm_path)
+    vector<State> hcpmpm_rs_path = hcpmpm_rs_ss.get_path(start, goal);
+    state1 = hcpmpm_rs_path.front();
+    for (const auto& state2 : hcpmpm_rs_path)
     {
       if (state1.d * state2.d >= 0)
       {
@@ -667,83 +667,83 @@ TEST(SteeringFunctions, interpolation)
     State cc00_rs_state_inter = cc00_rs_ss.interpolate(start, cc00_rs_controls, t);
     EXPECT_EQ(is_equal(cc00_rs_path.back(), cc00_rs_state_inter), true);
 
-    vector<Control> hc_controls = hc_ss.get_controls(start, goal);
-    double hc_s_path = get_path_length(hc_controls);
-    double hc_s_inter = t * hc_s_path;
+    vector<Control> hc_rs_controls = hc_rs_ss.get_controls(start, goal);
+    double hc_rs_s_path = get_path_length(hc_rs_controls);
+    double hc_rs_s_inter = t * hc_rs_s_path;
     s = 0.0;
-    vector<Control> hc_controls_inter;
-    hc_controls_inter.reserve(hc_controls.size());
-    for (const auto& control : hc_controls)
+    vector<Control> hc_rs_controls_inter;
+    hc_rs_controls_inter.reserve(hc_rs_controls.size());
+    for (const auto& control : hc_rs_controls)
     {
       double abs_delta_s = fabs(control.delta_s);
       s += abs_delta_s;
-      if (s < hc_s_inter)
-        hc_controls_inter.push_back(control);
+      if (s < hc_rs_s_inter)
+        hc_rs_controls_inter.push_back(control);
       else
       {
         Control control_inter;
-        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hc_s_inter));
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hc_rs_s_inter));
         control_inter.kappa = control.kappa;
         control_inter.sigma = control.sigma;
-        hc_controls_inter.push_back(control_inter);
+        hc_rs_controls_inter.push_back(control_inter);
         break;
       }
     }
-    vector<State> hc_path = hc_ss.integrate(start, hc_controls_inter);
-    State hc_state_inter = hc_ss.interpolate(start, hc_controls, t);
-    EXPECT_EQ(is_equal(hc_path.back(), hc_state_inter), true);
+    vector<State> hc_rs_path = hc_rs_ss.integrate(start, hc_rs_controls_inter);
+    State hc_rs_state_inter = hc_rs_ss.interpolate(start, hc_rs_controls, t);
+    EXPECT_EQ(is_equal(hc_rs_path.back(), hc_rs_state_inter), true);
 
-    vector<Control> hc00_controls = hc00_ss.get_controls(start, goal);
-    double hc00_s_path = get_path_length(hc00_controls);
-    double hc00_s_inter = t * hc00_s_path;
+    vector<Control> hc00_rs_controls = hc00_rs_ss.get_controls(start, goal);
+    double hc00_rs_s_path = get_path_length(hc00_rs_controls);
+    double hc00_rs_s_inter = t * hc00_rs_s_path;
     s = 0.0;
-    vector<Control> hc00_controls_inter;
-    hc00_controls_inter.reserve(hc00_controls.size());
-    for (const auto& control : hc00_controls)
+    vector<Control> hc00_rs_controls_inter;
+    hc00_rs_controls_inter.reserve(hc00_rs_controls.size());
+    for (const auto& control : hc00_rs_controls)
     {
       double abs_delta_s = fabs(control.delta_s);
       s += abs_delta_s;
-      if (s < hc00_s_inter)
-        hc00_controls_inter.push_back(control);
+      if (s < hc00_rs_s_inter)
+        hc00_rs_controls_inter.push_back(control);
       else
       {
         Control control_inter;
-        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hc00_s_inter));
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hc00_rs_s_inter));
         control_inter.kappa = control.kappa;
         control_inter.sigma = control.sigma;
-        hc00_controls_inter.push_back(control_inter);
+        hc00_rs_controls_inter.push_back(control_inter);
         break;
       }
     }
-    vector<State> hc00_path = hc00_ss.integrate(start, hc00_controls_inter);
-    State hc00_state_inter = hc00_ss.interpolate(start, hc00_controls, t);
-    EXPECT_EQ(is_equal(hc00_path.back(), hc00_state_inter), true);
+    vector<State> hc00_rs_path = hc00_rs_ss.integrate(start, hc00_rs_controls_inter);
+    State hc00_rs_state_inter = hc00_rs_ss.interpolate(start, hc00_rs_controls, t);
+    EXPECT_EQ(is_equal(hc00_rs_path.back(), hc00_rs_state_inter), true);
 
-    vector<Control> hcpmpm_controls = hcpmpm_ss.get_controls(start, goal);
-    double hcpmpm_s_path = get_path_length(hcpmpm_controls);
-    double hcpmpm_s_inter = t * hcpmpm_s_path;
+    vector<Control> hcpmpm_rs_controls = hcpmpm_rs_ss.get_controls(start, goal);
+    double hcpmpm_rs_s_path = get_path_length(hcpmpm_rs_controls);
+    double hcpmpm_rs_s_inter = t * hcpmpm_rs_s_path;
     s = 0.0;
-    vector<Control> hcpmpm_controls_inter;
-    hcpmpm_controls_inter.reserve(hcpmpm_controls.size());
-    for (const auto& control : hcpmpm_controls)
+    vector<Control> hcpmpm_rs_controls_inter;
+    hcpmpm_rs_controls_inter.reserve(hcpmpm_rs_controls.size());
+    for (const auto& control : hcpmpm_rs_controls)
     {
       double abs_delta_s = fabs(control.delta_s);
       s += abs_delta_s;
-      if (s < hcpmpm_s_inter)
-        hcpmpm_controls_inter.push_back(control);
+      if (s < hcpmpm_rs_s_inter)
+        hcpmpm_rs_controls_inter.push_back(control);
       else
       {
         Control control_inter;
-        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hcpmpm_s_inter));
+        control_inter.delta_s = sgn(control.delta_s) * (abs_delta_s - (s - hcpmpm_rs_s_inter));
         control_inter.kappa = control.kappa;
         control_inter.sigma = control.sigma;
-        hcpmpm_controls_inter.push_back(control_inter);
+        hcpmpm_rs_controls_inter.push_back(control_inter);
         break;
       }
     }
-    vector<State> hcpmpm_path = hcpmpm_ss.integrate(start, hcpmpm_controls_inter);
-    State hcpmpm_state_inter = hcpmpm_ss.interpolate(start, hcpmpm_controls, t);
-    EXPECT_EQ(is_equal(hcpmpm_path.back(), hcpmpm_state_inter), true);
+    vector<State> hcpmpm_rs_path = hcpmpm_rs_ss.integrate(start, hcpmpm_rs_controls_inter);
+    State hcpmpm_rs_state_inter = hcpmpm_rs_ss.interpolate(start, hcpmpm_rs_controls, t);
+    EXPECT_EQ(is_equal(hcpmpm_rs_path.back(), hcpmpm_rs_state_inter), true);
 
     vector<Control> rs_controls = rs_ss.get_controls(start, goal);
     double rs_s_path = get_path_length(rs_controls);
@@ -785,13 +785,13 @@ TEST(SteeringFunctions, symmetry)
     double cc00_rs_distance_backwards = cc00_rs_ss.get_distance(goal, start);
     EXPECT_LT(fabs(cc00_rs_distance_forwards - cc00_rs_distance_backwards), EPS_DISTANCE);
 
-    double hc00_distance_forwards = hc00_ss.get_distance(start, goal);
-    double hc00_distance_backwards = hc00_ss.get_distance(goal, start);
-    EXPECT_LT(fabs(hc00_distance_forwards - hc00_distance_backwards), EPS_DISTANCE);
+    double hc00_rs_distance_forwards = hc00_rs_ss.get_distance(start, goal);
+    double hc00_rs_distance_backwards = hc00_rs_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(hc00_rs_distance_forwards - hc00_rs_distance_backwards), EPS_DISTANCE);
 
-    double hcpmpm_distance_forwards = hcpmpm_ss.get_distance(start, goal);
-    double hcpmpm_distance_backwards = hcpmpm_ss.get_distance(goal, start);
-    EXPECT_LT(fabs(hcpmpm_distance_forwards - hcpmpm_distance_backwards), EPS_DISTANCE);
+    double hcpmpm_rs_distance_forwards = hcpmpm_rs_ss.get_distance(start, goal);
+    double hcpmpm_rs_distance_backwards = hcpmpm_rs_ss.get_distance(goal, start);
+    EXPECT_LT(fabs(hcpmpm_rs_distance_forwards - hcpmpm_rs_distance_backwards), EPS_DISTANCE);
 
     double rs_distance_forwards = rs_ss.get_distance(start, goal);
     double rs_distance_backwards = rs_ss.get_distance(goal, start);

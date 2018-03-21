@@ -174,35 +174,35 @@ public:
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HC")
+    else if (path_type_ == "HC_RS")
     {
       id_ = "8";
       HC_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HC00")
+    else if (path_type_ == "HC00_RS")
     {
       id_ = "9";
       HC00_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HC0pm")
+    else if (path_type_ == "HC0pm_RS")
     {
       id_ = "10";
       HC0pm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HCpm0")
+    else if (path_type_ == "HCpm0_RS")
     {
       id_ = "11";
       HCpm0_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
       state_space.set_filter_parameters(motion_noise_, measurement_noise_, controller_);
       path_ = state_space.get_path_with_covariance(state_start_, state_goal_);
     }
-    else if (path_type_ == "HCpmpm")
+    else if (path_type_ == "HCpmpm_RS")
     {
       id_ = "12";
       HCpmpm_Reeds_Shepp_State_Space state_space(kappa_max_, sigma_max_, discretization_);
@@ -571,11 +571,11 @@ int main(int argc, char** argv)
     PathClass ccpmpm_dubins_path("CCpmpm_Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass dubins_path("Dubins", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass cc00_rs_path("CC00_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
-    PathClass hc_path("HC", start, goal, robot.kappa_max_, robot.sigma_max_);
-    PathClass hc00_path("HC00", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
-    PathClass hc0pm_path("HC0pm", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
-    PathClass hcpm0_path("HCpm0", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
-    PathClass hcpmpm_path("HCpmpm", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc_rs_path("HC_RS", start, goal, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc00_rs_path("HC00_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hc0pm_rs_path("HC0pm_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hcpm0_rs_path("HCpm0_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
+    PathClass hcpmpm_rs_path("HCpmpm_RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
     PathClass rs_path("RS", start_wout_curv, goal_wout_curv, robot.kappa_max_, robot.sigma_max_);
 
     // visualize
@@ -607,24 +607,24 @@ int main(int argc, char** argv)
     robot.visualize(cc00_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    hc_path.visualize();
-    robot.visualize(hc_path.path_);
+    hc_rs_path.visualize();
+    robot.visualize(hc_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    hc00_path.visualize();
-    robot.visualize(hc00_path.path_);
+    hc00_rs_path.visualize();
+    robot.visualize(hc00_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    hc0pm_path.visualize();
-    robot.visualize(hc0pm_path.path_);
+    hc0pm_rs_path.visualize();
+    robot.visualize(hc0pm_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    hcpm0_path.visualize();
-    robot.visualize(hcpm0_path.path_);
+    hcpm0_rs_path.visualize();
+    robot.visualize(hcpm0_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
-    hcpmpm_path.visualize();
-    robot.visualize(hcpmpm_path.path_);
+    hcpmpm_rs_path.visualize();
+    robot.visualize(hcpmpm_rs_path.path_);
     ros::Duration(VISUALIZATION_DURATION).sleep();
 
     rs_path.visualize();
