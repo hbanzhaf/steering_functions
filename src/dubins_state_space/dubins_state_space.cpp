@@ -304,29 +304,21 @@ vector<State> Dubins_State_Space::integrate(const State &state, const vector<Con
     n_states += ceil(abs_delta_s / discretization_);
   }
   path.reserve(n_states + 3);
-  // push back first state
+  // get first state
   state_curr.x = state.x;
   state_curr.y = state.y;
   state_curr.theta = state.theta;
-  state_curr.kappa = controls.front().kappa;
-  state_curr.d = sgn(controls.front().delta_s);
-  path.push_back(state_curr);
 
   for (const auto &control : controls)
   {
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
-    double kappa(control.kappa);
-    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
-    // push_back current state if curvature discontinuity
-    if (fabs(kappa - state_curr.kappa) > get_epsilon())
-    {
-      state_curr.kappa = kappa;
-      state_curr.d = d;
-      path.push_back(state_curr);
-    }
+    // push_back current state
+    state_curr.kappa = control.kappa;
+    state_curr.d = sgn(delta_s);
+    path.push_back(state_curr);
 
     for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
@@ -377,11 +369,10 @@ vector<State_With_Covariance> Dubins_State_Space::integrate_with_covariance(cons
   {
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
-    double kappa(control.kappa);
     double s_seg(0.0);
     double integration_step(0.0);
     // push_back current state
-    state_curr.state.kappa = kappa;
+    state_curr.state.kappa = control.kappa;
     state_curr.state.d = sgn(delta_s);
     path_with_covariance.push_back(state_curr);
 
@@ -425,8 +416,6 @@ State Dubins_State_Space::interpolate(const State &state, const vector<Control> 
   state_curr.x = state.x;
   state_curr.y = state.y;
   state_curr.theta = state.theta;
-  state_curr.kappa = controls.front().kappa;
-  state_curr.d = sgn(controls.front().delta_s);
   // get arc length at t
   double s_path(0.0);
   double s_inter(0.0);
@@ -450,16 +439,11 @@ State Dubins_State_Space::interpolate(const State &state, const vector<Control> 
 
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
-    double kappa(control.kappa);
-    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
-    // update current state if curvature discontinuity
-    if (fabs(kappa - state_curr.kappa) > get_epsilon())
-    {
-      state_curr.kappa = kappa;
-      state_curr.d = d;
-    }
+    // update current state
+    state_curr.kappa = control.kappa;
+    state_curr.d = sgn(delta_s);
 
     s += abs_delta_s;
     if (s > s_inter)

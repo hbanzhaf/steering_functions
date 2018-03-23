@@ -93,14 +93,13 @@ vector<State> HC_CC_State_Space::integrate(const State &state, const vector<Cont
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
     double kappa(control.kappa);
-    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
     // push_back current state if curvature discontinuity
     if (fabs(kappa - state_curr.kappa) > get_epsilon())
     {
       state_curr.kappa = kappa;
-      state_curr.d = d;
+      state_curr.d = sgn(delta_s);
       path.push_back(state_curr);
     }
 
@@ -138,16 +137,19 @@ vector<State_With_Covariance> HC_CC_State_Space::integrate_with_covariance(const
     n_states += ceil(abs_delta_s / discretization_);
   }
   path_with_covariance.reserve(n_states + 3);
-  // get first state
+  // push back first state
   state_curr.state.x = state.state.x;
   state_curr.state.y = state.state.y;
   state_curr.state.theta = state.state.theta;
+  state_curr.state.kappa = controls.front().kappa;
+  state_curr.state.d = sgn(controls.front().delta_s);
   for (int i = 0; i < 16; i++)
   {
     state_curr.Sigma[i] = state.Sigma[i];
     state_curr.Lambda[i] = state.Lambda[i];
     state_curr.covariance[i] = state.covariance[i];
   }
+  path_with_covariance.push_back(state_curr);
 
   for (const auto &control : controls)
   {
@@ -156,10 +158,13 @@ vector<State_With_Covariance> HC_CC_State_Space::integrate_with_covariance(const
     double kappa(control.kappa);
     double s_seg(0.0);
     double integration_step(0.0);
-    // push_back current state
-    state_curr.state.kappa = kappa;
-    state_curr.state.d = sgn(delta_s);
-    path_with_covariance.push_back(state_curr);
+    // push_back current state if curvature discontinuity
+    if (fabs(kappa - state_curr.state.kappa) > get_epsilon())
+    {
+      state_curr.state.kappa = kappa;
+      state_curr.state.d = sgn(delta_s);
+      path_with_covariance.push_back(state_curr);
+    }
 
     for (int i = 0, n = ceil(abs_delta_s / discretization_); i < n; ++i)
     {
@@ -227,14 +232,13 @@ State HC_CC_State_Space::interpolate(const State &state, const vector<Control> &
     double delta_s(control.delta_s);
     double abs_delta_s(fabs(delta_s));
     double kappa(control.kappa);
-    double d(sgn(delta_s));
     double s_seg(0.0);
     double integration_step(0.0);
     // update current state if curvature discontinuity
     if (fabs(kappa - state_curr.kappa) > get_epsilon())
     {
       state_curr.kappa = kappa;
-      state_curr.d = d;
+      state_curr.d = sgn(delta_s);
     }
 
     s += abs_delta_s;
