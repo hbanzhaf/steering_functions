@@ -108,6 +108,16 @@ void CC_Dubins_Path::print(bool eol) const
     qi2->print(false);
     cout << " -> ";
   }
+  if (qi3)
+  {
+    qi3->print(false);
+    cout << " -> ";
+  }
+  if (qi4)
+  {
+    qi4->print(false);
+    cout << " -> ";
+  }
   end.print(false);
   if (eol)
   {
