@@ -1083,7 +1083,7 @@ public:
     {
       return false;
     }
-    return distance >= 2 * c1.radius * c1.cos_mu;
+    return distance >= sqrt(pow(c1.radius * c1.sin_mu, 2) + pow(c1.radius * c1.cos_mu + 1 / fabs(c1.kappa), 2));
   }
 
   bool TceST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1096,7 +1096,7 @@ public:
     {
       return false;
     }
-    return distance >= get_epsilon();
+    return distance >= sqrt(pow(c1.radius * c1.sin_mu, 2) + pow(c1.radius * c1.cos_mu - 1 / fabs(c1.kappa), 2));
   }
 
   bool TcST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1107,85 +1107,93 @@ public:
   double TciST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = fabs(asin((c1.radius * c1.cos_mu + fabs(1 / c1.kappa)) / distance));
+    double delta_x1 = 0.0;
+    double delta_y1 = fabs(1 / c1.kappa);
+    double delta_x2 = fabs(c1.radius * c1.sin_mu);
+    double delta_y2 = fabs(c1.radius * c1.cos_mu);
     double x, y, theta;
     if (c1.left && c1.forward)
     {
       theta = angle - alpha;
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, -delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
     if (c1.left && !c1.forward)
     {
       theta = angle + alpha;
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, -delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, -delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta, 0);
     }
     if (!c1.left && c1.forward)
     {
       theta = angle + alpha;
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, -delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, -delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
     if (!c1.left && !c1.forward)
     {
       theta = angle - alpha;
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, -delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta, 0);
     }
-    *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
+    *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(c2.start, c2.left, c2.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
+    return (*cstart)->hc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
   }
 
   double TceST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double theta = angle;
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
-    double x, y;
+    double alpha = fabs(asin((c1.radius * c1.cos_mu - fabs(1 / c1.kappa)) / distance));
+    double delta_x1 = 0.0;
+    double delta_y1 = fabs(1 / c1.kappa);
+    double delta_x2 = fabs(c1.radius * c1.sin_mu);
+    double delta_y2 = fabs(c1.radius * c1.cos_mu);
+    double x, y, theta;
     if (c1.left && c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
     if (c1.left && !c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, -delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, -delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, -delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta, 0);
     }
     if (!c1.left && c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, -delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, -delta_y, &x, &y);
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, -delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta + PI, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, -delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta + PI, 0);
     }
     if (!c1.left && !c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, -delta_x, delta_y, &x, &y);
-      *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, -delta_x1, delta_y1, &x, &y);
+      *q1 = new Configuration(x, y, theta, c1.kappa);
+      global_frame_change(c2.xc, c2.yc, theta, -delta_x2, delta_y2, &x, &y);
       *q2 = new Configuration(x, y, theta, 0);
     }
-    *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
+    *cstart = new HC_CC_Circle(c1);
     *cend = new HC_CC_Circle(c2.start, c2.left, c2.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
+    return (*cstart)->hc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
   }
 
   double TcST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -1213,7 +1221,7 @@ public:
     {
       return false;
     }
-    return distance >= 2 * c1.radius * c1.cos_mu;
+    return distance >= sqrt(pow(c1.radius * c1.sin_mu, 2) + pow(c1.radius * c1.cos_mu + 1 / fabs(c1.kappa), 2));
   }
 
   bool TeScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1226,7 +1234,7 @@ public:
     {
       return false;
     }
-    return distance >= get_epsilon();
+    return distance >= sqrt(pow(c1.radius * c1.sin_mu, 2) + pow(c1.radius * c1.cos_mu - 1 / fabs(c1.kappa), 2));
   }
 
   bool TScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1237,85 +1245,93 @@ public:
   double TiScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = fabs(asin((c1.radius * c1.cos_mu + fabs(1 / c1.kappa)) / distance));
+    double delta_x1 = fabs(c1.radius * c1.sin_mu);
+    double delta_y1 = fabs(c1.radius * c1.cos_mu);
+    double delta_x2 = 0.0;
+    double delta_y2 = fabs(1 / c1.kappa);
     double x, y, theta;
     if (c1.left && c1.forward)
     {
       theta = angle + alpha;
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, -delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta, c2.kappa);
     }
     if (c1.left && !c1.forward)
     {
       theta = angle - alpha;
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, -delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, -delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, c2.kappa);
     }
     if (!c1.left && c1.forward)
     {
       theta = angle - alpha;
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, -delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, -delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta, c2.kappa);
     }
     if (!c1.left && !c1.forward)
     {
       theta = angle + alpha;
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, -delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, c2.kappa);
     }
     *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    *cend = new HC_CC_Circle(c2.start, c2.left, c2.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
+    *cend = new HC_CC_Circle(c2);
+    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q2);
   }
 
   double TeScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
-    double theta = angle;
-    double x, y;
+    double alpha = fabs(asin((c1.radius * c1.cos_mu - fabs(1 / c1.kappa)) / distance));
+    double delta_x1 = fabs(c1.radius * c1.sin_mu);
+    double delta_y1 = fabs(c1.radius * c1.cos_mu);
+    double delta_x2 = 0.0;
+    double delta_y2 = fabs(1 / c1.kappa);
+    double x, y, theta;
     if (c1.left && c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, -delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, -delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, -delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta, c2.kappa);
     }
     if (c1.left && !c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, c2.kappa);
     }
     if (!c1.left && c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
+      theta = angle - alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta, c2.kappa);
     }
     if (!c1.left && !c1.forward)
     {
-      global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
+      theta = angle + alpha;
+      global_frame_change(c1.xc, c1.yc, theta, delta_x1, -delta_y1, &x, &y);
       *q1 = new Configuration(x, y, theta + PI, 0);
-      global_frame_change(c2.xc, c2.yc, theta, delta_x, -delta_y, &x, &y);
-      *q2 = new Configuration(x, y, theta + PI, 0);
+      global_frame_change(c2.xc, c2.yc, theta, delta_x2, -delta_y2, &x, &y);
+      *q2 = new Configuration(x, y, theta + PI, c2.kappa);
     }
     *cstart = new HC_CC_Circle(c1.start, c1.left, c1.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    *cend = new HC_CC_Circle(c2.start, c2.left, c2.forward, CC_REGULAR, parent_->hc_cc_circle_param_);
-    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->cc_turn_length(**q2);
+    *cend = new HC_CC_Circle(c2);
+    return (*cstart)->cc_turn_length(**q1) + configuration_distance(**q1, **q2) + (*cend)->hc_turn_length(**q2);
   }
 
   double TScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
@@ -1343,7 +1359,7 @@ public:
     {
       return false;
     }
-    return distance >= fabs(2 / c1.kappa);
+    return distance > fabs(2 / c1.kappa);
   }
 
   bool TceScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1816,10 +1832,14 @@ vector<Control> HC00_Reeds_Shepp_State_Space::get_controls(const State &state1, 
       cc_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
     case hc_cc_rs::TcST:
+      hc_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
+      straight_controls(*(p->qi1), *(p->qi2), hc_rs_controls);
+      cc_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
+      break;
     case hc_cc_rs::TScT:
       cc_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
       straight_controls(*(p->qi1), *(p->qi2), hc_rs_controls);
-      cc_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
+      hc_turn_controls(*(p->cend), *(p->qi2), false, hc_rs_controls);
       break;
     case hc_cc_rs::TcScT:
       hc_turn_controls(*(p->cstart), *(p->qi1), true, hc_rs_controls);
