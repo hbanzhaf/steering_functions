@@ -312,8 +312,8 @@ int direction(bool forward, bool order)
 
 void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
 {
-  assert(fabs(c.kappa) - fabs(q.kappa) < get_epsilon() &&
-         fabs(c.sigma) - numeric_limits<double>::max() < get_epsilon());
+  assert(fabs(fabs(c.kappa) - fabs(q.kappa)) < get_epsilon() &&
+         fabs(fabs(c.sigma) - numeric_limits<double>::max()) < get_epsilon());
   Control arc;
   double delta;
   c.deflection(q, &delta);
@@ -341,7 +341,7 @@ void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
 
 void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
 {
-  assert(fabs(c.kappa) - fabs(q.kappa) < get_epsilon());
+  assert(fabs(fabs(c.kappa) - fabs(q.kappa)) < get_epsilon());
   Control clothoid, arc;
   double delta;
   c.deflection(q, &delta);

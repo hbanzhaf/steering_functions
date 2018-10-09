@@ -137,6 +137,7 @@ public:
   Dubins_State_Space(double kappa, double discretization = 0.1, bool forwards = true)
     : kappa_(kappa), discretization_(discretization), forwards_(forwards)
   {
+    assert(kappa > 0.0 && discretization > 0.0);
     kappa_inv_ = 1 / kappa;
   }
 

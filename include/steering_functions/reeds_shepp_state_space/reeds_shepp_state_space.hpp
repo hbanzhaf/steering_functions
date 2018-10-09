@@ -131,6 +131,7 @@ public:
   /** \brief Constructor of the Reeds_Shepp_State_Space */
   Reeds_Shepp_State_Space(double kappa, double discretization = 0.1) : kappa_(kappa), discretization_(discretization)
   {
+    assert(kappa > 0.0 && discretization > 0.0);
     kappa_inv_ = 1 / kappa;
   }
 

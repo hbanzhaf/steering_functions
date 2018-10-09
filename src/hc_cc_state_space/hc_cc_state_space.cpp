@@ -20,6 +20,8 @@
 HC_CC_State_Space::HC_CC_State_Space(double kappa, double sigma, double discretization)
   : kappa_(kappa), sigma_(sigma), discretization_(discretization)
 {
+  // assert positive inputs
+  assert(kappa > 0.0 && sigma > 0.0 && discretization > 0.0);
   // intermediate configuration after first clothoid
   double length_min = kappa / sigma;
   double x_i, y_i, theta_i;

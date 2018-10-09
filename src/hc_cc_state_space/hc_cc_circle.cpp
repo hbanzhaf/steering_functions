@@ -126,8 +126,8 @@ void HC_CC_Circle::deflection(const Configuration &q, double *delta) const
 
 double HC_CC_Circle::rs_turn_length(const Configuration &q) const
 {
-  assert(fabs(this->kappa) - fabs(q.kappa) < get_epsilon() &&
-         fabs(this->sigma) - numeric_limits<double>::max() < get_epsilon());
+  assert(fabs(fabs(this->kappa) - fabs(q.kappa)) < get_epsilon() &&
+         fabs(fabs(this->sigma) - numeric_limits<double>::max()) < get_epsilon());
   double delta;
   this->deflection(q, &delta);
   // irregular rs-turn
@@ -144,7 +144,7 @@ double HC_CC_Circle::rs_turn_length(const Configuration &q) const
 
 double HC_CC_Circle::hc_turn_length(const Configuration &q) const
 {
-  assert(fabs(this->kappa) - fabs(q.kappa) < get_epsilon());
+  assert(fabs(fabs(this->kappa) - fabs(q.kappa)) < get_epsilon());
   double delta;
   this->deflection(q, &delta);
   double length_min = fabs(this->kappa / this->sigma);
