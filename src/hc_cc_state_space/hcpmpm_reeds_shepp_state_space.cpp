@@ -183,9 +183,9 @@ public:
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    HC_CC_Circle tgt1(x, y, !c1.left, !c1.forward, c1.regular, parent_->rs_circle_param_);
+    HC_CC_Circle tgt1(x, y, !c1.left, !c1.forward, true, parent_->rs_circle_param_);
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    HC_CC_Circle tgt2(x, y, !c1.left, !c1.forward, c1.regular, parent_->rs_circle_param_);
+    HC_CC_Circle tgt2(x, y, !c1.left, !c1.forward, true, parent_->rs_circle_param_);
 
     TcT_tangent_circles(c1, tgt1, q1);
     TcT_tangent_circles(tgt1, c2, q2);
@@ -1591,7 +1591,7 @@ HC_CC_RS_Path *HCpmpm_Reeds_Shepp_State_Space::hcpmpm_circles_rs_path(const HC_C
   // case T
   if (configuration_on_hc_cc_circle(c1, c2.start))
   {
-    cstart[hc_cc_rs::T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, false, rs_circle_param_);
+    cstart[hc_cc_rs::T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, true, rs_circle_param_);
     length[hc_cc_rs::T] = cstart[hc_cc_rs::T]->rs_turn_length(c2.start);
     goto label_end;
   }

@@ -182,9 +182,9 @@ public:
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
-    HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, c2.regular, parent_->rs_circle_param_);
+    HC_CC_Circle tgt1(x, y, !c2.left, c2.forward, true, parent_->rs_circle_param_);
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
-    HC_CC_Circle tgt2(x, y, !c2.left, c2.forward, c2.regular, parent_->rs_circle_param_);
+    HC_CC_Circle tgt2(x, y, !c2.left, c2.forward, true, parent_->rs_circle_param_);
 
     TcT_tangent_circles(c1, tgt1, q1);
     TcT_tangent_circles(tgt1, c2, q2);

@@ -495,7 +495,7 @@ CC_Dubins_Path *CCpmpm_Dubins_State_Space::ccpmpm_circles_dubins_path(const HC_C
   // case T
   if (configuration_on_hc_cc_circle(c1, c2.start))
   {
-    cstart[cc_dubins::T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, false, rs_circle_param_);
+    cstart[cc_dubins::T] = new HC_CC_Circle(c1.start, c1.left, c1.forward, true, rs_circle_param_);
     length[cc_dubins::T] = cstart[cc_dubins::T]->rs_turn_length(c2.start);
     goto label_end;
   }
