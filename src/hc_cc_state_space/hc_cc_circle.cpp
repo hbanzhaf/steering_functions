@@ -150,24 +150,24 @@ double HC_CC_Circle::hc_turn_length(const Configuration &q) const
   double length_min = fabs(this->kappa / this->sigma);
   double length_arc;
   // regular hc-turn
-  if (this->regular && (delta < 0.5 * delta_min))
+  if (this->regular && (delta < delta_min))
   {
-    length_arc = fabs((TWO_PI + delta - 0.5 * delta_min) * this->kappa_inv);
+    length_arc = fabs((TWO_PI + delta - delta_min) * this->kappa_inv);
   }
   // irregular hc-turn
-  else if (!this->regular && (delta < 0.5 * delta_min))
+  else if (!this->regular && (delta < delta_min))
   {
-    length_arc = fabs((-delta + 0.5 * delta_min) * this->kappa_inv);
+    length_arc = fabs((-delta + delta_min) * this->kappa_inv);
   }
   // irregular hc-turn
-  else if (!this->regular && (delta > 0.5 * delta_min + PI))
+  else if (!this->regular && (delta > delta_min + PI))
   {
-    length_arc = fabs((TWO_PI - delta + 0.5 * delta_min) * this->kappa_inv);
+    length_arc = fabs((TWO_PI - delta + delta_min) * this->kappa_inv);
   }
   // regular hc-turn
   else
   {
-    length_arc = fabs((delta - 0.5 * delta_min) * this->kappa_inv);
+    length_arc = fabs((delta - delta_min) * this->kappa_inv);
   }
   return length_min + length_arc;
 }
@@ -183,23 +183,23 @@ double HC_CC_Circle::cc_turn_length(const Configuration &q) const
     return 2 * this->radius * this->sin_mu;
   }
   // elementary path
-  if (delta < delta_min)
+  if (delta < 2 * delta_min)
   {
     double d1 = D1(delta / 2);
     double d2 = point_distance(this->start.x, this->start.y, q.x, q.y);
     double sharpness = 4 * PI * pow(d1, 2) / pow(d2, 2);
     return 2 * sqrt(delta / sharpness);
   }
-  double length_min = fabs(2 * this->kappa / this->sigma);
+  double length_min = fabs(this->kappa / this->sigma);
   // irregular cc-turn
-  if (!this->regular && (delta > delta_min + PI))
+  if (!this->regular && (delta > 2 * delta_min + PI))
   {
-    return length_min + fabs((TWO_PI - delta + delta_min) * this->kappa_inv);
+    return 2 * length_min + fabs((TWO_PI - delta + 2 * delta_min) * this->kappa_inv);
   }
   // regular cc-turn
   else
   {
-    return length_min + fabs((delta - delta_min) * this->kappa_inv);
+    return 2 * length_min + fabs((delta - 2 * delta_min) * this->kappa_inv);
   }
 }
 

@@ -351,28 +351,28 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   int shift;
 
   // regular hc-turn
-  if (c.regular && (delta < 0.5 * c.delta_min))
+  if (c.regular && (delta < c.delta_min))
   {
     shift = d;
-    length_arc = fabs((TWO_PI + delta - 0.5 * c.delta_min) * c.kappa_inv);
+    length_arc = fabs((TWO_PI + delta - c.delta_min) * c.kappa_inv);
   }
   // irregular hc-turn
-  else if (!c.regular && (delta < 0.5 * c.delta_min))
+  else if (!c.regular && (delta < c.delta_min))
   {
     shift = -d;
-    length_arc = fabs((-delta + 0.5 * c.delta_min) * c.kappa_inv);
+    length_arc = fabs((-delta + c.delta_min) * c.kappa_inv);
   }
   // irregular hc-turn
-  else if (!c.regular && (delta > 0.5 * c.delta_min + PI))
+  else if (!c.regular && (delta > c.delta_min + PI))
   {
     shift = -d;
-    length_arc = fabs((TWO_PI - delta + 0.5 * c.delta_min) * c.kappa_inv);
+    length_arc = fabs((TWO_PI - delta + c.delta_min) * c.kappa_inv);
   }
   // regular hc-turn
   else
   {
     shift = d;
-    length_arc = fabs((delta - 0.5 * c.delta_min) * c.kappa_inv);
+    length_arc = fabs((delta - c.delta_min) * c.kappa_inv);
   }
   if (order)
   {
@@ -412,7 +412,7 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     return;
   }
   // elementary path
-  if (delta < c.delta_min)
+  if (delta < 2 * c.delta_min)
   {
     double d1 = D1(delta / 2);
     double d2 = point_distance(c.start.x, c.start.y, q.x, q.y);
@@ -438,16 +438,16 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   double length_arc;
   int shift;
   // irregular
-  if (!c.regular && (delta > c.delta_min + PI))
+  if (!c.regular && (delta > 2 * c.delta_min + PI))
   {
     shift = -d;
-    length_arc = fabs((TWO_PI - delta + c.delta_min) * c.kappa_inv);
+    length_arc = fabs((TWO_PI - delta + 2 * c.delta_min) * c.kappa_inv);
   }
   // regular
   else
   {
     shift = d;
-    length_arc = fabs((delta - c.delta_min) * c.kappa_inv);
+    length_arc = fabs((delta - 2 * c.delta_min) * c.kappa_inv);
   }
   clothoid1.delta_s = d * length_min;
   clothoid1.kappa = 0.0;
