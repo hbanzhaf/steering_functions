@@ -324,13 +324,13 @@ void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   if (!c.regular && (delta > PI))
   {
     shift = -d;
-    length_arc = fabs((TWO_PI - delta) / c.kappa);
+    length_arc = fabs((TWO_PI - delta) * c.kappa_inv);
   }
   // regular rs-turn
   else
   {
     shift = d;
-    length_arc = fabs(delta / c.kappa);
+    length_arc = fabs(delta * c.kappa_inv);
   }
   arc.delta_s = shift * length_arc;
   arc.kappa = c.kappa;
@@ -351,28 +351,28 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   int shift;
 
   // regular hc-turn
-  if (c.regular && (delta < c.delta_min / 2.0))
+  if (c.regular && (delta < 0.5 * c.delta_min))
   {
     shift = d;
-    length_arc = fabs((TWO_PI + delta - c.delta_min / 2.0) / c.kappa);
+    length_arc = fabs((TWO_PI + delta - 0.5 * c.delta_min) * c.kappa_inv);
   }
   // irregular hc-turn
-  else if (!c.regular && (delta < c.delta_min / 2.0))
+  else if (!c.regular && (delta < 0.5 * c.delta_min))
   {
     shift = -d;
-    length_arc = fabs((-delta + c.delta_min / 2.0) / c.kappa);
+    length_arc = fabs((-delta + 0.5 * c.delta_min) * c.kappa_inv);
   }
   // irregular hc-turn
-  else if (!c.regular && (delta > c.delta_min / 2.0 + PI))
+  else if (!c.regular && (delta > 0.5 * c.delta_min + PI))
   {
     shift = -d;
-    length_arc = fabs((TWO_PI - delta + c.delta_min / 2.0) / c.kappa);
+    length_arc = fabs((TWO_PI - delta + 0.5 * c.delta_min) * c.kappa_inv);
   }
   // regular hc-turn
   else
   {
     shift = d;
-    length_arc = fabs((delta - c.delta_min / 2.0) / c.kappa);
+    length_arc = fabs((delta - 0.5 * c.delta_min) * c.kappa_inv);
   }
   if (order)
   {
@@ -403,7 +403,7 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   c.deflection(q, &delta);
   int d = direction(c.forward, order);
   // straight line
-  if (fabs(delta) < get_epsilon())
+  if (delta < get_epsilon())
   {
     if (order)
       straight_controls(c.start, q, controls);
@@ -441,13 +441,13 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   if (!c.regular && (delta > c.delta_min + PI))
   {
     shift = -d;
-    length_arc = fabs((TWO_PI - delta + c.delta_min) / c.kappa);
+    length_arc = fabs((TWO_PI - delta + c.delta_min) * c.kappa_inv);
   }
   // regular
   else
   {
     shift = d;
-    length_arc = fabs((delta - c.delta_min) / c.kappa);
+    length_arc = fabs((delta - c.delta_min) * c.kappa_inv);
   }
   clothoid1.delta_s = d * length_min;
   clothoid1.kappa = 0.0;

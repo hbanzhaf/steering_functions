@@ -133,9 +133,9 @@ public:
   {
     double distance = center_distance(c1, c2);
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = asin(2 * c1.radius * c1.cos_mu / distance);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -174,8 +174,8 @@ public:
   void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
                             Configuration **q2) const
   {
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
     double x, y;
     if (c1.left && c1.forward)
@@ -262,7 +262,7 @@ public:
     double theta = angle;
     double r = 2 * c1.radius;
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(delta_x, 2) - pow(r, 2)));
+    double delta_y = sqrt(pow(r, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);

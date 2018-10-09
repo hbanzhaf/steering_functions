@@ -21,12 +21,12 @@ HC_CC_State_Space::HC_CC_State_Space(double kappa, double sigma, double discreti
   : kappa_(kappa), sigma_(sigma), discretization_(discretization)
 {
   // intermediate configuration after first clothoid
-  double length = kappa / sigma;
+  double length_min = kappa / sigma;
   double x_i, y_i, theta_i;
-  if (length > get_epsilon())
+  if (length_min > get_epsilon())
   {
     double kappa_i;
-    end_of_clothoid(0, 0, 0, 0, sigma, 1, length, &x_i, &y_i, &theta_i, &kappa_i);
+    end_of_clothoid(0, 0, 0, 0, sigma, 1, length_min, &x_i, &y_i, &theta_i, &kappa_i);
   }
   else
   {

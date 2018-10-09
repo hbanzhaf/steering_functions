@@ -42,8 +42,8 @@ public:
   void set_param(double _kappa, double _sigma, double _radius, double _mu, double _sin_mu, double _cos_mu,
                  double _delta_min);
 
-  /** \brief Max. curvature, max. sharpness */
-  double kappa, sigma;
+  /** \brief Max. curvature, inverse of max. curvature, max. sharpness */
+  double kappa, kappa_inv, sigma;
 
   /** \brief Radius of the outer circle */
   double radius;

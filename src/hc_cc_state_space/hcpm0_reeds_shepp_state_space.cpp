@@ -108,7 +108,7 @@ public:
     {
       return false;
     }
-    return fabs(distance - fabs(2 / c1.kappa)) < get_epsilon();
+    return fabs(distance - 2 * fabs(c1.kappa_inv)) < get_epsilon();
   }
 
   void TcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q) const
@@ -169,16 +169,16 @@ public:
     {
       return false;
     }
-    return distance <= fabs(4 / c1.kappa);
+    return distance <= 4 * fabs(c1.kappa_inv);
   }
 
   void TcTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
                              Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
-    double r = fabs(2 / c1.kappa);
+    double r = 2 * fabs(c1.kappa_inv);
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(r, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -241,17 +241,17 @@ public:
     {
       return false;
     }
-    return (distance <= 2 * c2.radius + 2 / fabs(c2.kappa)) && (distance >= 2 * c2.radius - 2 / fabs(c2.kappa));
+    return (distance <= 2 * c2.radius + 2 * fabs(c2.kappa_inv)) && (distance >= 2 * c2.radius - 2 * fabs(c2.kappa_inv));
   }
 
   void TcTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
                             Configuration **q3, Configuration **q4) const
   {
     double theta = angle;
-    double r1 = 2 / fabs(c2.kappa);
+    double r1 = 2 * fabs(c2.kappa_inv);
     double r2 = 2 * c2.radius;
     double delta_x = (pow(r1, 2) + pow(distance, 2) - pow(r2, 2)) / (2 * distance);
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -314,7 +314,7 @@ public:
     {
       return false;
     }
-    return (distance <= 2 * c2.radius + 2 / fabs(c2.kappa)) && (distance >= 2 * c2.radius - 2 / fabs(c2.kappa));
+    return (distance <= 2 * c2.radius + 2 * fabs(c2.kappa_inv)) && (distance >= 2 * c2.radius - 2 * fabs(c2.kappa_inv));
   }
 
   void TTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
@@ -322,9 +322,9 @@ public:
   {
     double theta = angle;
     double r1 = 2 * c2.radius;
-    double r2 = 2 / fabs(c2.kappa);
+    double r2 = 2 * fabs(c2.kappa_inv);
     double delta_x = (pow(r1, 2) + pow(distance, 2) - pow(r2, 2)) / (2 * distance);
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -419,9 +419,9 @@ public:
   {
     double distance = center_distance(c1, c2);
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-    double alpha = fabs(asin(2 * c2.radius * c2.cos_mu / distance));
-    double delta_x = fabs(c2.radius * c2.sin_mu);
-    double delta_y = fabs(c2.radius * c2.cos_mu);
+    double alpha = asin(2 * c2.radius * c2.cos_mu / distance);
+    double delta_x = c2.radius * c2.sin_mu;
+    double delta_y = c2.radius * c2.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -460,8 +460,8 @@ public:
   void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
                             Configuration **q2) const
   {
-    double delta_x = fabs(c2.radius * c2.sin_mu);
-    double delta_y = fabs(c2.radius * c2.cos_mu);
+    double delta_x = c2.radius * c2.sin_mu;
+    double delta_y = c2.radius * c2.cos_mu;
     double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
     double x, y;
     if (c1.left && c1.forward)
@@ -540,7 +540,7 @@ public:
       return false;
     }
     return (distance >=
-            sqrt(pow(2 * c2.radius * c2.sin_mu + 2 / fabs(c2.kappa), 2) + pow(2 * c2.radius * c2.cos_mu, 2)));
+            sqrt(pow(2 * c2.radius * c2.sin_mu + 2 * fabs(c2.kappa_inv), 2) + pow(2 * c2.radius * c2.cos_mu, 2)));
   }
 
   bool TeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -553,7 +553,7 @@ public:
     {
       return false;
     }
-    return (distance >= 2 * (1 / fabs(c2.kappa) + c2.radius * c2.sin_mu));
+    return (distance >= 2 * (fabs(c2.kappa_inv) + c2.radius * c2.sin_mu));
   }
 
   bool TSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -567,7 +567,7 @@ public:
   {
     double theta = angle;
     double delta_y = (4 * c2.radius * c2.cos_mu) / (fabs(c2.kappa) * distance);
-    double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
+    double delta_x = sqrt(pow(2 * c2.kappa_inv, 2) - pow(delta_y, 2));
     double x, y;
 
     global_frame_change(c2.xc, c2.yc, theta, -delta_x, delta_y, &x, &y);
@@ -590,7 +590,7 @@ public:
                      HC_CC_Circle **ci) const
   {
     double theta = angle;
-    double delta_x = 2 / fabs(c2.kappa);
+    double delta_x = 2 * fabs(c2.kappa_inv);
     double delta_y = 0;
     double x, y;
 
@@ -636,7 +636,7 @@ public:
       return false;
     }
     return (distance >=
-            sqrt(pow(2 * c2.radius * c2.sin_mu + 2 / fabs(c2.kappa), 2) + pow(2 * c2.radius * c2.cos_mu, 2)));
+            sqrt(pow(2 * c2.radius * c2.sin_mu + 2 * fabs(c2.kappa_inv), 2) + pow(2 * c2.radius * c2.cos_mu, 2)));
   }
 
   bool TcTeST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -649,7 +649,7 @@ public:
     {
       return false;
     }
-    return (distance >= 2 * (1 / fabs(c2.kappa) + c2.radius * c2.sin_mu));
+    return (distance >= 2 * (fabs(c2.kappa_inv) + c2.radius * c2.sin_mu));
   }
 
   bool TcTST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -662,7 +662,7 @@ public:
   {
     double theta = angle;
     double delta_y = (4 * c2.radius * c2.cos_mu) / (fabs(c2.kappa) * distance);
-    double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
+    double delta_x = sqrt(pow(2 * c2.kappa_inv, 2) - pow(delta_y, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, -delta_y, &x, &y);
@@ -683,7 +683,7 @@ public:
                      Configuration **q1, Configuration **q2, Configuration **q3, HC_CC_Circle **ci) const
   {
     double theta = angle;
-    double delta_x = 2 / fabs(c2.kappa);
+    double delta_x = 2 * fabs(c2.kappa_inv);
     double delta_y = 0;
     double x, y;
 
@@ -727,7 +727,7 @@ public:
       return false;
     }
     return (distance >=
-            sqrt(pow(2 * c2.radius, 2) + 16 * c2.radius * c2.sin_mu / fabs(c2.kappa) + pow(4 / c2.kappa, 2)));
+            sqrt(pow(2 * c2.radius, 2) + 16 * c2.radius * c2.sin_mu * fabs(c2.kappa_inv) + pow(4 * c2.kappa_inv, 2)));
   }
 
   bool TcTeSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -740,7 +740,7 @@ public:
     {
       return false;
     }
-    return (distance >= 4 / fabs(c2.kappa) + 2 * c2.radius * c2.sin_mu);
+    return (distance >= 4 * fabs(c2.kappa_inv) + 2 * c2.radius * c2.sin_mu);
   }
 
   bool TcTSTcT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -754,7 +754,7 @@ public:
   {
     double theta = angle;
     double delta_y = (4 * c2.radius * c2.cos_mu) / (distance * fabs(c2.kappa));
-    double delta_x = sqrt(pow(2 / c2.kappa, 2) - pow(delta_y, 2));
+    double delta_x = sqrt(pow(2 * c2.kappa_inv, 2) - pow(delta_y, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -780,7 +780,7 @@ public:
                        HC_CC_Circle **ci1, HC_CC_Circle **ci2) const
   {
     double theta = angle;
-    double delta_x = 2 / fabs(c1.kappa);
+    double delta_x = 2 * fabs(c1.kappa_inv);
     double delta_y = 0;
     double x, y;
 
@@ -828,7 +828,7 @@ public:
     {
       return false;
     }
-    return (distance <= 4 * c2.radius + 2 / fabs(c2.kappa));
+    return (distance <= 4 * c2.radius + 2 * fabs(c2.kappa_inv));
   }
 
   void TTcTT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
@@ -836,17 +836,17 @@ public:
   {
     double theta = angle;
     double r1, r2, delta_x, delta_y, x, y;
-    r1 = 2 / fabs(c2.kappa);
+    r1 = 2 * fabs(c2.kappa_inv);
     r2 = 2 * c2.radius;
-    if (distance < 4 * c2.radius - 2 / fabs(c2.kappa))
+    if (distance < 4 * c2.radius - 2 * fabs(c2.kappa_inv))
     {
       delta_x = (distance + r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
+      delta_y = sqrt(pow(r2, 2) - pow(delta_x, 2));
     }
     else
     {
       delta_x = (distance - r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
+      delta_y = sqrt(pow(r2, 2) - pow(delta_x, 2));
     }
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -937,17 +937,17 @@ public:
     {
       return false;
     }
-    return (distance <= 4 / fabs(c2.kappa) + 2 * c2.radius) && (distance >= 4 / fabs(c2.kappa) - 2 * c2.radius);
+    return (distance <= 4 * fabs(c2.kappa_inv) + 2 * c2.radius) && (distance >= 4 * fabs(c2.kappa_inv) - 2 * c2.radius);
   }
 
   void TcTTcT_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2,
                               Configuration **q3, Configuration **q4, Configuration **q5, Configuration **q6) const
   {
     double theta = angle;
-    double r1 = 2 / fabs(c2.kappa);
+    double r1 = 2 * fabs(c2.kappa_inv);
     double r2 = c2.radius;
     double delta_x = (pow(r1, 2) + pow(distance / 2, 2) - pow(r2, 2)) / distance;
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -1041,7 +1041,7 @@ public:
     double theta = angle;
     double r = 2 * c2.radius;
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(delta_x, 2) - pow(r, 2)));
+    double delta_y = sqrt(pow(r, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -1110,7 +1110,7 @@ public:
     {
       return false;
     }
-    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu + 1 / fabs(c2.kappa), 2));
+    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu + fabs(c2.kappa_inv), 2));
   }
 
   bool TceST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1123,7 +1123,7 @@ public:
     {
       return false;
     }
-    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu - 1 / fabs(c2.kappa), 2));
+    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu - fabs(c2.kappa_inv), 2));
   }
 
   bool TcST_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1134,11 +1134,11 @@ public:
   double TciST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin((c2.radius * c2.cos_mu + fabs(1 / c2.kappa)) / distance));
+    double alpha = asin((c2.radius * c2.cos_mu + fabs(c2.kappa_inv)) / distance);
     double delta_x1 = 0.0;
-    double delta_y1 = fabs(1 / c2.kappa);
-    double delta_x2 = fabs(c2.radius * c2.sin_mu);
-    double delta_y2 = fabs(c2.radius * c2.cos_mu);
+    double delta_y1 = fabs(c2.kappa_inv);
+    double delta_x2 = c2.radius * c2.sin_mu;
+    double delta_y2 = c2.radius * c2.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1180,11 +1180,11 @@ public:
   double TceST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin((c2.radius * c2.cos_mu - fabs(1 / c2.kappa)) / distance));
+    double alpha = asin((c2.radius * c2.cos_mu - fabs(c2.kappa_inv)) / distance);
     double delta_x1 = 0.0;
-    double delta_y1 = fabs(1 / c2.kappa);
-    double delta_x2 = fabs(c2.radius * c2.sin_mu);
-    double delta_y2 = fabs(c2.radius * c2.cos_mu);
+    double delta_y1 = fabs(c2.kappa_inv);
+    double delta_x2 = c2.radius * c2.sin_mu;
+    double delta_y2 = c2.radius * c2.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1248,7 +1248,7 @@ public:
     {
       return false;
     }
-    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu + 1 / fabs(c2.kappa), 2));
+    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu + fabs(c2.kappa_inv), 2));
   }
 
   bool TeScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1261,7 +1261,7 @@ public:
     {
       return false;
     }
-    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu - 1 / fabs(c2.kappa), 2));
+    return distance >= sqrt(pow(c2.radius * c2.sin_mu, 2) + pow(c2.radius * c2.cos_mu - fabs(c2.kappa_inv), 2));
   }
 
   bool TScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1272,11 +1272,11 @@ public:
   double TiScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2, Configuration **q3) const
   {
-    double alpha = fabs(asin((c2.radius * c2.cos_mu + fabs(1 / c2.kappa)) / distance));
-    double delta_x1 = fabs(c2.radius * c2.sin_mu);
-    double delta_y1 = fabs(c2.radius * c2.cos_mu);
+    double alpha = asin((c2.radius * c2.cos_mu + fabs(c2.kappa_inv)) / distance);
+    double delta_x1 = c2.radius * c2.sin_mu;
+    double delta_y1 = c2.radius * c2.cos_mu;
     double delta_x2 = 0.0;
-    double delta_y2 = fabs(1 / c2.kappa);
+    double delta_y2 = fabs(c2.kappa_inv);
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1319,11 +1319,11 @@ public:
   double TeScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                     Configuration **q1, Configuration **q2, Configuration **q3) const
   {
-    double alpha = fabs(asin((c2.radius * c2.cos_mu - fabs(1 / c2.kappa)) / distance));
-    double delta_x1 = fabs(c2.radius * c2.sin_mu);
-    double delta_y1 = fabs(c2.radius * c2.cos_mu);
+    double alpha = asin((c2.radius * c2.cos_mu - fabs(c2.kappa_inv)) / distance);
+    double delta_x1 = c2.radius * c2.sin_mu;
+    double delta_y1 = c2.radius * c2.cos_mu;
     double delta_x2 = 0.0;
-    double delta_y2 = fabs(1 / c2.kappa);
+    double delta_y2 = fabs(c2.kappa_inv);
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1388,7 +1388,7 @@ public:
     {
       return false;
     }
-    return distance > fabs(2 / c2.kappa);
+    return distance > 2 * fabs(c2.kappa_inv);
   }
 
   bool TceScT_exists(const HC_CC_Circle &c1, const HC_CC_Circle &c2) const
@@ -1412,9 +1412,9 @@ public:
   double TciScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, HC_CC_Circle **cstart, HC_CC_Circle **cend,
                      Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 / (c2.kappa * distance)));
+    double alpha = asin(2 / (fabs(c2.kappa) * distance));
     double delta_x = 0.0;
-    double delta_y = fabs(1 / c2.kappa);
+    double delta_y = fabs(c2.kappa_inv);
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1457,7 +1457,7 @@ public:
                      Configuration **q1, Configuration **q2) const
   {
     double delta_x = 0.0;
-    double delta_y = fabs(1 / c2.kappa);
+    double delta_y = fabs(c2.kappa_inv);
     double theta = angle;
     double x, y;
     if (c1.left && c1.forward)

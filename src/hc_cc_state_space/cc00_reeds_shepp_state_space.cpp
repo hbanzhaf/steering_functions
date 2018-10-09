@@ -110,7 +110,7 @@ public:
   {
     double distance = center_distance(c1, c2);
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(c1.radius, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(c1.radius, 2) - pow(delta_x, 2));
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
     double x, y, theta;
     if (c1.left)
@@ -170,7 +170,7 @@ public:
     double theta = angle;
     double r = 2 * c1.radius * c1.cos_mu;
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(r, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -240,7 +240,7 @@ public:
     double r1 = 2 * c1.radius * c1.cos_mu;
     double r2 = 2 * c1.radius;
     double delta_x = (pow(r1, 2) + pow(distance, 2) - pow(r2, 2)) / (2 * distance);
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -310,7 +310,7 @@ public:
     double r1 = 2 * c1.radius;
     double r2 = 2 * c1.radius * c1.cos_mu;
     double delta_x = (pow(r1, 2) + pow(distance, 2) - pow(r2, 2)) / (2 * distance);
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -397,9 +397,9 @@ public:
   {
     double distance = center_distance(c1, c2);
     double angle = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = asin(2 * c1.radius * c1.cos_mu / distance);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -438,8 +438,8 @@ public:
   void TeST_tangent_circles(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1,
                             Configuration **q2) const
   {
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double theta = atan2(c2.yc - c1.yc, c2.xc - c1.xc);
     double x, y;
     if (c1.left && c1.forward)
@@ -790,12 +790,12 @@ public:
     if (distance < 2 * c1.radius * (-c1.cos_mu + 2))
     {
       delta_x = (distance + r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
+      delta_y = sqrt(pow(r2, 2) - pow(delta_x, 2));
     }
     else
     {
       delta_x = (distance - r1) / 2;
-      delta_y = sqrt(fabs((pow(r2, 2) - pow(delta_x, 2))));
+      delta_y = sqrt(pow(r2, 2) - pow(delta_x, 2));
     }
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -885,7 +885,7 @@ public:
     double r1 = 2 * c1.radius * c1.cos_mu;
     double r2 = c1.radius;
     double delta_x = (pow(r1, 2) + pow(distance / 2, 2) - pow(r2, 2)) / distance;
-    double delta_y = sqrt(fabs(pow(r1, 2) - pow(delta_x, 2)));
+    double delta_y = sqrt(pow(r1, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -976,7 +976,7 @@ public:
     double theta = angle;
     double r = 2 * c1.radius;
     double delta_x = 0.5 * distance;
-    double delta_y = sqrt(fabs(pow(delta_x, 2) - pow(r, 2)));
+    double delta_y = sqrt(pow(r, 2) - pow(delta_x, 2));
     double x, y;
 
     global_frame_change(c1.xc, c1.yc, theta, delta_x, delta_y, &x, &y);
@@ -1059,9 +1059,9 @@ public:
 
   double TciST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = asin(2 * c1.radius * c1.cos_mu / distance);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1101,8 +1101,8 @@ public:
   double TceST_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y;
     if (c1.left && c1.forward)
     {
@@ -1182,9 +1182,9 @@ public:
 
   double TiScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = asin(2 * c1.radius * c1.cos_mu / distance);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1224,8 +1224,8 @@ public:
   double TeScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y;
     if (c1.left && c1.forward)
     {
@@ -1305,9 +1305,9 @@ public:
 
   double TciScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
-    double alpha = fabs(asin(2 * c1.radius * c1.cos_mu / distance));
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double alpha = asin(2 * c1.radius * c1.cos_mu / distance);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y, theta;
     if (c1.left && c1.forward)
     {
@@ -1347,8 +1347,8 @@ public:
   double TceScT_path(const HC_CC_Circle &c1, const HC_CC_Circle &c2, Configuration **q1, Configuration **q2) const
   {
     double theta = angle;
-    double delta_x = fabs(c1.radius * c1.sin_mu);
-    double delta_y = fabs(c1.radius * c1.cos_mu);
+    double delta_x = c1.radius * c1.sin_mu;
+    double delta_y = c1.radius * c1.cos_mu;
     double x, y;
     if (c1.left && c1.forward)
     {

@@ -29,6 +29,7 @@ void HC_CC_Circle_Param::set_param(double _kappa, double _sigma, double _radius,
                                    double _cos_mu, double _delta_min)
 {
   kappa = _kappa;
+  kappa_inv = 1 / _kappa;
   sigma = _sigma;
   radius = _radius;
   mu = _mu;
@@ -48,8 +49,9 @@ HC_CC_Circle::HC_CC_Circle(const Configuration &_start, bool _left, bool _forwar
   double delta_y = _param.radius * _param.cos_mu;
   if (left)
   {
-    kappa = fabs(_param.kappa);
-    sigma = fabs(_param.sigma);
+    kappa = _param.kappa;
+    kappa_inv = _param.kappa_inv;
+    sigma = _param.sigma;
     if (forward)
       global_frame_change(_start.x, _start.y, _start.theta, delta_x, delta_y, &xc, &yc);
     else
@@ -57,8 +59,9 @@ HC_CC_Circle::HC_CC_Circle(const Configuration &_start, bool _left, bool _forwar
   }
   else
   {
-    kappa = -fabs(_param.kappa);
-    sigma = -fabs(_param.sigma);
+    kappa = -_param.kappa;
+    kappa_inv = -_param.kappa_inv;
+    sigma = -_param.sigma;
     if (forward)
       global_frame_change(_start.x, _start.y, _start.theta, delta_x, -delta_y, &xc, &yc);
     else
@@ -80,13 +83,15 @@ HC_CC_Circle::HC_CC_Circle(double _xc, double _yc, bool _left, bool _forward, bo
   regular = _regular;
   if (left)
   {
-    kappa = fabs(_param.kappa);
-    sigma = fabs(_param.sigma);
+    kappa = _param.kappa;
+    kappa_inv = _param.kappa_inv;
+    sigma = _param.sigma;
   }
   else
   {
-    kappa = -fabs(_param.kappa);
-    sigma = -fabs(_param.sigma);
+    kappa = -_param.kappa;
+    kappa_inv = -_param.kappa_inv;
+    sigma = -_param.sigma;
   }
   xc = _xc;
   yc = _yc;
@@ -128,12 +133,12 @@ double HC_CC_Circle::rs_turn_length(const Configuration &q) const
   // irregular rs-turn
   if (!this->regular && (delta > PI))
   {
-    return fabs((TWO_PI - delta) / this->kappa);
+    return fabs((TWO_PI - delta) * this->kappa_inv);
   }
   // regular rs-turn
   else
   {
-    return fabs(delta / this->kappa);
+    return fabs(delta * this->kappa_inv);
   }
 }
 
@@ -145,24 +150,24 @@ double HC_CC_Circle::hc_turn_length(const Configuration &q) const
   double length_min = fabs(this->kappa / this->sigma);
   double length_arc;
   // regular hc-turn
-  if (this->regular && (delta < delta_min / 2.0))
+  if (this->regular && (delta < 0.5 * delta_min))
   {
-    length_arc = fabs((TWO_PI + delta - delta_min / 2.0) / this->kappa);
+    length_arc = fabs((TWO_PI + delta - 0.5 * delta_min) * this->kappa_inv);
   }
   // irregular hc-turn
-  else if (!this->regular && (delta < delta_min / 2.0))
+  else if (!this->regular && (delta < 0.5 * delta_min))
   {
-    length_arc = fabs((-delta + delta_min / 2.0) / this->kappa);
+    length_arc = fabs((-delta + 0.5 * delta_min) * this->kappa_inv);
   }
   // irregular hc-turn
-  else if (!this->regular && (delta > delta_min / 2.0 + PI))
+  else if (!this->regular && (delta > 0.5 * delta_min + PI))
   {
-    length_arc = fabs((TWO_PI - delta + delta_min / 2.0) / this->kappa);
+    length_arc = fabs((TWO_PI - delta + 0.5 * delta_min) * this->kappa_inv);
   }
   // regular hc-turn
   else
   {
-    length_arc = fabs((delta - delta_min / 2.0) / this->kappa);
+    length_arc = fabs((delta - 0.5 * delta_min) * this->kappa_inv);
   }
   return length_min + length_arc;
 }
@@ -173,9 +178,9 @@ double HC_CC_Circle::cc_turn_length(const Configuration &q) const
   double delta;
   this->deflection(q, &delta);
   // straight line
-  if (fabs(delta) < get_epsilon())
+  if (delta < get_epsilon())
   {
-    return fabs(2 * this->radius * this->sin_mu);
+    return 2 * this->radius * this->sin_mu;
   }
   // elementary path
   if (delta < delta_min)
@@ -189,12 +194,12 @@ double HC_CC_Circle::cc_turn_length(const Configuration &q) const
   // irregular cc-turn
   if (!this->regular && (delta > delta_min + PI))
   {
-    return length_min + fabs((TWO_PI - delta + delta_min) / this->kappa);
+    return length_min + fabs((TWO_PI - delta + delta_min) * this->kappa_inv);
   }
   // regular cc-turn
   else
   {
-    return length_min + fabs((delta - delta_min) / this->kappa);
+    return length_min + fabs((delta - delta_min) * this->kappa_inv);
   }
 }
 
