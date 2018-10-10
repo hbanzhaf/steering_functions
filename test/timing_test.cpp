@@ -40,6 +40,7 @@
 using namespace std;
 using namespace steer;
 
+#define EPS_KAPPA 1e-3                   // [1/m]
 #define KAPPA 1.0                        // [1/m]
 #define SIGMA 1.0                        // [1/m^2]
 #define DISCRETIZATION 0.1               // [m]
@@ -65,6 +66,7 @@ struct Statistic
   State goal;
   double computation_time;
   double path_length;
+  int curv_discont;
 };
 
 State get_random_state()
@@ -95,6 +97,19 @@ double get_std(const vector<double>& v)
   return sqrt(diff_sq / v.size());
 }
 
+int get_curv_discont(const vector<Control>& controls)
+{
+  int curv_discont = 0;
+  vector<Control>::const_iterator iter1 = controls.begin();
+  for (vector<Control>::const_iterator iter2 = next(controls.begin()); iter2 != controls.end(); ++iter2)
+  {
+    if (fabs(iter1->kappa + iter1->sigma * fabs(iter1->delta_s) - iter2->kappa) > EPS_KAPPA)
+      ++curv_discont;
+    iter1 = iter2;
+  }
+  return curv_discont;
+}
+
 void write_to_file(const string& id, const vector<Statistic>& stats)
 {
   string path_to_output = ros::package::getPath("steering_functions") + "/test/" + id + "_stats.csv";
@@ -109,7 +124,7 @@ void write_to_file(const string& id, const vector<Statistic>& stats)
     State goal = stat.goal;
     f << start.x << " " << start.y << " " << start.theta << " " << start.kappa << " " << start.d << ",";
     f << goal.x << " " << goal.y << " " << goal.theta << " " << goal.kappa << " " << goal.d << ",";
-    f << stat.computation_time << "," << stat.path_length << endl;
+    f << stat.computation_time << "," << stat.path_length << "," << stat.curv_discont << endl;
   }
 }
 
@@ -136,103 +151,118 @@ vector<Statistic> get_controls(const string& id, const vector<State>& starts, co
   vector<Statistic> stats;
   stats.reserve(SAMPLES);
   double path_length;
+  int curv_discont;
   for (auto start = starts.begin(), goal = goals.begin(); start != starts.end(); ++start, ++goal)
   {
     if (id == "CC_Dubins")
     {
       clock_start = clock();
-      cc_dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> cc_dubins_forwards_controls = cc_dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = cc_dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(cc_dubins_forwards_controls);
     }
     else if (id == "CC00_Dubins")
     {
       clock_start = clock();
-      cc00_dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> cc00_dubins_forwards_controls = cc00_dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = cc00_dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(cc00_dubins_forwards_controls);
     }
     else if (id == "CC0pm_Dubins")
     {
       clock_start = clock();
-      cc0pm_dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> cc0pm_dubins_forwards_controls = cc0pm_dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = cc0pm_dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(cc0pm_dubins_forwards_controls);
     }
     else if (id == "CCpm0_Dubins")
     {
       clock_start = clock();
-      ccpm0_dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> ccpm0_dubins_forwards_controls = ccpm0_dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = ccpm0_dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(ccpm0_dubins_forwards_controls);
     }
     else if (id == "CCpmpm_Dubins")
     {
       clock_start = clock();
-      ccpmpm_dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> ccpmpm_dubins_forwards_controls = ccpmpm_dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = ccpmpm_dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(ccpmpm_dubins_forwards_controls);
     }
     else if (id == "Dubins")
     {
       clock_start = clock();
-      dubins_forwards_ss.get_controls(*start, *goal);
+      vector<Control> dubins_forwards_controls = dubins_forwards_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = dubins_forwards_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(dubins_forwards_controls);
     }
     else if (id == "CC00_RS")
     {
       clock_start = clock();
-      cc00_rs_ss.get_controls(*start, *goal);
+      vector<Control> cc00_rs_controls = cc00_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = cc00_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(cc00_rs_controls);
     }
     else if (id == "HC_RS")
     {
       clock_start = clock();
-      hc_rs_ss.get_controls(*start, *goal);
+      vector<Control> hc_rs_controls = hc_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = hc_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(hc_rs_controls);
     }
     else if (id == "HC00_RS")
     {
       clock_start = clock();
-      hc00_rs_ss.get_controls(*start, *goal);
+      vector<Control> hc00_rs_controls = hc00_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = hc00_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(hc00_rs_controls);
     }
     else if (id == "HC0pm_RS")
     {
       clock_start = clock();
-      hc0pm_rs_ss.get_controls(*start, *goal);
+      vector<Control> hc0pm_rs_controls = hc0pm_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = hc0pm_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(hc0pm_rs_controls);
     }
     else if (id == "HCpm0_RS")
     {
       clock_start = clock();
-      hcpm0_rs_ss.get_controls(*start, *goal);
+      vector<Control> hcpm0_rs_controls = hcpm0_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = hcpm0_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(hcpm0_rs_controls);
     }
     else if (id == "HCpmpm_RS")
     {
       clock_start = clock();
-      hcpmpm_rs_ss.get_controls(*start, *goal);
+      vector<Control> hcpmpm_rs_controls = hcpmpm_rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = hcpmpm_rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(hcpmpm_rs_controls);
     }
     else if (id == "RS")
     {
       clock_start = clock();
-      rs_ss.get_controls(*start, *goal);
+      vector<Control> rs_controls = rs_ss.get_controls(*start, *goal);
       clock_finish = clock();
       path_length = rs_ss.get_distance(*start, *goal);
+      curv_discont = get_curv_discont(rs_controls);
     }
     stat.start = *start;
     stat.goal = *goal;
     stat.computation_time = double(clock_finish - clock_start) / CLOCKS_PER_SEC;
     stat.path_length = path_length;
+    stat.curv_discont = curv_discont;
     stats.push_back(stat);
   }
   return stats;

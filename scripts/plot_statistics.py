@@ -18,12 +18,12 @@
 import os.path
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import FuncFormatter
+from matplotlib.ticker import FuncFormatter, MaxNLocator
 
-CSV_HEADER = "start,goal,computation_time,path_length".split(",")
+CSV_HEADER = "start,goal,computation_time,path_length,curv_discont".split(",")
 
 def to_percent(x, pos):
-    p = str(100 * x)
+    p = "%.1f" % (100 * x)
     return p
 
 def read_csv(filename):
@@ -39,6 +39,7 @@ class Output:
         self.n_samples = None
         self.path_length = []
         self.comp_time = []
+        self.curv_discont = []
 
     def load(self, fpath, fname):
         if not os.path.exists(fpath + fname):
@@ -75,8 +76,10 @@ class Output:
         for stat in stats:
             self.path_length.append(np.float(stat[CSV_HEADER.index("path_length")]))
             self.comp_time.append(np.float(stat[CSV_HEADER.index("computation_time")]))
+            self.curv_discont.append(np.int(stat[CSV_HEADER.index("curv_discont")]))
         self.path_length = np.array(self.path_length)
         self.comp_time = np.array(self.comp_time)
+        self.curv_discont = np.array(self.curv_discont)
         return 1
 
 if __name__ == "__main__":
@@ -126,53 +129,85 @@ if __name__ == "__main__":
     if CC00_RS.load(filepath, "CC00_RS_stats.csv"):
         rs_outputs.append(CC00_RS)
 
+    # computation time
     print("\nComputation Times [µs]: mean ± std\n")
     n_samples = rs_outputs[0].n_samples
     for output in dubins_outputs + rs_outputs:
         assert output.n_samples == n_samples
-        print(output.id + ":", np.average(output.comp_time) * 1e6, "±", np.std(output.comp_time) * 1e6)
+        print(output.id + ": %.2f ± %.2f" % (np.average(output.comp_time) * 1e6, np.std(output.comp_time) * 1e6))
 
-    dubins_hist = []
-    dubins_labels = []
+    # path length
+    dubins_path_length_hist = []
+    dubins_path_length_labels = []
     for output in dubins_outputs:
         if output.id != "Dubins":
             rel_path_length = (output.path_length - Dubins.path_length) / Dubins.path_length
-            dubins_hist.append(rel_path_length)
-            dubins_labels.append(output.id)
+            dubins_path_length_hist.append(rel_path_length)
+            dubins_path_length_labels.append(output.id)
 
-    rs_hist = []
-    rs_labels = []
+    rs_path_length_hist = []
+    rs_path_length_labels = []
     for output in rs_outputs:
         if output.id != "RS":
             rel_path_length = (output.path_length - RS.path_length) / RS.path_length
-            rs_hist.append(rel_path_length)
-            rs_labels.append(output.id)
+            rs_path_length_hist.append(rel_path_length)
+            rs_path_length_labels.append(output.id)
 
+    # plot
+    f, axarr = plt.subplots(2, 2, figsize=(10, 8), sharey=True)
+    f.subplots_adjust(wspace=.4, hspace=.3)
+    weights = np.ones(n_samples, dtype='float') / n_samples
 
-    # plot histograms
-    f, (ax1, ax2) = plt.subplots(1, 2, figsize=(10,4), sharey=True)
-    f.subplots_adjust(wspace=.5)
-    formatter = FuncFormatter(to_percent)
-    weight = np.ones(n_samples, dtype='float')/n_samples
+    # path length histograms
+    xlim = (0.0, 0.4)
+    axarr[0, 0].plot([], [])  # advance color cycle once
+    axarr[0, 0].hist(dubins_path_length_hist, bins=9, range=xlim, weights=[weights]*len(dubins_path_length_hist),
+                     label=dubins_path_length_labels, linewidth=.1)
+    axarr[0, 0].legend(loc='best')
+    axarr[0, 0].set_xlim(xlim)
+    axarr[0, 0].grid('on')
+    axarr[0, 0].set_xlabel('Rel. Difference in Path Length to Dubins [%]')
+    axarr[0, 0].set_ylabel('Normalized Frequency [%]')
+    axarr[0, 0].xaxis.set_major_formatter(FuncFormatter(to_percent))
+    axarr[0, 0].yaxis.set_major_formatter(FuncFormatter(to_percent))
 
-    ax1.hist(dubins_hist, bins=370, weights=[weight]*len(dubins_hist), label=dubins_labels, linewidth=.1)
-    ax1.legend(loc='best')
-    ax1.set_xlim([0, 0.4])
-    ax1.grid('on')
-    ax1.set_xlabel('Rel. Difference in Path Length to Dubins [%]')
-    ax1.set_ylabel('Normalized Frequency [%]')
-    ax1.xaxis.set_major_formatter(formatter)
-    ax1.yaxis.set_major_formatter(formatter)
+    axarr[0, 1].plot([], [])  # advance color cycle once
+    axarr[0, 1].hist(rs_path_length_hist, bins=9, range=xlim, weights=[weights]*len(rs_path_length_hist),
+                     label=rs_path_length_labels, linewidth=.1)
+    axarr[0, 1].legend(loc='best')
+    axarr[0, 1].set_xlim(xlim)
+    axarr[0, 1].grid('on')
+    axarr[0, 1].set_xlabel('Rel. Difference in Path Length to Reeds-Shepp [%]')
+    axarr[0, 1].set_ylabel('Normalized Frequency [%]')
+    plt.setp(axarr[0, 1].get_yticklabels(), visible=True)
+    axarr[0, 1].xaxis.set_major_formatter(FuncFormatter(to_percent))
+    axarr[0, 1].yaxis.set_major_formatter(FuncFormatter(to_percent))
 
-    ax2.hist(rs_hist, bins=300, weights=[weight]*len(rs_hist), label=rs_labels, linewidth=.1)
-    ax2.legend(loc='best')
-    ax2.set_xlim([0, 0.4])
-    ax2.grid('on')
-    ax2.set_xlabel('Rel. Difference in Path Length to Reeds-Shepp [%]')
-    ax2.set_ylabel('Normalized Frequency [%]')
-    plt.setp(ax2.get_yticklabels(), visible=True)
-    ax2.xaxis.set_major_formatter(formatter)
-    ax2.yaxis.set_major_formatter(formatter)
+    # curvature discont. histrograms
+    width = 0.06
+    for i, output in enumerate(dubins_outputs):
+        hist, bin_edges = np.histogram(output.curv_discont, weights=weights, bins=range(4))
+        axarr[1, 0].bar(bin_edges[:-1] + width*(i - len(dubins_outputs)/2.0), hist, width=width, label=output.id)
+    axarr[1, 0].legend(loc='best')
+    axarr[1, 0].set_xlim(right=4)
+    axarr[1, 0].grid('on')
+    axarr[1, 0].set_xlabel('Number of Curvature Discontinuities [-]')
+    axarr[1, 0].set_ylabel('Normalized Frequency [%]')
+    axarr[1, 0].xaxis.set_major_locator(MaxNLocator(integer=True))
+    axarr[1, 0].yaxis.set_major_formatter(FuncFormatter(to_percent))
 
-    # f.savefig('../doc/images/path_length_comparison.png', bbox_inches='tight', pad_inches=0)
+    width = 0.08
+    for i, output in enumerate(rs_outputs):
+        hist, bin_edges = np.histogram(output.curv_discont, weights=weights, bins=range(6))
+        axarr[1, 1].bar(bin_edges[:-1] + width*(i - len(rs_outputs)/2.0), hist, width=width, label=output.id)
+    axarr[1, 1].legend(loc='best')
+    axarr[1, 1].set_xlim(right=5)
+    axarr[1, 1].grid('on')
+    axarr[1, 1].set_xlabel('Number of Curvature Discontinuities [-]')
+    axarr[1, 1].set_ylabel('Normalized Frequency [%]')
+    plt.setp(axarr[1, 1].get_yticklabels(), visible=True)
+    axarr[1, 1].xaxis.set_major_locator(MaxNLocator(integer=True))
+    axarr[1, 1].yaxis.set_major_formatter(FuncFormatter(to_percent))
+
+    # f.savefig('../doc/images/statistics.png', bbox_inches='tight', pad_inches=0)
     plt.show()

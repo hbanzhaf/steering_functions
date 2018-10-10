@@ -135,10 +135,10 @@ Depending on the two superscripts in the name of the steering function (see Sect
 Additionally, the steering functions CC-Dubins and HC-Reeds-Shepp compute a path that takes into account an arbitrary start and goal curvature specified by the user.
 
 
-### Path Length Comparison
-Since CC-Dubins, CC-Reeds-Shepp, and HC-Reeds-Shepp do not satisfy any strict optimization criterion anymore, the following two histograms compare them against their optimal counterpart (10<sup>5</sup> random steering procedures, max. curvature = 1 m<sup>-1</sup>, max. sharpness = 1 m<sup>-2</sup>.):
+### Statistics
+A benchmark of the G<sup>2</sup> continuous steering functions against their G<sup>1</sup> continuous counterpart is illustrated in the following histograms (10<sup>5</sup> random steering procedures, max. curvature = 1 m<sup>-1</sup>, max. sharpness = 1 m<sup>-2</sup>.). The first row shows a comparison of the path length, and the second row compares the number of curvature discontinuities in the computed path:
 
-![Path Length Comparison](doc/images/path_length_comparison.png)
+![Statistics](doc/images/statistics.png)
 
 
 ### Computation Times
