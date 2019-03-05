@@ -37,7 +37,7 @@ standards (e.g. ISO 26262).
 ## Publications
 If you use one of the above steering functions in your work, please cite the appropriate publication:
 
-[1] H. Banzhaf et al., **"From Footprints to Beliefprints: Motion Planning under Uncertainty for Maneuvering Automated Vehicles in Dense Scenarios,"** (to be published).
+[1] H. Banzhaf et al., **"From Footprints to Beliefprints: Motion Planning under Uncertainty for Maneuvering Automated Vehicles in Dense Scenarios,"** in IEEE International Conference on Intelligent Transportation Systems, 2018.
 
 [2] H. Banzhaf et al., **"Hybrid Curvature Steer: A Novel Extend Function for Sampling-Based Nonholonomic Motion Planning in Tight Environments,"** in IEEE International Conference on Intelligent Transportation Systems, 2017.
 
