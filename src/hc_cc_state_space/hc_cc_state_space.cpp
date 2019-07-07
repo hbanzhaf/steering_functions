@@ -46,7 +46,7 @@ HC_CC_State_Space::HC_CC_State_Space(double kappa, double sigma, double discreti
   double sin_mu = sin(mu);
   double cos_mu = cos(mu);
   // delta_min
-  double delta_min = twopify(0.5 * pow(kappa, 2) / sigma);
+  double delta_min = 0.5 * pow(kappa, 2) / sigma;
   // assign
   hc_cc_circle_param_.set_param(kappa, sigma, radius, mu, sin_mu, cos_mu, delta_min);
 }

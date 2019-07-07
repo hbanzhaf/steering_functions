@@ -68,13 +68,28 @@ public:
   HC_CC_Circle(double _xc, double _yc, bool _left, bool _forward, bool _regular, const HC_CC_Circle_Param &_param);
 
   /** \brief Computation of deflection (angle between start configuration of circle and configuration q) */
-  void deflection(const Configuration &q, double *delta) const;
+  double deflection(const Configuration &q) const;
+
+  /** \brief Calculation of D1 for the evaluation of an elementary path */
+  double D1(double alpha) const;
+
+  /** \brief Computation of a rs-turn's circular deflection */
+  double rs_circular_deflection(double delta) const;
 
   /** \brief Length of a rs-turn */
   double rs_turn_length(const Configuration &q) const;
 
+  /** \brief Computation of a hc-turn's circular deflection */
+  double hc_circular_deflection(double delta) const;
+
   /** \brief Length of a hc-turn */
   double hc_turn_length(const Configuration &q) const;
+
+  /** \brief Computation of an elementary path's sharpness */
+  bool cc_elementary_sharpness(const Configuration &q, double delta, double &sigma0) const;
+
+  /** \brief Computation of a cc-turn's circular deflection */
+  double cc_circular_deflection(double delta) const;
 
   /** \brief Length of a cc-turn */
   double cc_turn_length(const Configuration &q) const;

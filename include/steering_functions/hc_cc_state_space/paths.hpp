@@ -30,6 +30,7 @@
 #include <iostream>
 #include <limits>
 #include <vector>
+#include <numeric>
 
 #include "configuration.hpp"
 #include "hc_cc_circle.hpp"
@@ -170,6 +171,14 @@ void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
 
 /** \brief Appends controls with a hc-turn */
 void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls);
+
+/** \brief Appends controls with an elementary path if one exists */
+bool cc_elementary_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
+                            vector<Control> &controls);
+
+/** \brief Appends controls with a default cc-turn consisting of two clothoids and a circular arc */
+void cc_default_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
+                         vector<Control> &controls);
 
 /** \brief Appends controls with a cc-turn */
 void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls);

@@ -102,104 +102,165 @@ HC_CC_Circle::HC_CC_Circle(double _xc, double _yc, bool _left, bool _forward, bo
   delta_min = _param.delta_min;
 }
 
-void HC_CC_Circle::deflection(const Configuration &q, double *delta) const
+double HC_CC_Circle::deflection(const Configuration &q) const
 {
   double alpha_c = this->start.theta;
   double alpha_q = q.theta;
   if (this->left && this->forward)
   {
-    *delta = twopify(alpha_q - alpha_c);
+    return twopify(alpha_q - alpha_c);
   }
   if (this->left && !this->forward)
   {
-    *delta = twopify(alpha_c - alpha_q);
+    return twopify(alpha_c - alpha_q);
   }
   if (!this->left && this->forward)
   {
-    *delta = twopify(alpha_c - alpha_q);
+    return twopify(alpha_c - alpha_q);
   }
   if (!this->left && !this->forward)
   {
-    *delta = twopify(alpha_q - alpha_c);
+    return twopify(alpha_q - alpha_c);
   }
+}
+
+double HC_CC_Circle::D1(double alpha) const
+{
+  double fresnel_s, fresnel_c;
+  double s = sqrt(2 * alpha / PI);
+  fresnel(s, fresnel_s, fresnel_c);
+  return cos(alpha) * fresnel_c + sin(alpha) * fresnel_s;
+}
+
+double HC_CC_Circle::rs_circular_deflection(double delta) const
+{
+  // regular rs-turn
+  if (this->regular)
+    return delta;
+  // irregular rs-turn
+  else
+    return (delta <= PI) ? delta : delta - TWO_PI;
 }
 
 double HC_CC_Circle::rs_turn_length(const Configuration &q) const
 {
   assert(fabs(fabs(this->kappa) - fabs(q.kappa)) < get_epsilon() &&
          fabs(fabs(this->sigma) - numeric_limits<double>::max()) < get_epsilon());
-  double delta;
-  this->deflection(q, &delta);
-  // irregular rs-turn
-  if (!this->regular && (delta > PI))
+  double delta = this->deflection(q);
+  return fabs(this->kappa_inv * this->rs_circular_deflection(delta));
+}
+
+double HC_CC_Circle::hc_circular_deflection(double delta) const
+{
+  double delta_min_twopified = twopify(this->delta_min);
+  // regular hc-turn
+  if (this->regular)
   {
-    return fabs((TWO_PI - delta) * this->kappa_inv);
+    if (delta < delta_min_twopified)
+      return TWO_PI + delta - delta_min_twopified;
+    else
+      return delta - delta_min_twopified;
   }
-  // regular rs-turn
+  // irregular hc-turn
   else
   {
-    return fabs(delta * this->kappa_inv);
+    double delta_arc1, delta_arc2;
+    if (delta < delta_min_twopified)
+    {
+      delta_arc1 = delta - delta_min_twopified;  // negative
+      delta_arc2 = delta_arc1 + TWO_PI;          // positive
+    }
+    else
+    {
+      delta_arc1 = delta - delta_min_twopified;  // positive
+      delta_arc2 = delta_arc1 - TWO_PI;          // negative
+    }
+    return (fabs(delta_arc1) < fabs(delta_arc2)) ? delta_arc1 : delta_arc2;
   }
 }
 
 double HC_CC_Circle::hc_turn_length(const Configuration &q) const
 {
   assert(fabs(fabs(this->kappa) - fabs(q.kappa)) < get_epsilon());
-  double delta;
-  this->deflection(q, &delta);
-  double length_min = fabs(this->kappa / this->sigma);
-  double length_arc;
-  // regular hc-turn
-  if (this->regular && (delta < delta_min))
+  double delta = this->deflection(q);
+  return fabs(this->kappa / this->sigma) + fabs(this->kappa_inv * this->hc_circular_deflection(delta));
+}
+
+bool HC_CC_Circle::cc_elementary_sharpness(const Configuration &q, double delta, double &sigma0) const
+{
+  double distance = point_distance(this->start.x, this->start.y, q.x, q.y);
+  //   existence conditions for an elementary path (also see: A. Scheuer and T. Fraichard, "Continuous-Curvature Path
+  //   Planning for Car-Like Vehicles," in IEEE/RSJ International Conference on Intelligent Robots and Systems, 1997.
+  if (delta < 4.5948 && distance > get_epsilon())
   {
-    length_arc = fabs((TWO_PI + delta - delta_min) * this->kappa_inv);
+    sigma0 = 4 * PI * pow(this->D1(0.5 * delta), 2) / pow(distance, 2);
+    if (!this->left)
+    {
+      sigma0 = -sigma0;
+    }
+    return true;
   }
-  // irregular hc-turn
-  else if (!this->regular && (delta < delta_min))
+  return false;
+}
+
+double HC_CC_Circle::cc_circular_deflection(double delta) const
+{
+  double two_delta_min_twopified = twopify(2 * this->delta_min);
+  // regular cc-turn
+  if (this->regular)
   {
-    length_arc = fabs((-delta + delta_min) * this->kappa_inv);
+    if (delta < two_delta_min_twopified)
+      return TWO_PI + delta - two_delta_min_twopified;
+    else
+      return delta - two_delta_min_twopified;
   }
-  // irregular hc-turn
-  else if (!this->regular && (delta > delta_min + PI))
-  {
-    length_arc = fabs((TWO_PI - delta + delta_min) * this->kappa_inv);
-  }
-  // regular hc-turn
+  // irregular cc-turn
   else
   {
-    length_arc = fabs((delta - delta_min) * this->kappa_inv);
+    double delta_arc1, delta_arc2;
+    if (delta < two_delta_min_twopified)
+    {
+      delta_arc1 = delta - two_delta_min_twopified;  // negative
+      delta_arc2 = delta_arc1 + TWO_PI;              // positive
+    }
+    else
+    {
+      delta_arc1 = delta - two_delta_min_twopified;  // positive
+      delta_arc2 = delta_arc1 - TWO_PI;              // negative
+    }
+    return (fabs(delta_arc1) < fabs(delta_arc2)) ? delta_arc1 : delta_arc2;
   }
-  return length_min + length_arc;
 }
 
 double HC_CC_Circle::cc_turn_length(const Configuration &q) const
 {
   assert(fabs(q.kappa) < get_epsilon());
-  double delta;
-  this->deflection(q, &delta);
-  // straight line
+  double delta = this->deflection(q);
+  // delta = 0
   if (delta < get_epsilon())
   {
     return 2 * this->radius * this->sin_mu;
   }
-  // elementary path
-  if (delta < 2 * delta_min)
-  {
-    double d1 = D1(delta / 2);
-    double d2 = point_distance(this->start.x, this->start.y, q.x, q.y);
-    double sharpness = 4 * PI * pow(d1, 2) / pow(d2, 2);
-    return 2 * sqrt(delta / sharpness);
-  }
+  // 0 < delta < 2 * delta_min
   double length_min = fabs(this->kappa / this->sigma);
-  // irregular cc-turn
-  if (!this->regular && (delta > 2 * delta_min + PI))
+  double length_default = 2 * length_min + fabs(this->kappa_inv * this->cc_circular_deflection(delta));
+  if (delta < 2 * this->delta_min)
   {
-    return 2 * length_min + fabs((TWO_PI - delta + 2 * delta_min) * this->kappa_inv);
+    double sigma0;
+    if (this->cc_elementary_sharpness(q, delta, sigma0))
+    {
+      double length_elementary = 2 * sqrt(delta / fabs(sigma0));
+      return (length_elementary < length_default) ? length_elementary : length_default;
+    }
+    else
+    {
+      return length_default;
+    }
   }
-  // regular cc-turn
+  // delta >= 2 * delta_min
   else
   {
-    return 2 * length_min + fabs((delta - 2 * delta_min) * this->kappa_inv);
+    return length_default;
   }
 }
 

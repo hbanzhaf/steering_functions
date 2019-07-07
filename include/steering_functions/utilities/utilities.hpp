@@ -104,9 +104,6 @@ void global_frame_change(double x, double y, double theta, double local_x, doubl
 void local_frame_change(double x, double y, double theta, double global_x, double global_y, double *local_x,
                         double *local_y);
 
-/** \brief Calculation of D1 for an angle alpha between [0, pi] */
-double D1(double alpha);
-
 /** \brief Find index with minimal value in double array */
 int array_index_min(double array[], int size);
 

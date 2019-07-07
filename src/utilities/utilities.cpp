@@ -209,14 +209,6 @@ void local_frame_change(double x, double y, double theta, double global_x, doubl
   *local_y = -(global_x - x) * sin_th + (global_y - y) * cos_th;
 }
 
-double D1(double alpha)
-{
-  double fresnel_s, fresnel_c;
-  double s = sqrt(2 * alpha / PI);
-  fresnel(s, fresnel_s, fresnel_c);
-  return cos(alpha) * fresnel_c + sin(alpha) * fresnel_s;
-}
-
 int array_index_min(double array[], int size)
 {
   double min = array[0];

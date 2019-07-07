@@ -314,25 +314,12 @@ void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
 {
   assert(fabs(fabs(c.kappa) - fabs(q.kappa)) < get_epsilon() &&
          fabs(fabs(c.sigma) - numeric_limits<double>::max()) < get_epsilon());
-  Control arc;
-  double delta;
-  c.deflection(q, &delta);
+  double delta = c.deflection(q);
+  double length_arc = fabs(c.kappa_inv) * c.rs_circular_deflection(delta);
   int d = direction(c.forward, order);
-  double length_arc;
-  int shift;
-  // irregular rs-turn
-  if (!c.regular && (delta > PI))
-  {
-    shift = -d;
-    length_arc = fabs((TWO_PI - delta) * c.kappa_inv);
-  }
-  // regular rs-turn
-  else
-  {
-    shift = d;
-    length_arc = fabs(delta * c.kappa_inv);
-  }
-  arc.delta_s = shift * length_arc;
+
+  Control arc;
+  arc.delta_s = d * length_arc;
   arc.kappa = c.kappa;
   arc.sigma = 0.0;
   controls.push_back(arc);
@@ -342,38 +329,12 @@ void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
 void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
 {
   assert(fabs(fabs(c.kappa) - fabs(q.kappa)) < get_epsilon());
-  Control clothoid, arc;
-  double delta;
-  c.deflection(q, &delta);
-  int d = direction(c.forward, order);
+  double delta = c.deflection(q);
   double length_min = fabs(c.kappa / c.sigma);
-  double length_arc;
-  int shift;
+  double length_arc = fabs(c.kappa_inv) * c.hc_circular_deflection(delta);
+  int d = direction(c.forward, order);
 
-  // regular hc-turn
-  if (c.regular && (delta < c.delta_min))
-  {
-    shift = d;
-    length_arc = fabs((TWO_PI + delta - c.delta_min) * c.kappa_inv);
-  }
-  // irregular hc-turn
-  else if (!c.regular && (delta < c.delta_min))
-  {
-    shift = -d;
-    length_arc = fabs((-delta + c.delta_min) * c.kappa_inv);
-  }
-  // irregular hc-turn
-  else if (!c.regular && (delta > c.delta_min + PI))
-  {
-    shift = -d;
-    length_arc = fabs((TWO_PI - delta + c.delta_min) * c.kappa_inv);
-  }
-  // regular hc-turn
-  else
-  {
-    shift = d;
-    length_arc = fabs((delta - c.delta_min) * c.kappa_inv);
-  }
+  Control clothoid, arc;
   if (order)
   {
     clothoid.delta_s = d * length_min;
@@ -381,10 +342,12 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     clothoid.sigma = c.sigma;
     controls.push_back(clothoid);
   }
-  arc.delta_s = shift * length_arc;
+
+  arc.delta_s = d * length_arc;
   arc.kappa = c.kappa;
   arc.sigma = 0.0;
   controls.push_back(arc);
+
   if (!order)
   {
     clothoid.delta_s = d * length_min;
@@ -395,66 +358,44 @@ void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   return;
 }
 
-void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
+bool cc_elementary_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
+                            vector<Control> &controls)
 {
-  assert(fabs(q.kappa) < get_epsilon());
-  Control clothoid1, arc, clothoid2;
-  double delta;
-  c.deflection(q, &delta);
-  int d = direction(c.forward, order);
-  // straight line
-  if (delta < get_epsilon())
+  double sigma0;
+  if (c.cc_elementary_sharpness(q, delta, sigma0))
   {
-    if (order)
-      straight_controls(c.start, q, controls);
-    else
-      straight_controls(q, c.start, controls);
-    return;
-  }
-  // elementary path
-  if (delta < 2 * c.delta_min)
-  {
-    double d1 = D1(delta / 2);
-    double d2 = point_distance(c.start.x, c.start.y, q.x, q.y);
-    double sigma = 4 * PI * pow(d1, 2) / pow(d2, 2);
-    double length = sqrt(delta / sigma);
-    if (!c.left)
-    {
-      sigma = -sigma;
-    }
+    double length = sqrt(delta / fabs(sigma0));
+    int d = direction(c.forward, order);
+
+    Control clothoid1, clothoid2;
     clothoid1.delta_s = d * length;
     clothoid1.kappa = 0.0;
-    clothoid1.sigma = sigma;
+    clothoid1.sigma = sigma0;
     controls.push_back(clothoid1);
 
     clothoid2.delta_s = d * length;
-    clothoid2.kappa = sigma * length;
-    clothoid2.sigma = -sigma;
+    clothoid2.kappa = sigma0 * length;
+    clothoid2.sigma = -sigma0;
     controls.push_back(clothoid2);
-    return;
+    return true;
   }
-  // regular and irregular turn
+  return false;
+}
+
+void cc_default_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
+                         vector<Control> &controls)
+{
   double length_min = fabs(c.kappa / c.sigma);
-  double length_arc;
-  int shift;
-  // irregular
-  if (!c.regular && (delta > 2 * c.delta_min + PI))
-  {
-    shift = -d;
-    length_arc = fabs((TWO_PI - delta + 2 * c.delta_min) * c.kappa_inv);
-  }
-  // regular
-  else
-  {
-    shift = d;
-    length_arc = fabs((delta - 2 * c.delta_min) * c.kappa_inv);
-  }
+  double length_arc = fabs(c.kappa_inv) * c.cc_circular_deflection(delta);
+  int d = direction(c.forward, order);
+
+  Control clothoid1, arc, clothoid2;
   clothoid1.delta_s = d * length_min;
   clothoid1.kappa = 0.0;
   clothoid1.sigma = c.sigma;
   controls.push_back(clothoid1);
 
-  arc.delta_s = shift * length_arc;
+  arc.delta_s = d * length_arc;
   arc.kappa = c.kappa;
   arc.sigma = 0.0;
   controls.push_back(arc);
@@ -464,4 +405,49 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
   clothoid2.sigma = -c.sigma;
   controls.push_back(clothoid2);
   return;
+}
+
+void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
+{
+  assert(fabs(q.kappa) < get_epsilon());
+  double delta = c.deflection(q);
+  // delta = 0
+  if (delta < get_epsilon())
+  {
+    if (order)
+      straight_controls(c.start, q, controls);
+    else
+      straight_controls(q, c.start, controls);
+    return;
+  }
+  // 0 < delta < 2 * delta_min
+  else if (delta < 2 * c.delta_min)
+  {
+    vector<Control> controls_elementary, controls_default;
+    if (cc_elementary_controls(c, q, delta, order, controls_elementary))
+    {
+      cc_default_controls(c, q, delta, order, controls_default);
+      double length_elementary =
+          accumulate(controls_elementary.begin(), controls_elementary.end(), 0.0,
+                     [](double sum, const Control &control) { return sum + fabs(control.delta_s); });
+      double length_default =
+          accumulate(controls_default.begin(), controls_default.end(), 0.0,
+                     [](double sum, const Control &control) { return sum + fabs(control.delta_s); });
+      (length_elementary < length_default) ?
+          controls.insert(controls.end(), controls_elementary.begin(), controls_elementary.end()) :
+          controls.insert(controls.end(), controls_default.begin(), controls_default.end());
+      return;
+    }
+    else
+    {
+      cc_default_controls(c, q, delta, order, controls);
+      return;
+    }
+  }
+  // delta >= 2 * delta_min
+  else
+  {
+    cc_default_controls(c, q, delta, order, controls);
+    return;
+  }
 }

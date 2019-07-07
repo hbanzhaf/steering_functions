@@ -224,5 +224,10 @@ if(TARGET jacobian_test)
   target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
 endif()
 
+catkin_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
+if(TARGET hc_cc_circle_test)
+  target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+endif()
+
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
