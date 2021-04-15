@@ -106,21 +106,13 @@ double HC_CC_Circle::deflection(const Configuration &q) const
 {
   double alpha_c = this->start.theta;
   double alpha_q = q.theta;
-  if (this->left && this->forward)
+  if ((this->left && this->forward) || (!this->left && !this->forward))
   {
     return twopify(alpha_q - alpha_c);
   }
-  if (this->left && !this->forward)
+  else
   {
     return twopify(alpha_c - alpha_q);
-  }
-  if (!this->left && this->forward)
-  {
-    return twopify(alpha_c - alpha_q);
-  }
-  if (!this->left && !this->forward)
-  {
-    return twopify(alpha_q - alpha_c);
   }
 }
 

@@ -306,7 +306,7 @@ int direction(bool forward, bool order)
     return -1;
   else if (!forward && order)
     return -1;
-  else if (!forward && !order)
+  else // (!forward && !order)
     return 1;
 }
 
