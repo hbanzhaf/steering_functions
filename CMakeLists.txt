@@ -203,31 +203,32 @@ install(DIRECTORY
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-catkin_add_gtest(steering_functions_test test/steering_functions_test.cpp)
-if(TARGET steering_functions_test)
-  target_link_libraries(steering_functions_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-endif()
+if(CATKIN_ENABLE_TESTING)
+  ## Add gtest based cpp test target and link libraries
+  catkin_add_gtest(steering_functions_test test/steering_functions_test.cpp)
+  if(TARGET steering_functions_test)
+    target_link_libraries(steering_functions_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  endif()
 
-catkin_add_gtest(fresnel_test test/fresnel_test.cpp)
-if(TARGET fresnel_test)
-  target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-endif()
+  catkin_add_gtest(fresnel_test test/fresnel_test.cpp)
+  if(TARGET fresnel_test)
+    target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  endif()
 
-catkin_add_gtest(timing_test test/timing_test.cpp)
-if(TARGET timing_test)
-  target_link_libraries(timing_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-endif()
+  catkin_add_gtest(timing_test test/timing_test.cpp)
+  if(TARGET timing_test)
+    target_link_libraries(timing_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  endif()
 
-catkin_add_gtest(jacobian_test test/jacobian_test.cpp)
-if(TARGET jacobian_test)
-  target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-endif()
+  catkin_add_gtest(jacobian_test test/jacobian_test.cpp)
+  if(TARGET jacobian_test)
+    target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  endif()
 
-catkin_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
-if(TARGET hc_cc_circle_test)
-  target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  catkin_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
+  if(TARGET hc_cc_circle_test)
+    target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+  endif()
 endif()
-
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
