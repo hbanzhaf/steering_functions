@@ -300,14 +300,10 @@ void straight_controls(const Configuration &q1, const Configuration &q2, vector<
 
 int direction(bool forward, bool order)
 {
-  if (forward && order)
+  if ((forward && order) || (!forward && !order))
     return 1;
-  else if (forward && !order)
+  else
     return -1;
-  else if (!forward && order)
-    return -1;
-  else if (!forward && !order)
-    return 1;
 }
 
 void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls)
