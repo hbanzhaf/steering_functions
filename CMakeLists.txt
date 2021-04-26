@@ -230,5 +230,6 @@ if(CATKIN_ENABLE_TESTING)
     target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
   endif()
 endif()
+
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
