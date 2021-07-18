@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>steering_functions</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>The steering_functions package</description>
 
   <maintainer email="holger.banzhaf@de.bosch.com">Holger Banzhaf</maintainer>
