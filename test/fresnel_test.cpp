@@ -15,6 +15,7 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <cmath>
 #include <gtest/gtest.h>
 
 #include "steering_functions/utilities/utilities.hpp"

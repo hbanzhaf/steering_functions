@@ -26,12 +26,7 @@
 #ifndef HC_CC_CIRCLE_HPP
 #define HC_CC_CIRCLE_HPP
 
-#include <cassert>
-#include <iostream>
-#include <limits>
-
-#include "configuration.hpp"
-#include "steering_functions/utilities/utilities.hpp"
+#include "steering_functions/hc_cc_state_space/configuration.hpp"
 
 namespace steering
 {

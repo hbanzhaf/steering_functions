@@ -18,12 +18,9 @@
 #ifndef EKF_HPP
 #define EKF_HPP
 
-#include <iostream>
-
 #include <Eigen/Dense>
 
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

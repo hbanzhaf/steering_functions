@@ -15,7 +15,11 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <algorithm>
+#include <cmath>
+
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

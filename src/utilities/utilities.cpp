@@ -23,6 +23,9 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cassert>
+#include <cmath>
+
 #include "steering_functions/utilities/utilities.hpp"
 
 namespace steering

@@ -23,7 +23,11 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cmath>
+#include <iostream>
+
 #include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

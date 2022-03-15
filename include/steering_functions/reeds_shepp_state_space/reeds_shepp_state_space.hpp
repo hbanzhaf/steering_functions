@@ -61,14 +61,11 @@
 #define __REEDS_SHEPP_STATE_SPACE_HPP_
 
 #include <cassert>
-#include <cmath>
-#include <iostream>
 #include <limits>
 #include <vector>
 
 #include "steering_functions/filter/ekf.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

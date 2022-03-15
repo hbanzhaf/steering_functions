@@ -57,7 +57,11 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
+#include <algorithm>
+#include <cmath>
+
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

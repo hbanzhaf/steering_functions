@@ -57,7 +57,10 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
+#include <cmath>
+
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

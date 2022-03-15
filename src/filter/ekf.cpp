@@ -15,7 +15,10 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <cmath>
+
 #include "steering_functions/filter/ekf.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

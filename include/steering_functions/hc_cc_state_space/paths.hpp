@@ -26,16 +26,12 @@
 #ifndef PATHS_HPP
 #define PATHS_HPP
 
-#include <cassert>
-#include <iostream>
-#include <limits>
-#include <vector>
 #include <numeric>
+#include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
+#include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

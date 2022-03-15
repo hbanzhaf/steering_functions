@@ -18,13 +18,11 @@
 #ifndef HC_CC_STATE_SPACE_HPP
 #define HC_CC_STATE_SPACE_HPP
 
-#include <cmath>
 #include <vector>
 
 #include "steering_functions/filter/ekf.hpp"
 #include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

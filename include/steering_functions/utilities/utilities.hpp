@@ -26,10 +26,6 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
-#include <cassert>
-#include <cmath>
-#include <iostream>
-
 #include "fresnel.data"
 
 #define PI 3.1415926535897932384

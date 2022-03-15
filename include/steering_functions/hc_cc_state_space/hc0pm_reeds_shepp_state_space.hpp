@@ -26,17 +26,13 @@
 #ifndef HC0PM_REEDS_SHEPP_STATE_SPACE_HPP
 #define HC0PM_REEDS_SHEPP_STATE_SPACE_HPP
 
-#include <iostream>
-#include <limits>
 #include <memory>
 #include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
-#include "hc_cc_state_space.hpp"
-#include "paths.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/paths.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {

@@ -26,10 +26,6 @@
 #ifndef CONFIGURATION_HPP
 #define CONFIGURATION_HPP
 
-#include <iostream>
-
-#include "steering_functions/utilities/utilities.hpp"
-
 namespace steering
 {
 

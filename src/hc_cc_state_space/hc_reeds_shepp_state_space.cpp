@@ -15,7 +15,12 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
 #include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
 

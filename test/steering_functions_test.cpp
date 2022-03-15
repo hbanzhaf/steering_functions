@@ -33,6 +33,7 @@
 #include "steering_functions/hc_cc_state_space/hcpm0_reeds_shepp_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/hcpmpm_reeds_shepp_state_space.hpp"
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 #include "steering_functions/steering_functions.hpp"
 
 #define EPS_DISTANCE 0.01                // [m]

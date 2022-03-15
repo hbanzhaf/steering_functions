@@ -18,22 +18,16 @@
 #ifndef CC_DUBINS_STATE_SPACE_HPP
 #define CC_DUBINS_STATE_SPACE_HPP
 
-#include <algorithm>
-#include <iostream>
-#include <limits>
-#include <memory>
+#include <utility>
 #include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
-#include "hc_cc_state_space.hpp"
-#include "paths.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/paths.hpp"
 #include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc0pm_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpm0_dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/ccpmpm_dubins_state_space.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
 namespace steering
 {
