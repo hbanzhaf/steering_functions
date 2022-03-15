@@ -25,6 +25,11 @@
 
 #include "steering_functions/hc_cc_state_space/paths.hpp"
 
+using namespace std;
+
+namespace steering
+{
+
 Path::Path(const Configuration &_start, const Configuration &_end, double _kappa, double _sigma, double _length)
 {
   start = _start;
@@ -447,3 +452,5 @@ void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order,
     return;
   }
 }
+
+} // namespace steering

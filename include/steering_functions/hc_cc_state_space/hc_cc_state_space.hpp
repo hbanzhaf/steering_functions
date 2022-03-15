@@ -26,8 +26,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 class HC_CC_State_Space
 {
@@ -40,24 +40,24 @@ public:
                              const Controller& controller);
 
   /** \brief Virtual function that returns controls of the shortest path from state1 to state2 */
-  virtual vector<Control> get_controls(const State& state1, const State& state2) const = 0;
+  virtual std::vector<Control> get_controls(const State& state1, const State& state2) const = 0;
 
   /** \brief Returns path from state1 to state2 */
-  vector<State> get_path(const State& state1, const State& state2) const;
+  std::vector<State> get_path(const State& state1, const State& state2) const;
 
   /** \brief Returns path including covariances from state1 to state2 */
-  vector<State_With_Covariance> get_path_with_covariance(const State_With_Covariance& state1,
-                                                         const State& state2) const;
+  std::vector<State_With_Covariance> get_path_with_covariance(const State_With_Covariance& state1,
+                                                              const State& state2) const;
 
   /** \brief Returns integrated states given a start state and controls */
-  vector<State> integrate(const State& state, const vector<Control>& controls) const;
+  std::vector<State> integrate(const State& state, const std::vector<Control>& controls) const;
 
   /** \brief Returns integrated states including covariance given a start state and controls */
-  vector<State_With_Covariance> integrate_with_covariance(const State_With_Covariance& state,
-                                                          const vector<Control>& controls) const;
+  std::vector<State_With_Covariance> integrate_with_covariance(const State_With_Covariance& state,
+                                                               const std::vector<Control>& controls) const;
 
   /** \brief Returns interpolated state at distance t in [0,1] (percentage of total path length) */
-  State interpolate(const State& state, const vector<Control>& controls, double t) const;
+  State interpolate(const State& state, const std::vector<Control>& controls, double t) const;
 
   /** \brief Returns integrated state given a start state, a control, and an integration step */
   inline State integrate_ODE(const State& state, const Control& control, double integration_step) const;
@@ -75,5 +75,7 @@ protected:
   /** \brief Extended Kalman Filter for uncertainty propagation */
   EKF ekf_;
 };
+
+} // namespace steering
 
 #endif

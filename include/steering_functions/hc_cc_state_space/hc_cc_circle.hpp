@@ -33,7 +33,8 @@
 #include "configuration.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
+namespace steering
+{
 
 class HC_CC_Circle_Param
 {
@@ -118,5 +119,7 @@ double center_distance(const HC_CC_Circle &c1, const HC_CC_Circle &c2);
 
 /** \brief Configuration on the circle? */
 bool configuration_on_hc_cc_circle(const HC_CC_Circle &c, const Configuration &q);
+
+} // namespace steering
 
 #endif

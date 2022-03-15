@@ -28,6 +28,11 @@
 #define HC_REGULAR false
 #define CC_REGULAR false
 
+using namespace std;
+
+namespace steering
+{
+
 class HC0pm_Reeds_Shepp_State_Space::HC0pm_Reeds_Shepp
 {
 private:
@@ -1879,3 +1884,5 @@ vector<Control> HC0pm_Reeds_Shepp_State_Space::get_controls(const State &state1,
   delete p;
   return hc_rs_controls;
 }
+
+} // namespace steering

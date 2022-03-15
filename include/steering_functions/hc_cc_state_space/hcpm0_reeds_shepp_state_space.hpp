@@ -38,8 +38,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of hybrid curvature (HC) steer with either positive
@@ -71,14 +71,14 @@ public:
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Pimpl Idiom: class that contains functions to compute the families  */
   class HCpm0_Reeds_Shepp;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<HCpm0_Reeds_Shepp> hcpm0_reeds_shepp_;
+  std::unique_ptr<HCpm0_Reeds_Shepp> hcpm0_reeds_shepp_;
 
   /** \brief Parameter of a rs-circle */
   HC_CC_Circle_Param rs_circle_param_;
@@ -89,5 +89,7 @@ private:
   /** \brief Angle between a configuration on the hc-/cc-circle and the tangent to the circle at that position */
   double mu_;
 };
+
+} // namespace steering
 
 #endif

@@ -24,14 +24,14 @@
 #include "steering_functions/hc_cc_state_space/paths.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
-
 #define EPS_DISTANCE 0.01    // [m]
 #define EPS_KAPPA 1e-6       // [1/m]
 #define EPS_SIGMA 1e-6       // [1/m^2]
 #define KAPPA 1.0            // [1/m]
 #define DISCRETIZATION 0.05  // [m]
+
+using namespace std;
+using namespace steering;
 
 class Test_HC_CC_State_Space : public HC_CC_State_Space
 {

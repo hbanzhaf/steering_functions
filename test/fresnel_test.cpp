@@ -20,6 +20,7 @@
 #include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
+using namespace steering;
 
 #define EPS_FRESNEL 1e-14
 

@@ -38,8 +38,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of continuous curvature (CC) steer for a Reeds-Shepp
@@ -71,14 +71,16 @@ public:
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Pimpl Idiom: class that contains functions to compute the families  */
   class CC00_Reeds_Shepp;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<CC00_Reeds_Shepp> cc00_reeds_shepp_;
+  std::unique_ptr<CC00_Reeds_Shepp> cc00_reeds_shepp_;
 };
+
+} // namespace steering
 
 #endif

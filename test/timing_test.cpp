@@ -37,9 +37,6 @@
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
 #include "steering_functions/steering_functions.hpp"
 
-using namespace std;
-using namespace steer;
-
 #define EPS_KAPPA 1e-3                   // [1/m]
 #define KAPPA 1.0                        // [1/m]
 #define SIGMA 1.0                        // [1/m^2]
@@ -59,6 +56,9 @@ using namespace steer;
 #define K2 0.25                          // [-]
 #define K3 1.0                           // [-]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
+
+using namespace std;
+using namespace steering;
 
 struct Statistic
 {

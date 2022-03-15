@@ -17,6 +17,11 @@
 
 #include "steering_functions/hc_cc_state_space/hc_cc_state_space.hpp"
 
+using namespace std;
+
+namespace steering
+{
+
 HC_CC_State_Space::HC_CC_State_Space(double kappa, double sigma, double discretization)
   : kappa_(kappa), sigma_(sigma), discretization_(discretization)
 {
@@ -300,3 +305,5 @@ inline State HC_CC_State_Space::integrate_ODE(const State &state, const Control 
   }
   return state_next;
 }
+
+} // namespace steering

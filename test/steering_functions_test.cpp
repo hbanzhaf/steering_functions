@@ -35,9 +35,6 @@
 #include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
 #include "steering_functions/steering_functions.hpp"
 
-using namespace std;
-using namespace steer;
-
 #define EPS_DISTANCE 0.01                // [m]
 #define EPS_YAW 0.01                     // [rad]
 #define EPS_KAPPA 1e-6                   // [1/m]
@@ -50,6 +47,9 @@ using namespace steer;
 #define OPERATING_REGION_THETA 2 * M_PI  // [rad]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
 #define random_boolean() rand() % 2
+
+using namespace std;
+using namespace steering;
 
 State get_random_state()
 {

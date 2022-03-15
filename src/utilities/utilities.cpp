@@ -25,6 +25,9 @@
 
 #include "steering_functions/utilities/utilities.hpp"
 
+namespace steering
+{
+
 double get_epsilon()
 {
   return epsilon;
@@ -239,3 +242,5 @@ void pointer_array_init(void *array[], int size)
     array[i] = nullptr;
   }
 }
+
+} // namespace steering

@@ -71,8 +71,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief An SE(2) state space where distance is measured by the
     length of Dubins curves.
@@ -107,7 +107,7 @@ public:
   public:
     /** \brief Constructor of the Dubins_Path */
     Dubins_Path(const Dubins_Path_Segment_Type *type = dubins_path_type[0], double t = 0.,
-                double p = numeric_limits<double>::max(), double q = 0.)
+                double p = std::numeric_limits<double>::max(), double q = 0.)
       : type_(type)
     {
       length_[0] = t;
@@ -152,24 +152,24 @@ public:
   double get_distance(const State &state1, const State &state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 with curvature = kappa_ */
-  vector<Control> get_controls(const State &state1, const State &state2) const;
+  std::vector<Control> get_controls(const State &state1, const State &state2) const;
 
   /** \brief Returns shortest path from state1 to state2 with curvature = kappa_ */
-  vector<State> get_path(const State &state1, const State &state2) const;
+  std::vector<State> get_path(const State &state1, const State &state2) const;
 
   /** \brief Returns shortest path including covariances from state1 to state2 with curvature = kappa_ */
-  vector<State_With_Covariance> get_path_with_covariance(const State_With_Covariance &state1,
-                                                         const State &state2) const;
+  std::vector<State_With_Covariance> get_path_with_covariance(const State_With_Covariance &state1,
+                                                              const State &state2) const;
 
   /** \brief Returns integrated states given a start state and controls with curvature = kappa_ */
-  vector<State> integrate(const State &state, const vector<Control> &controls) const;
+  std::vector<State> integrate(const State &state, const std::vector<Control> &controls) const;
 
   /** \brief Returns integrated states including covariance given a start state and controls with curvature = kappa_ */
-  vector<State_With_Covariance> integrate_with_covariance(const State_With_Covariance &state,
-                                                          const vector<Control> &controls) const;
+  std::vector<State_With_Covariance> integrate_with_covariance(const State_With_Covariance &state,
+                                                               const std::vector<Control> &controls) const;
 
   /** \brief Returns interpolated state at distance t in [0,1] (percent of total path length with curvature = kappa_) */
-  State interpolate(const State &state, const vector<Control> &controls, double t) const;
+  State interpolate(const State &state, const std::vector<Control> &controls, double t) const;
 
   /** \brief Returns integrated state given a start state, a control, and an integration step */
   inline State integrate_ODE(const State &state, const Control &control, double integration_step) const;
@@ -190,5 +190,7 @@ private:
   /** \brief Extended Kalman Filter for uncertainty propagation */
   EKF ekf_;
 };
+
+} // namespace steering
 
 #endif

@@ -17,6 +17,9 @@
 
 #include "steering_functions/filter/ekf.hpp"
 
+namespace steering
+{
+
 EKF::EKF()
 {
   I_ = Matrix3d::Identity();
@@ -250,3 +253,5 @@ void EKF::update(const State_With_Covariance &state_pred, State_With_Covariance 
   eigen_to_covariance(Lambda_corr, state_corr.Lambda);
   eigen_to_covariance(Sigma_corr + Lambda_corr, state_corr.covariance);
 }
+
+} // namespace steering

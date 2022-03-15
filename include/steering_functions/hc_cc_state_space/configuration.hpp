@@ -30,7 +30,8 @@
 
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
+namespace steering
+{
 
 class Configuration
 {
@@ -59,5 +60,7 @@ bool configuration_aligned(const Configuration &q1, const Configuration &q2);
 
 /** \brief Are two configurations equal? */
 bool configuration_equal(const Configuration &q1, const Configuration &q2);
+
+} // namespace steering
 
 #endif

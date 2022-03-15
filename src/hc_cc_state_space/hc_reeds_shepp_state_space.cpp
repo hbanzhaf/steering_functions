@@ -17,6 +17,11 @@
 
 #include "steering_functions/hc_cc_state_space/hc_reeds_shepp_state_space.hpp"
 
+using namespace std;
+
+namespace steering
+{
+
 HC_Reeds_Shepp_State_Space::HC_Reeds_Shepp_State_Space(double kappa, double sigma, double discretization)
   : HC_CC_State_Space(kappa, sigma, discretization)
   , hc00_reeds_shepp_state_space_(kappa, sigma, discretization)
@@ -204,3 +209,5 @@ vector<Control> HC_Reeds_Shepp_State_Space::get_controls(const State &state1, co
 
   return hc_rs_controls_distance_pairs[0].first;
 }
+
+} // namespace steering

@@ -25,6 +25,11 @@
 
 #include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
 
+using namespace std;
+
+namespace steering
+{
+
 class CC00_Dubins_State_Space::CC00_Dubins
 {
 private:
@@ -520,3 +525,5 @@ vector<Control> CC00_Dubins_State_Space::get_controls(const State &state1, const
   delete p;
   return cc_dubins_controls;
 }
+
+} // namespace steering

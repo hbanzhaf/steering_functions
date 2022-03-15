@@ -38,8 +38,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of continuous curvature (CC) steer for a Dubins car
@@ -66,7 +66,7 @@ public:
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Driving direction */
@@ -76,7 +76,7 @@ private:
   class CCpm0_Dubins;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<CCpm0_Dubins> ccpm0_dubins_;
+  std::unique_ptr<CCpm0_Dubins> ccpm0_dubins_;
 
   /** \brief Parameter of a rs-circle */
   HC_CC_Circle_Param rs_circle_param_;
@@ -87,5 +87,7 @@ private:
   /** \brief Angle between a configuration on the hc-/cc-circle and the tangent to the circle at that position */
   double mu_;
 };
+
+} // namespace steering
 
 #endif

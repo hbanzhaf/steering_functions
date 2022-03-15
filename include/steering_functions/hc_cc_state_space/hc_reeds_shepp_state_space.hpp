@@ -35,8 +35,8 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of hybrid curvature (HC) steer with arbitrary curvature at
@@ -49,13 +49,13 @@ public:
   HC_Reeds_Shepp_State_Space(double kappa, double sigma, double discretization = 0.1);
 
   /** \brief Predicts a state forwards and backwards to zero and max. curvature */
-  vector<pair<State, Control>> predict_state(const State& state) const;
+  std::vector<std::pair<State, Control>> predict_state(const State& state) const;
 
   /** \brief Returns shortest path length from state1 to state2 */
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Required state spaces */
@@ -64,5 +64,7 @@ private:
   HCpm0_Reeds_Shepp_State_Space hcpm0_reeds_shepp_state_space_;
   HCpmpm_Reeds_Shepp_State_Space hcpmpm_reeds_shepp_state_space_;
 };
+
+} // namespace steering
 
 #endif

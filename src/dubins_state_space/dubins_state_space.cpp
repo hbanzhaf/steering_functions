@@ -59,7 +59,12 @@
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
 
-namespace
+using namespace std;
+
+namespace steering
+{
+
+namespace /* helper */
 {
 const double DUBINS_EPS = 1e-6;
 const double DUBINS_ZERO = -1e-9;
@@ -208,7 +213,7 @@ Dubins_State_Space::Dubins_Path dubins(double d, double alpha, double beta)
     path = tmp;
   return path;
 }
-}
+} // namespace helper
 
 const Dubins_State_Space::Dubins_Path_Segment_Type Dubins_State_Space::dubins_path_type[6][3] = {
   { DUBINS_LEFT, DUBINS_STRAIGHT, DUBINS_LEFT },  { DUBINS_RIGHT, DUBINS_STRAIGHT, DUBINS_RIGHT },
@@ -220,7 +225,7 @@ Dubins_State_Space::Dubins_Path Dubins_State_Space::dubins(const State &state1, 
 {
   double dx = state2.x - state1.x, dy = state2.y - state1.y, th = atan2(dy, dx), d = sqrt(dx * dx + dy * dy) * kappa_;
   double alpha = twopify(state1.theta - th), beta = twopify(state2.theta - th);
-  return ::dubins(d, alpha, beta);
+  return steering::dubins(d, alpha, beta);
 }
 
 void Dubins_State_Space::set_filter_parameters(const Motion_Noise &motion_noise,
@@ -493,3 +498,5 @@ inline State Dubins_State_Space::integrate_ODE(const State &state, const Control
   }
   return state_next;
 }
+
+} // namespace steering

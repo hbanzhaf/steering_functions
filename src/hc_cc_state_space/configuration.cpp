@@ -25,6 +25,11 @@
 
 #include "steering_functions/hc_cc_state_space/configuration.hpp"
 
+using namespace std;
+
+namespace steering
+{
+
 Configuration::Configuration(double _x, double _y, double _theta, double _kappa)
 {
   x = _x;
@@ -65,3 +70,5 @@ bool configuration_equal(const Configuration &q1, const Configuration &q2)
     return false;
   return true;
 }
+
+} // namespace steering
