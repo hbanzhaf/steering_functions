@@ -23,9 +23,19 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cmath>
+#include <limits>
+
 #include "steering_functions/hc_cc_state_space/cc00_reeds_shepp_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/utilities/utilities.hpp"
 
 #define CC_REGULAR false
+
+using namespace std;
+
+namespace steering
+{
 
 class CC00_Reeds_Shepp_State_Space::CC00_Reeds_Shepp
 {
@@ -1771,3 +1781,5 @@ vector<Control> CC00_Reeds_Shepp_State_Space::get_controls(const State &state1, 
   delete p;
   return cc_rs_controls;
 }
+
+} // namespace steering

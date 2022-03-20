@@ -57,9 +57,17 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
 
-#include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
+#include <cmath>
 
-namespace
+#include "steering_functions/reeds_shepp_state_space/reeds_shepp_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+using namespace std;
+
+namespace steering
+{
+
+namespace /* helper */
 {
 // The comments, variable names, etc. use the nomenclature from the Reeds & Shepp paper.
 const double RS_EPS = 1e-6;
@@ -480,7 +488,7 @@ Reeds_Shepp_State_Space::Reeds_Shepp_Path reeds_shepp(double x, double y, double
   CCSCC(x, y, phi, path);
   return path;
 }
-}
+} // namespace helper
 
 const Reeds_Shepp_State_Space::Reeds_Shepp_Path_Segment_Type Reeds_Shepp_State_Space::reeds_shepp_path_type[18][5] = {
   { RS_LEFT, RS_RIGHT, RS_LEFT, RS_NOP, RS_NOP },         // 0
@@ -521,7 +529,7 @@ Reeds_Shepp_State_Space::Reeds_Shepp_Path Reeds_Shepp_State_Space::reeds_shepp(c
   double dx = state2.x - state1.x, dy = state2.y - state1.y, dth = state2.theta - state1.theta;
   double c = cos(state1.theta), s = sin(state1.theta);
   double x = c * dx + s * dy, y = -s * dx + c * dy;
-  return ::reeds_shepp(x * kappa_, y * kappa_, dth);
+  return steering::reeds_shepp(x * kappa_, y * kappa_, dth);
 }
 
 void Reeds_Shepp_State_Space::set_filter_parameters(const Motion_Noise &motion_noise,
@@ -783,3 +791,5 @@ inline State Reeds_Shepp_State_Space::integrate_ODE(const State &state, const Co
   }
   return state_next;
 }
+
+} // namespace steering

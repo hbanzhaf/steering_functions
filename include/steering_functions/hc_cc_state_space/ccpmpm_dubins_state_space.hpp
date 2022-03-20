@@ -26,20 +26,16 @@
 #ifndef CCPMPM_DUBINS_STATE_SPACE_HPP
 #define CCPMPM_DUBINS_STATE_SPACE_HPP
 
-#include <iostream>
-#include <limits>
 #include <memory>
 #include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
-#include "hc_cc_state_space.hpp"
-#include "paths.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/paths.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of continuous curvature (CC) steer for a Dubins car
@@ -67,7 +63,7 @@ public:
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Driving direction */
@@ -77,7 +73,7 @@ private:
   class CCpmpm_Dubins;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<CCpmpm_Dubins> ccpmpm_dubins_;
+  std::unique_ptr<CCpmpm_Dubins> ccpmpm_dubins_;
 
   /** \brief Parameter of a rs-circle */
   HC_CC_Circle_Param rs_circle_param_;
@@ -91,5 +87,7 @@ private:
   /** \brief Sine and cosine of mu */
   double sin_mu_, cos_mu_;
 };
+
+} // namespace steering
 
 #endif

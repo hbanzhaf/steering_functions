@@ -23,7 +23,16 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cmath>
+#include <iostream>
+
 #include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+using namespace std;
+
+namespace steering
+{
 
 Configuration::Configuration(double _x, double _y, double _theta, double _kappa)
 {
@@ -65,3 +74,5 @@ bool configuration_equal(const Configuration &q1, const Configuration &q2)
     return false;
   return true;
 }
+
+} // namespace steering

@@ -15,7 +15,16 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <algorithm>
+#include <cmath>
+
 #include "steering_functions/hc_cc_state_space/cc_dubins_state_space.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+using namespace std;
+
+namespace steering
+{
 
 CC_Dubins_State_Space::CC_Dubins_State_Space(double kappa, double sigma, double discretization, bool forwards)
   : HC_CC_State_Space(kappa, sigma, discretization)
@@ -210,3 +219,5 @@ vector<Control> CC_Dubins_State_Space::get_controls(const State &state1, const S
 
   return cc_dubins_controls_distance_pairs[0].first;
 }
+
+} // namespace steering

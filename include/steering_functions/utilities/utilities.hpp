@@ -26,13 +26,7 @@
 #ifndef UTILITIES_HPP
 #define UTILITIES_HPP
 
-#include <cassert>
-#include <cmath>
-#include <iostream>
-
 #include "fresnel.data"
-
-using namespace std;
 
 #define PI 3.1415926535897932384
 #define HALF_PI 1.5707963267948966192
@@ -40,6 +34,9 @@ using namespace std;
 #define SQRT_PI 1.7724538509055160273
 #define SQRT_PI_INV 0.56418958354775628695
 #define SQRT_TWO_PI_INV 0.39894228040143267794
+
+namespace steering
+{
 
 const double epsilon = 1e-4;
 
@@ -112,5 +109,7 @@ void double_array_init(double array[], int size, double value);
 
 /** \brief Initialize an array with nullptr */
 void pointer_array_init(void *array[], int size);
+
+} // namespace steering
 
 #endif

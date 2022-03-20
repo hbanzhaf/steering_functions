@@ -15,7 +15,13 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <cmath>
+
 #include "steering_functions/filter/ekf.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+namespace steering
+{
 
 EKF::EKF()
 {
@@ -250,3 +256,5 @@ void EKF::update(const State_With_Covariance &state_pred, State_With_Covariance 
   eigen_to_covariance(Lambda_corr, state_corr.Lambda);
   eigen_to_covariance(Sigma_corr + Lambda_corr, state_corr.covariance);
 }
+
+} // namespace steering

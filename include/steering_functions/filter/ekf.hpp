@@ -18,15 +18,12 @@
 #ifndef EKF_HPP
 #define EKF_HPP
 
-#include <iostream>
-
 #include <Eigen/Dense>
 
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 typedef Eigen::Matrix<double, 2, 2> Matrix2d;
 typedef Eigen::Matrix<double, 3, 3> Matrix3d;
@@ -92,5 +89,7 @@ private:
   /** \brief Identity matrix */
   Matrix3d I_;
 };
+
+} // namespace steering
 
 #endif

@@ -53,6 +53,7 @@
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
 
 using namespace std;
+using namespace steering;
 
 class PathClass
 {

@@ -23,7 +23,18 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cassert>
+#include <cmath>
+#include <iostream>
+#include <limits>
+
 #include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+using namespace std;
+
+namespace steering
+{
 
 void HC_CC_Circle_Param::set_param(double _kappa, double _sigma, double _radius, double _mu, double _sin_mu,
                                    double _cos_mu, double _delta_min)
@@ -325,3 +336,5 @@ bool configuration_on_hc_cc_circle(const HC_CC_Circle &c, const Configuration &q
   angle = twopify(angle);
   return fabs(q.theta - angle) < get_epsilon();
 }
+
+} // namespace steering

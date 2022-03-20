@@ -26,19 +26,15 @@
 #ifndef PATHS_HPP
 #define PATHS_HPP
 
-#include <cassert>
-#include <iostream>
-#include <limits>
-#include <vector>
 #include <numeric>
+#include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
+#include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 class Path
 {
@@ -161,26 +157,28 @@ void reverse_control(Control &control);
 Control subtract_control(const Control &control1, const Control &control2);
 
 /** \brief Appends controls with 0 input */
-void empty_controls(vector<Control> &controls);
+void empty_controls(std::vector<Control> &controls);
 
 /** \brief Appends controls with a straight line */
-void straight_controls(const Configuration &q1, const Configuration &q2, vector<Control> &controls);
+void straight_controls(const Configuration &q1, const Configuration &q2, std::vector<Control> &controls);
 
 /** \brief Appends controls with a rs-turn */
-void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls);
+void rs_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, std::vector<Control> &controls);
 
 /** \brief Appends controls with a hc-turn */
-void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls);
+void hc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, std::vector<Control> &controls);
 
 /** \brief Appends controls with an elementary path if one exists */
 bool cc_elementary_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
-                            vector<Control> &controls);
+                            std::vector<Control> &controls);
 
 /** \brief Appends controls with a default cc-turn consisting of two clothoids and a circular arc */
 void cc_default_controls(const HC_CC_Circle &c, const Configuration &q, double delta, bool order,
-                         vector<Control> &controls);
+                         std::vector<Control> &controls);
 
 /** \brief Appends controls with a cc-turn */
-void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, vector<Control> &controls);
+void cc_turn_controls(const HC_CC_Circle &c, const Configuration &q, bool order, std::vector<Control> &controls);
+
+} // namespace steering
 
 #endif

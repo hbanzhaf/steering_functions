@@ -23,7 +23,13 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cassert>
+#include <cmath>
+
 #include "steering_functions/utilities/utilities.hpp"
+
+namespace steering
+{
 
 double get_epsilon()
 {
@@ -239,3 +245,5 @@ void pointer_array_init(void *array[], int size)
     array[i] = nullptr;
   }
 }
+
+} // namespace steering

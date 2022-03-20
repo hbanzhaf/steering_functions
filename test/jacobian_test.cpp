@@ -23,9 +23,6 @@
 #include "steering_functions/steering_functions.hpp"
 #include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
-
 #define EPS_JACOBI 1e-4                  // [-]
 #define EPS_PERTURB 1e-7                 // [-]
 #define SAMPLES 1e6                      // [-]
@@ -37,6 +34,9 @@ using namespace steer;
 #define OPERATING_REGION_SIGMA 2.0       // [1/m^2]
 #define random(lower, upper) (rand() * (upper - lower) / RAND_MAX + lower)
 #define random_boolean() rand() % 2
+
+using namespace std;
+using namespace steering;
 
 typedef Eigen::Matrix<double, 2, 2> Matrix2d;
 typedef Eigen::Matrix<double, 3, 3> Matrix3d;

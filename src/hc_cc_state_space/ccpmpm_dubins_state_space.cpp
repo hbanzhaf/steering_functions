@@ -23,7 +23,17 @@
 *  directory of this source tree.
 **********************************************************************/
 
+#include <cmath>
+#include <limits>
+
 #include "steering_functions/hc_cc_state_space/ccpmpm_dubins_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/configuration.hpp"
+#include "steering_functions/utilities/utilities.hpp"
+
+using namespace std;
+
+namespace steering
+{
 
 class CCpmpm_Dubins_State_Space::CCpmpm_Dubins
 {
@@ -689,3 +699,5 @@ vector<Control> CCpmpm_Dubins_State_Space::get_controls(const State &state1, con
   delete p;
   return cc_dubins_controls;
 }
+
+} // namespace steering

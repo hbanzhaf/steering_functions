@@ -15,11 +15,13 @@
 *  limitations under the License.
 * *********************************************************************/
 
+#include <cmath>
 #include <gtest/gtest.h>
 
 #include "steering_functions/utilities/utilities.hpp"
 
 using namespace std;
+using namespace steering;
 
 #define EPS_FRESNEL 1e-14
 

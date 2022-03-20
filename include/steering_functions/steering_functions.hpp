@@ -20,8 +20,9 @@
 #ifndef STEERING_FUNCTIONS_HPP
 #define STEERING_FUNCTIONS_HPP
 
-namespace steer
+namespace steering
 {
+
 /** \brief Description of a kinematic car's state */
 struct State
 {
@@ -111,6 +112,7 @@ struct Controller
   /** \brief Weight on heading error */
   double k3;
 };
-}
+
+} // namespace steering
 
 #endif

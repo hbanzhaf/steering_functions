@@ -26,20 +26,16 @@
 #ifndef HC00_REEDS_SHEPP_STATE_SPACE_HPP
 #define HC00_REEDS_SHEPP_STATE_SPACE_HPP
 
-#include <iostream>
-#include <limits>
 #include <memory>
 #include <vector>
 
-#include "configuration.hpp"
-#include "hc_cc_circle.hpp"
-#include "hc_cc_state_space.hpp"
-#include "paths.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_circle.hpp"
+#include "steering_functions/hc_cc_state_space/hc_cc_state_space.hpp"
+#include "steering_functions/hc_cc_state_space/paths.hpp"
 #include "steering_functions/steering_functions.hpp"
-#include "steering_functions/utilities/utilities.hpp"
 
-using namespace std;
-using namespace steer;
+namespace steering
+{
 
 /** \brief
     An implementation of hybrid curvature (HC) steer with zero curvature at
@@ -70,17 +66,19 @@ public:
   double get_distance(const State& state1, const State& state2) const;
 
   /** \brief Returns controls of the shortest path from state1 to state2 */
-  vector<Control> get_controls(const State& state1, const State& state2) const;
+  std::vector<Control> get_controls(const State& state1, const State& state2) const;
 
 private:
   /** \brief Pimpl Idiom: class that contains functions to compute the families  */
   class HC00_Reeds_Shepp;
 
   /** \brief Pimpl Idiom: unique pointer on class with families  */
-  unique_ptr<HC00_Reeds_Shepp> hc00_reeds_shepp_;
+  std::unique_ptr<HC00_Reeds_Shepp> hc00_reeds_shepp_;
 
   /** \brief Parameter of a rs-circle */
   HC_CC_Circle_Param rs_circle_param_;
 };
+
+} // namespace steering
 
 #endif
