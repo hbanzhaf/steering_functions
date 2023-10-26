@@ -3,11 +3,8 @@ project(steering_functions)
 
 set(PROJECT_VERSION 0.1.1)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++11)
-
 option(BUILD_SHARED_LIBS "Build as shared library" OFF)
-option(BUILD_WITH_ROS "Buidl with ROS support" ON)
+option(BUILD_WITH_ROS "Build with ROS support" ON)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -28,7 +25,6 @@ if(BUILD_WITH_ROS)
     catkin_package(
         INCLUDE_DIRS include
         LIBRARIES steering_functions
-        #  CATKIN_DEPENDS other_catkin_pkg
         DEPENDS EIGEN3
     )
 endif()
@@ -104,8 +100,6 @@ if(BUILD_WITH_ROS)
 
     install(DIRECTORY include/${PROJECT_NAME}/
         DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-        #   FILES_MATCHING PATTERN "*.h"
-        #   PATTERN ".svn" EXCLUDE
     )
 
     install(DIRECTORY
