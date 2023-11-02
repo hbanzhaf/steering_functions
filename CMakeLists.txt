@@ -30,15 +30,14 @@ endif()
 
 ## Get all source files
 file(GLOB SRC_HC_CC_SS src/hc_cc_state_space/*.cpp)
-set(SRC_FILES
+
+add_library(${PROJECT_NAME}
     src/dubins_state_space/dubins_state_space.cpp
     src/reeds_shepp_state_space/reeds_shepp_state_space.cpp
     src/utilities/utilities.cpp
     src/filter/ekf.cpp
     ${SRC_HC_CC_SS}
 )
-
-add_library(${PROJECT_NAME} ${SRC_FILES})
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
@@ -78,17 +77,17 @@ install(
 )
 
 if(BUILD_WITH_ROS)
-    add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp ${SRC_FILES})
+    add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 
     target_link_libraries(${PROJECT_NAME}_node
         PRIVATE
+            steering_functions
             Eigen3::Eigen
             ${catkin_LIBRARIES}
     )
 
     target_include_directories(${PROJECT_NAME}_node
         PRIVATE
-            include
             ${catkin_INCLUDE_DIRS}
     )
 
