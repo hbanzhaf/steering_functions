@@ -85,7 +85,6 @@ To launch a demo of the package, execute
 
 To link this library with another [ROS] package, add these lines to your package's CMakeLists.txt
 
-    add_compile_options(-std=c++11)
     find_package(catkin REQUIRED COMPONENTS
       steering_functions
     )
