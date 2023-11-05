@@ -60,19 +60,19 @@ install(TARGETS ${PROJECT_NAME}
 )
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    ${PROJECT_NAME}ConfigVersion.cmake
+    ${PROJECT_NAME}-config-version.cmake
     COMPATIBILITY AnyNewerVersion
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(EXPORT ${PROJECT_NAME}Targets
-    FILE "${PROJECT_NAME}Targets.cmake"
+    FILE "${PROJECT_NAME}-targets.cmake"
     NAMESPACE steering_functions::
     DESTINATION "lib/cmake/${PROJECT_NAME}"
 )
 install(
     FILES
-        "${PROJECT_NAME}Config.cmake"
-        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+        "${PROJECT_NAME}-config.cmake"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
     DESTINATION "lib/cmake/${PROJECT_NAME}"
 )
 
@@ -106,7 +106,6 @@ if(BUILD_WITH_ROS)
         launch
         DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
     )
-
 
     if(CATKIN_ENABLE_TESTING)
         ## Add gtest based cpp test target and link libraries
