@@ -55,7 +55,7 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-## Installation & Usage
+## Installation & Usage as a ROS package
 
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
@@ -116,6 +116,38 @@ To run a single test, e.g. the timing test, execute
 
     cd catkin_ws/devel/lib/steering_functions
     ./timing_test
+
+
+## Installation & Usage as a C++ library (without ROS)
+
+### Dependencies
+This package depends on the linear algebra library [Eigen], which can be installed by
+
+    sudo apt-get install libeigen3-dev
+
+### Building
+
+To build this package from source, clone it and compile it in *Release* mode (and without ROS) according to
+
+    git clone https://github.com/hbanzhaf/steering_functions.git
+    cd steering_functions/
+    mkdir build && cd build/
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ROS=OFF
+    cmake --build . --parallel
+    cmake --install .
+
+A shared library version (libsteering_functions.so) can be built instead of the default static library (libsteering_function.a) by
+
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ROS=OFF -DBUILD_SHARED_LIBS=ON
+
+### Linking
+
+To link this library to another C++ library/executable, add these lines to your CMakeLists.txt
+
+    find_package(steering_functions CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME}
+      steering_functions::steering_functions
+    )
 
 
 ## Documentation
