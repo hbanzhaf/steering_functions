@@ -135,7 +135,7 @@ To build this package from source, clone it and compile it in *Release* mode (an
     cmake --build . --parallel
     cmake --install .
 
-A shared library version (libsteering_functions.so) can be built instead of the default static library (libsteering_function.a) by
+A shared library (libsteering_functions.so) can be built instead of the default static library (libsteering_functions.a) by
 
     cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ROS=OFF -DBUILD_SHARED_LIBS=ON
 
