@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(steering_functions)
 
-set(PROJECT_VERSION 0.1.1)
+set(PROJECT_VERSION 0.2.0)
 
 option(BUILD_WITH_ROS "Build with ROS support" ON)
 
