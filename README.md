@@ -117,7 +117,7 @@ To run a single test, e.g. the timing test, execute
     ./timing_test
 
 
-## Installation & Usage as a C++ library (without ROS)
+## Installation & Usage as a standalone library
 
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
@@ -126,7 +126,7 @@ This package depends on the linear algebra library [Eigen], which can be install
 
 ### Building
 
-To build this package from source, clone it and compile it in *Release* mode (and without ROS) according to
+To build this package from source, clone it and compile it in *Release* mode without ROS support according to
 
     git clone https://github.com/hbanzhaf/steering_functions.git
     cd steering_functions/
@@ -147,6 +147,10 @@ To link this library to another C++ library/executable, add these lines to your 
     target_link_libraries(${PROJECT_NAME}
       steering_functions::steering_functions
     )
+
+Now the steering functions can be used in your project by including the appropriate header, e.g.
+
+      #include <steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp>
 
 
 ## Documentation

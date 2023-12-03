@@ -6,7 +6,6 @@ set(PROJECT_VERSION 0.2.0)
 option(BUILD_WITH_ROS "Build with ROS support" ON)
 
 ## System dependencies are found with CMake's conventions
-# find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
 
 if(BUILD_WITH_ROS)
@@ -52,7 +51,7 @@ target_link_libraries(${PROJECT_NAME}
 
 include(GNUInstallDirs)
 install(TARGETS ${PROJECT_NAME}
-    EXPORT ${PROJECT_NAME}Targets
+    EXPORT ${PROJECT_NAME}-targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -64,7 +63,7 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
-install(EXPORT ${PROJECT_NAME}Targets
+install(EXPORT ${PROJECT_NAME}-targets
     FILE "${PROJECT_NAME}-targets.cmake"
     NAMESPACE steering_functions::
     DESTINATION "lib/cmake/${PROJECT_NAME}"
