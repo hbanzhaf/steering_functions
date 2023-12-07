@@ -150,7 +150,8 @@ To link this library to another C++ library/executable, add these lines to your 
 
 Now the steering functions can be used in your project by including the appropriate header, e.g.
 
-      #include <steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp>
+    #include <steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp>
+
 
 
 ## Documentation
