@@ -55,7 +55,7 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-## Installation & Usage
+## Installation & Usage as a ROS package
 
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
@@ -85,7 +85,6 @@ To launch a demo of the package, execute
 
 To link this library with another [ROS] package, add these lines to your package's CMakeLists.txt
 
-    add_compile_options(-std=c++11)
     find_package(catkin REQUIRED COMPONENTS
       steering_functions
     )
@@ -116,6 +115,43 @@ To run a single test, e.g. the timing test, execute
 
     cd catkin_ws/devel/lib/steering_functions
     ./timing_test
+
+
+## Installation & Usage as a standalone library
+
+### Dependencies
+This package depends on the linear algebra library [Eigen], which can be installed by
+
+    sudo apt-get install libeigen3-dev
+
+### Building
+
+To build this package from source, clone it and compile it in *Release* mode without ROS support according to
+
+    git clone https://github.com/hbanzhaf/steering_functions.git
+    cd steering_functions/
+    mkdir build && cd build/
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ROS=OFF
+    cmake --build . --parallel
+    cmake --install .
+
+A shared library (libsteering_functions.so) can be built instead of the default static library (libsteering_functions.a) by
+
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DBUILD_WITH_ROS=OFF -DBUILD_SHARED_LIBS=ON
+
+### Linking
+
+To link this library to another C++ library/executable, add these lines to your CMakeLists.txt
+
+    find_package(steering_functions CONFIG REQUIRED)
+    target_link_libraries(${PROJECT_NAME}
+      steering_functions::steering_functions
+    )
+
+Now the steering functions can be used in your project by including the appropriate header, e.g.
+
+    #include <steering_functions/hc_cc_state_space/hc00_reeds_shepp_state_space.hpp>
+
 
 
 ## Documentation
