@@ -194,7 +194,7 @@ bool HC_CC_Circle::cc_elementary_sharpness(const Configuration &q, double delta,
   double distance = point_distance(this->start.x, this->start.y, q.x, q.y);
   //   existence conditions for an elementary path (also see: A. Scheuer and T. Fraichard, "Continuous-Curvature Path
   //   Planning for Car-Like Vehicles," in IEEE/RSJ International Conference on Intelligent Robots and Systems, 1997.
-  if (delta < 4.5948 && distance > get_epsilon())
+  if (distance > get_epsilon())
   {
     sigma0 = 4 * PI * pow(this->D1(0.5 * delta), 2) / pow(distance, 2);
     if (!this->left)
