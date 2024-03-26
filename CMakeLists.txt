@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.8)
 project(steering_functions)
 
 set(PROJECT_VERSION 0.2.0)
@@ -7,24 +7,32 @@ option(BUILD_WITH_ROS "Build with ROS support" ON)
 
 ## System dependencies are found with CMake's conventions
 find_package(Eigen3 REQUIRED)
+message(STATUS "BUILD_WITH_ROS: ${BUILD_WITH_ROS}")
 
 if(BUILD_WITH_ROS)
-    find_package(catkin REQUIRED COMPONENTS
-        roscpp
-        geometry_msgs
-        nav_msgs
-        visualization_msgs
-        roslib
-        costmap_2d
-        tf
-        cmake_modules
-    )
+    set(ROS_VERSION $ENV{ROS_VERSION})
+    message(STATUS "ROS_VERSION: '${ROS_VERSION}'")
+    if(${ROS_VERSION} EQUAL 1)
+        find_package(catkin REQUIRED COMPONENTS
+            roscpp
+            geometry_msgs
+            nav_msgs
+            visualization_msgs
+            roslib
+            costmap_2d
+            tf
+            cmake_modules
+        )
 
-    catkin_package(
-        INCLUDE_DIRS include
-        LIBRARIES steering_functions
-        DEPENDS EIGEN3
-    )
+        catkin_package(
+            INCLUDE_DIRS include
+            LIBRARIES steering_functions
+            DEPENDS EIGEN3
+        )
+    elseif(${ROS_VERSION} EQUAL 2)
+        find_package(ament_cmake REQUIRED)
+        find_package(ament_cmake_ros REQUIRED)
+    endif()
 endif()
 
 ## Get all source files
@@ -66,76 +74,98 @@ install(DIRECTORY include/${PROJECT_NAME} DESTINATION include)
 install(EXPORT ${PROJECT_NAME}-targets
     FILE "${PROJECT_NAME}-targets.cmake"
     NAMESPACE steering_functions::
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    DESTINATION "share/${PROJECT_NAME}/cmake"
 )
 install(
     FILES
         "${PROJECT_NAME}-config.cmake"
         "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake"
-    DESTINATION "lib/cmake/${PROJECT_NAME}"
+    DESTINATION "share/${PROJECT_NAME}/cmake"
 )
 
 if(BUILD_WITH_ROS)
-    add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
+    if(${ROS_VERSION} EQUAL 1)
+        add_executable(${PROJECT_NAME}_node src/${PROJECT_NAME}_node.cpp)
 
-    target_link_libraries(${PROJECT_NAME}_node
-        PRIVATE
-            steering_functions
-            Eigen3::Eigen
-            ${catkin_LIBRARIES}
-    )
+        target_link_libraries(${PROJECT_NAME}_node
+            PRIVATE
+                steering_functions
+                Eigen3::Eigen
+                ${catkin_LIBRARIES}
+        )
 
-    target_include_directories(${PROJECT_NAME}_node
-        PRIVATE
-            ${catkin_INCLUDE_DIRS}
-    )
+        target_include_directories(${PROJECT_NAME}_node
+            PRIVATE
+                ${catkin_INCLUDE_DIRS}
+        )
 
-    install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
-        ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-    )
+        install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}_node
+            ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+            LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+            RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+        )
 
-    install(DIRECTORY include/${PROJECT_NAME}/
-        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
-    )
+        install(DIRECTORY include/${PROJECT_NAME}/
+            DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+        )
 
-    install(DIRECTORY
-        config
-        launch
-        DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-    )
+        install(DIRECTORY
+            config
+            launch
+            DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+        )
 
-    if(CATKIN_ENABLE_TESTING)
-        ## Add gtest based cpp test target and link libraries
-        catkin_add_gtest(steering_functions_test test/steering_functions_test.cpp)
-        if(TARGET steering_functions_test)
-            target_link_libraries(steering_functions_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-            target_include_directories(steering_functions_test PRIVATE ${catkin_INCLUDE_DIRS})
+        if(CATKIN_ENABLE_TESTING)
+            ## Add gtest based cpp test target and link libraries
+            catkin_add_gtest(steering_functions_test test/steering_functions_test.cpp)
+            if(TARGET steering_functions_test)
+                target_link_libraries(steering_functions_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+                target_include_directories(steering_functions_test PRIVATE ${catkin_INCLUDE_DIRS})
+            endif()
+
+            catkin_add_gtest(fresnel_test test/fresnel_test.cpp)
+            if(TARGET fresnel_test)
+                target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+                target_include_directories(fresnel_test PRIVATE ${catkin_INCLUDE_DIRS})
+            endif()
+
+            catkin_add_gtest(timing_test test/timing_test.cpp)
+            if(TARGET timing_test)
+                target_link_libraries(timing_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+                target_include_directories(timing_test PRIVATE ${catkin_INCLUDE_DIRS})
+            endif()
+
+            catkin_add_gtest(jacobian_test test/jacobian_test.cpp)
+            if(TARGET jacobian_test)
+                target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+                target_include_directories(jacobian_test PRIVATE ${catkin_INCLUDE_DIRS})
+            endif()
+
+            catkin_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
+            if(TARGET hc_cc_circle_test)
+                target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
+                target_include_directories(hc_cc_circle_test PRIVATE ${catkin_INCLUDE_DIRS})
+            endif()
+        endif()
+    elseif(${ROS_VERSION} EQUAL 2)
+        if(BUILD_TESTING)
+            find_package(ament_cmake_gtest)
+            ament_add_gtest(steering_functions_test test/steering_functions_test.cpp TIMEOUT 240)
+            target_link_libraries(steering_functions_test ${PROJECT_NAME})
+
+            ament_add_gtest(fresnel_test test/fresnel_test.cpp)
+            target_link_libraries(fresnel_test ${PROJECT_NAME})
+
+            # ament_add_gtest(timing_test test/timing_test.cpp)
+            # target_link_libraries(timing_test ${PROJECT_NAME})
+
+            ament_add_gtest(jacobian_test test/jacobian_test.cpp)
+            target_link_libraries(jacobian_test ${PROJECT_NAME})
+
+            ament_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
+            target_link_libraries(hc_cc_circle_test ${PROJECT_NAME})
         endif()
 
-        catkin_add_gtest(fresnel_test test/fresnel_test.cpp)
-        if(TARGET fresnel_test)
-            target_link_libraries(fresnel_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-            target_include_directories(fresnel_test PRIVATE ${catkin_INCLUDE_DIRS})
-        endif()
-
-        catkin_add_gtest(timing_test test/timing_test.cpp)
-        if(TARGET timing_test)
-            target_link_libraries(timing_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-            target_include_directories(timing_test PRIVATE ${catkin_INCLUDE_DIRS})
-        endif()
-
-        catkin_add_gtest(jacobian_test test/jacobian_test.cpp)
-        if(TARGET jacobian_test)
-            target_link_libraries(jacobian_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-            target_include_directories(jacobian_test PRIVATE ${catkin_INCLUDE_DIRS})
-        endif()
-
-        catkin_add_gtest(hc_cc_circle_test test/hc_cc_circle_test.cpp)
-        if(TARGET hc_cc_circle_test)
-            target_link_libraries(hc_cc_circle_test ${catkin_LIBRARIES} ${PROJECT_NAME})
-            target_include_directories(hc_cc_circle_test PRIVATE ${catkin_INCLUDE_DIRS})
-        endif()
+        ament_package()
     endif()
 endif()
