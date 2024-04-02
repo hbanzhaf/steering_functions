@@ -10,6 +10,7 @@ find_package(Eigen3 REQUIRED)
 message(STATUS "BUILD_WITH_ROS: ${BUILD_WITH_ROS}")
 
 if(BUILD_WITH_ROS)
+    find_package(ros_environment REQUIRED)
     set(ROS_VERSION $ENV{ROS_VERSION})
     message(STATUS "ROS_VERSION: '${ROS_VERSION}'")
     if(${ROS_VERSION} EQUAL 1)
