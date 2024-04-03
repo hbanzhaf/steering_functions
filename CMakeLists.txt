@@ -167,6 +167,6 @@ if(BUILD_WITH_ROS)
             target_link_libraries(hc_cc_circle_test ${PROJECT_NAME})
         endif()
 
-        ament_package()
+        # This package manages it's own package-config.cmake file, so its build_type is cmake and we don't call ament_package()
     endif()
 endif()
