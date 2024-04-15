@@ -55,33 +55,33 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-## Installation & Usage as a [ROS2] package
+## Installation & Usage as a [ROS 2] package
 
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
 
     sudo apt-get install libeigen3-dev
 
-The [ROS2] dependencies are listed in the package.xml and can be installed by
+The [ROS 2] dependencies are listed in the package.xml and can be installed by
 
     rosdep install steering_functions
 
 
 ### Building
 
-To build this package from source, clone it into your workspace and compile it in *Release* mode according to
+To build this package from source, clone it into your workspace and compile it in *Release* mode with the following commands. This will also build all tests.
 
     cd ros2_ws/src
     git clone https://github.com/hbanzhaf/steering_functions.git
     cd ..
     colcon build --packages-up-to steering_functions --cmake-args -DCMAKE_BUILD_TYPE=Release
 
-Note: the demo node is not yet ported to [ROS2], only the library functions are available.
+Note that the demo node is not yet ported to [ROS 2], only the library functions are available.
 
 
 ### Linking
 
-To link this library with another [ROS2] package, add these lines to your package's CMakeLists.txt
+To link this library with another [ROS 2] package, add these lines to your package's CMakeLists.txt
 
     find_package(steering_functions REQUIRED)
 
@@ -98,6 +98,8 @@ Now the steering functions can be used in your package by including the appropri
 
 ### Testing
 
+To run the tests from this package, run the following commands:
+
     colcon test --packages-up-to steering_functions
     colcon test-result --test-result-base build/steering_functions/
 
@@ -106,14 +108,14 @@ To run a single test, e.g. the fresnel test, execute
     ./build/steering_functions/fresnel_test
 
 
-## Installation & Usage as a ROS1 package
+## Installation & Usage as a ROS 1 package
 
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
 
     sudo apt-get install libeigen3-dev
 
-The [ROS1] dependencies are listed in the package.xml and can be installed by
+The [ROS 1] dependencies are listed in the package.xml and can be installed by
 
     rosdep install steering_functions
 
@@ -134,7 +136,7 @@ To launch a demo of the package, execute
 
 ### Linking
 
-To link this library with another [ROS1] package, add these lines to your package's CMakeLists.txt
+To link this library with another [ROS 1] package, add these lines to your package's CMakeLists.txt
 
     find_package(catkin REQUIRED COMPONENTS
       steering_functions
@@ -257,7 +259,7 @@ In order to use the continuous and hybrid curvature state spaces along with [OMP
 Please use the [Issue Tracker](https://github.com/hbanzhaf/steering_functions/issues) to report bugs or request features.
 
 [ROS]: http://www.ros.org
-[ROS2]: https://docs.ros.org/en/rolling/
+[ROS 2]: https://docs.ros.org/en/rolling/
 [RViz]: http://wiki.ros.org/rviz
 [OMPL]: http://ompl.kavrakilab.org/
 [Eigen]: http://eigen.tuxfamily.org/

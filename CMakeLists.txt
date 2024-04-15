@@ -157,6 +157,7 @@ if(BUILD_WITH_ROS)
             ament_add_gtest(fresnel_test test/fresnel_test.cpp)
             target_link_libraries(fresnel_test ${PROJECT_NAME})
 
+            # TODO: also port this unit test
             # ament_add_gtest(timing_test test/timing_test.cpp)
             # target_link_libraries(timing_test ${PROJECT_NAME})
 
