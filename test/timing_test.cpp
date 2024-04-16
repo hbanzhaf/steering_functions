@@ -20,7 +20,11 @@
 #include <fstream>
 #include <iostream>
 
-#include <ros/package.h>
+#if ROS_VERSION != 2
+#include <ros/file_log.h>
+#elif ROS_VERSION == 2
+#include <rclcpp/rclcpp.hpp>
+#endif
 
 #include "steering_functions/dubins_state_space/dubins_state_space.hpp"
 #include "steering_functions/hc_cc_state_space/cc00_dubins_state_space.hpp"
@@ -110,12 +114,24 @@ int get_curv_discont(const vector<Control>& controls)
   return curv_discont;
 }
 
+#if ROS_VERSION != 2
+std::string get_logging_directory() {
+  return ros::file_log::getLogDirectory();
+}
+#elif ROS_VERSION == 2
+std::string get_logging_directory() {
+  return rclcpp::get_logging_directory().string();
+}
+#endif
+
 void write_to_file(const string& id, const vector<Statistic>& stats)
 {
-  string path_to_output = ros::package::getPath("steering_functions") + "/test/" + id + "_stats.csv";
+  auto path_to_output = get_logging_directory() + "/test_steering_functions_" + id + "_stats.csv";
+  std::cout << "writing stats to: " << path_to_output << std::endl;
   remove(path_to_output.c_str());
   string header = "start,goal,computation_time,path_length";
   fstream f;
+  f.exceptions(std::ios::failbit | std::ios::badbit);
   f.open(path_to_output, ios::app);
   f << header << endl;
   for (const auto& stat : stats)

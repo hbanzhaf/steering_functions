@@ -24,6 +24,8 @@
   <depend condition="$ROS_VERSION == 1">visualization_msgs</depend>
   <depend>eigen</depend>
 
+  <test_depend condition="$ROS_VERSION == 2">rclcpp</test_depend>
+
   <export>
     <build_type>cmake</build_type>
   </export>

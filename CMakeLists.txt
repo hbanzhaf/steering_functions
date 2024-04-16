@@ -13,6 +13,7 @@ if(BUILD_WITH_ROS)
     find_package(ros_environment REQUIRED)
     set(ROS_VERSION $ENV{ROS_VERSION})
     message(STATUS "ROS_VERSION: '${ROS_VERSION}'")
+    add_compile_definitions(ROS_VERSION=${ROS_VERSION})
     if(${ROS_VERSION} EQUAL 1)
         find_package(catkin REQUIRED COMPONENTS
             roscpp
@@ -151,15 +152,16 @@ if(BUILD_WITH_ROS)
     elseif(${ROS_VERSION} EQUAL 2)
         if(BUILD_TESTING)
             find_package(ament_cmake_gtest)
+            find_package(rclcpp REQUIRED)
+
             ament_add_gtest(steering_functions_test test/steering_functions_test.cpp TIMEOUT 240)
             target_link_libraries(steering_functions_test ${PROJECT_NAME})
 
             ament_add_gtest(fresnel_test test/fresnel_test.cpp)
             target_link_libraries(fresnel_test ${PROJECT_NAME})
 
-            # TODO: also port this unit test
-            # ament_add_gtest(timing_test test/timing_test.cpp)
-            # target_link_libraries(timing_test ${PROJECT_NAME})
+            ament_add_gtest(timing_test test/timing_test.cpp)
+            target_link_libraries(timing_test ${PROJECT_NAME} rclcpp::rclcpp)
 
             ament_add_gtest(jacobian_test test/jacobian_test.cpp)
             target_link_libraries(jacobian_test ${PROJECT_NAME})
