@@ -14,7 +14,7 @@ CC-Reeds-Shepp              | forwards **and** backwards | G<sup>2</sup> | path 
 
 [![Steering Functions for Car-Like Robots](https://img.youtube.com/vi/YCT8ycMk6f8/0.jpg)](http://www.youtube.com/watch?v=YCT8ycMk6f8)
 
-The package contains a [RViz] visualization, which has been tested with [ROS] Kinetic under Ubuntu 16.04.
+The package contains a [RViz] visualization, which has been tested with [ROS 1] Kinetic under Ubuntu 16.04.
 
 A video of the steering functions integrated into the general motion planner Bidirectional RRT* can be found [here](https://youtu.be/RlZZ4jnEhTM).
 
@@ -55,17 +55,17 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-## Installation & Usage as a [ROS 2] package
-
-### Dependencies
+## Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
 
     sudo apt-get install libeigen3-dev
 
-The [ROS 2] dependencies are listed in the package.xml and can be installed by
+If you are using ROS, you can automatically install all dependencies that are listed in the `package.xml` with
 
     rosdep install steering_functions
 
+
+## Installation & Usage as a [ROS 2] package
 
 ### Building
 
@@ -108,17 +108,7 @@ To run a single test, e.g. the fresnel test, execute
     ./build/steering_functions/fresnel_test
 
 
-## Installation & Usage as a ROS 1 package
-
-### Dependencies
-This package depends on the linear algebra library [Eigen], which can be installed by
-
-    sudo apt-get install libeigen3-dev
-
-The [ROS 1] dependencies are listed in the package.xml and can be installed by
-
-    rosdep install steering_functions
-
+## Installation & Usage as a [ROS 1] package
 
 ### Building
 
@@ -171,11 +161,6 @@ To run a single test, e.g. the timing test, execute
 
 
 ## Installation & Usage as a standalone library
-
-### Dependencies
-This package depends on the linear algebra library [Eigen], which can be installed by
-
-    sudo apt-get install libeigen3-dev
 
 ### Building
 
@@ -258,7 +243,7 @@ In order to use the continuous and hybrid curvature state spaces along with [OMP
 ## Bugs & Feature Requests
 Please use the [Issue Tracker](https://github.com/hbanzhaf/steering_functions/issues) to report bugs or request features.
 
-[ROS]: http://www.ros.org
+[ROS 1]: http://www.ros.org
 [ROS 2]: https://docs.ros.org/en/rolling/
 [RViz]: http://wiki.ros.org/rviz
 [OMPL]: http://ompl.kavrakilab.org/

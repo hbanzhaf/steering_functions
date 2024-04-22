@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 project(steering_functions)
 
-set(PROJECT_VERSION 0.2.0)
+set(PROJECT_VERSION 0.2.1)
 
 option(BUILD_WITH_ROS "Build with ROS support" ON)
 
@@ -170,6 +170,6 @@ if(BUILD_WITH_ROS)
             target_link_libraries(hc_cc_circle_test ${PROJECT_NAME})
         endif()
 
-        # This package manages it's own package-config.cmake file, so its build_type is cmake and we don't call ament_package()
+        ## This package manages it's own package-config.cmake file, so its build_type is cmake and we don't call ament_package()
     endif()
 endif()
