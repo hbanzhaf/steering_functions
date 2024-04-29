@@ -14,7 +14,7 @@ CC-Reeds-Shepp              | forwards **and** backwards | G<sup>2</sup> | path 
 
 [![Steering Functions for Car-Like Robots](https://img.youtube.com/vi/YCT8ycMk6f8/0.jpg)](http://www.youtube.com/watch?v=YCT8ycMk6f8)
 
-The package contains a [RViz] visualization, which has been tested with [ROS] Kinetic under Ubuntu 16.04.
+The package contains a [RViz] visualization, which has been tested with [ROS 1] Kinetic under Ubuntu 16.04.
 
 A video of the steering functions integrated into the general motion planner Bidirectional RRT* can be found [here](https://youtu.be/RlZZ4jnEhTM).
 
@@ -55,50 +55,47 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-## Installation & Usage as a ROS package
-
 ### Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
 
     sudo apt-get install libeigen3-dev
 
-The [ROS] dependencies are listed in the package.xml and can be installed by
+The [ROS 1] or [ROS 2] dependencies are listed in the package.xml and can be installed by
 
     rosdep install steering_functions
 
 
 ### Building
 
-To build this package from source, clone it into your catkin workspace and compile it in *Release* mode according to
+To build this package from source, clone it into your workspace and compile it in *Release* mode according to
 
-    cd catkin_ws/src
+    cd ws/src
     git clone https://github.com/hbanzhaf/steering_functions.git
-    catkin build steering_functions -DCMAKE_BUILD_TYPE=Release
+    catkin build steering_functions -DCMAKE_BUILD_TYPE=Release  # [ROS 1]
+    colcon build --packages-up-to steering_functions --cmake-args -DCMAKE_BUILD_TYPE=Release  # [ROS 1] or [ROS 2]
 
-To launch a demo of the package, execute
+To launch a [ROS 1] demo of the package, execute
 
-    source catkin_ws/devel/setup.bash
+    source ws/devel/setup.bash
     roslaunch steering_functions steering_functions.launch
 
 
 ### Linking
 
-To link this library with another [ROS] package, add these lines to your package's CMakeLists.txt
+Add this package as dependency to your package's `package.xml`
 
-    find_package(catkin REQUIRED COMPONENTS
-      steering_functions
-    )
-    include_directories(
-      ${catkin_INCLUDE_DIRS}
-    )
-    target_link_libraries(${PROJECT_NAME}_node
-      ${catkin_LIBRARIES}
-    )
+    <depend>steering_functions</depend>
 
-and the following lines to your package's package.xml
+To link this library with another [ROS 1] package, add these lines to your package's CMakeLists.txt
 
-    <build_depend>steering_functions</build_depend>
-    <run_depend>steering_functions</run_depend>
+    find_package(catkin REQUIRED COMPONENTS steering_functions)
+    include_directories(${catkin_INCLUDE_DIRS})
+    target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
+
+Or [ROS 2]:
+
+    find_package(steering_functions REQUIRED)
+    target_link_libraries(your_target steering_functions::steering_functions)
 
 Now the steering functions can be used in your package by including the appropriate header, e.g.
 
@@ -107,13 +104,13 @@ Now the steering functions can be used in your package by including the appropri
 
 ### Testing
 
-To build the unit tests, exectue
+To build the [ROS 1] unit tests, execute
 
     catkin build steering_functions -DCMAKE_BUILD_TYPE=Release --make-args tests
 
 To run a single test, e.g. the timing test, execute
 
-    cd catkin_ws/devel/lib/steering_functions
+    cd ws/devel/lib/steering_functions
     ./timing_test
 
 
@@ -205,7 +202,8 @@ In order to use the continuous and hybrid curvature state spaces along with [OMP
 ## Bugs & Feature Requests
 Please use the [Issue Tracker](https://github.com/hbanzhaf/steering_functions/issues) to report bugs or request features.
 
-[ROS]: http://www.ros.org
+[ROS 1]: http://www.ros.org
+[ROS 2]: https://docs.ros.org/en/rolling/
 [RViz]: http://wiki.ros.org/rviz
 [OMPL]: http://ompl.kavrakilab.org/
 [Eigen]: http://eigen.tuxfamily.org/
