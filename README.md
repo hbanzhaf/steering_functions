@@ -55,7 +55,7 @@ The source code in this package is released under the Apache-2.0 License. For fu
 The [3rdparty-licenses.txt](3rd-party-licenses.txt) contains a list of other open source components included in this package.
 
 
-### Dependencies
+## Dependencies
 This package depends on the linear algebra library [Eigen], which can be installed by
 
     sudo apt-get install libeigen3-dev
@@ -64,19 +64,20 @@ The [ROS 1] or [ROS 2] dependencies are listed in the package.xml and can be ins
 
     rosdep install steering_functions
 
+## Installation & Usage as a [ROS 1] or [ROS 2] package
 
 ### Building
 
 To build this package from source, clone it into your workspace and compile it in *Release* mode according to
 
-    cd ws/src
+    cd my_ws/src
     git clone https://github.com/hbanzhaf/steering_functions.git
     catkin build steering_functions -DCMAKE_BUILD_TYPE=Release  # [ROS 1]
     colcon build --packages-up-to steering_functions --cmake-args -DCMAKE_BUILD_TYPE=Release  # [ROS 1] or [ROS 2]
 
 To launch a [ROS 1] demo of the package, execute
 
-    source ws/devel/setup.bash
+    source my_ws/devel/setup.bash
     roslaunch steering_functions steering_functions.launch
 
 
@@ -92,7 +93,7 @@ To link this library with another [ROS 1] package, add these lines to your packa
     include_directories(${catkin_INCLUDE_DIRS})
     target_link_libraries(${PROJECT_NAME}_node ${catkin_LIBRARIES})
 
-Or [ROS 2]:
+Or for [ROS 2]:
 
     find_package(steering_functions REQUIRED)
     target_link_libraries(your_target steering_functions::steering_functions)
@@ -110,7 +111,7 @@ To build the [ROS 1] unit tests, execute
 
 To run a single test, e.g. the timing test, execute
 
-    cd ws/devel/lib/steering_functions
+    cd my_ws/devel/lib/steering_functions
     ./timing_test
 
 

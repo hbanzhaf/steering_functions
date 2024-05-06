@@ -14,8 +14,9 @@
 
   <build_depend>ros_environment</build_depend>
 
-  <depend condition="$ROS_VERSION == 1">costmap_2d</depend>
   <depend>eigen</depend>
+
+  <depend condition="$ROS_VERSION == 1">costmap_2d</depend>
   <depend condition="$ROS_VERSION == 1">geometry_msgs</depend>
   <depend condition="$ROS_VERSION == 1">nav_msgs</depend>
   <depend condition="$ROS_VERSION == 1">roscpp</depend>

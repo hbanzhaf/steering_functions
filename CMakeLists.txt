@@ -3,11 +3,11 @@ project(steering_functions)
 
 set(PROJECT_VERSION 0.3.0)
 
-# Build with ros by default only if ROS1 is detected
+# Build with ROS 1 by default, if it is available
 if($ENV{ROS_VERSION} EQUAL 1)
-    option(BUILD_WITH_ROS "Build with ROS support" ON)
+    option(BUILD_WITH_ROS "Build with ROS 1 support" ON)
 else()
-    option(BUILD_WITH_ROS "Build with ROS support" OFF)
+    option(BUILD_WITH_ROS "Build with ROS 1 support" OFF)
 endif()
 
 ## System dependencies are found with CMake's conventions
