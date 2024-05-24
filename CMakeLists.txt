@@ -3,7 +3,7 @@ project(steering_functions)
 
 set(PROJECT_VERSION 0.3.0)
 
-# Build with ROS 1 by default, if it is available
+## Build with ROS 1 by default, if it is available
 if($ENV{ROS_VERSION} EQUAL 1)
     option(BUILD_WITH_ROS "Build with ROS 1 support" ON)
 else()

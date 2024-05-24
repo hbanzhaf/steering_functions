@@ -72,8 +72,8 @@ To build this package from source, clone it into your workspace and compile it i
 
     cd my_ws/src
     git clone https://github.com/hbanzhaf/steering_functions.git
-    catkin build steering_functions -DCMAKE_BUILD_TYPE=Release  # [ROS 1]
-    colcon build --packages-up-to steering_functions --cmake-args -DCMAKE_BUILD_TYPE=Release  # [ROS 1] or [ROS 2]
+    catkin build steering_functions -DCMAKE_BUILD_TYPE=Release  # ROS 1
+    colcon build --packages-up-to steering_functions --cmake-args -DCMAKE_BUILD_TYPE=Release  # ROS 1 or ROS 2
 
 To launch a [ROS 1] demo of the package, execute
 
@@ -83,7 +83,7 @@ To launch a [ROS 1] demo of the package, execute
 
 ### Linking
 
-Add this package as dependency to your package's `package.xml`
+Add this package as dependency to your package.xml
 
     <depend>steering_functions</depend>
 
